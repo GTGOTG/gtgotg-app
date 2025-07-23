@@ -25,7 +25,7 @@ class GTGOTGApp {
           <div class="header-content">
             <div class="logo">
               <div class="logo-icon">GT</div>
-              <span>GTGOTG</span>
+              <h1 class="logo-text">GTGOTG</h1>          </div>
             </div>
             <div class="search-container">
               <input 
