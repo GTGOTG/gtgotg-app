@@ -167,7 +167,7 @@ class GTGOTGApp {
       const response = await fetch(url);
       const data = await response.json();
       
-      this.businesses = data.businesses || [];
+      this.businesses = data.results || [];
       this.filteredBusinesses = [...this.businesses];
       this.currentLocation = location;
       
@@ -226,7 +226,7 @@ class GTGOTGApp {
       const response = await fetch(url);
       const data = await response.json();
       
-      this.businesses = data.businesses || [];
+      this.businesses = data.results || [];
       this.filteredBusinesses = [...this.businesses];
       this.currentLocation = 'Near You';
       
