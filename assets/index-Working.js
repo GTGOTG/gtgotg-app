@@ -105,10 +105,10 @@ class GTGOTGApp {
         categoriesContainer.innerHTML = categories.map(category => `
           <button 
             class="category-button" 
-            data-category="${category.toLowerCase()}"
-            onclick="app.toggleCategory('${category.toLowerCase()}')"
+            data-category="${category.name.toLowerCase()}"
+            onclick="app.toggleCategory('${category.name.toLowerCase()}')"
           >
-            ${category}
+            ${category.name}
           </button>
         `).join('');
       } else {
@@ -118,10 +118,10 @@ class GTGOTGApp {
           categoriesContainer.innerHTML = fallbackCategories.map(category => `
             <button 
               class="category-button" 
-              data-category="${category.toLowerCase()}"
-              onclick="app.toggleCategory('${category.toLowerCase()}')"
+              data-category="${category.name.toLowerCase()}"
+              onclick="app.toggleCategory('${category.name.toLowerCase()}')"
             >
-              ${category}
+              ${category.name}
             </button>
           `).join('');
         }
@@ -135,10 +135,10 @@ class GTGOTGApp {
         categoriesContainer.innerHTML = fallbackCategories.map(category => `
           <button 
             class="category-button" 
-            data-category="${category.toLowerCase()}"
-            onclick="app.toggleCategory('${category.toLowerCase()}')"
+            data-category="${category.name.toLowerCase()}"
+            onclick="app.toggleCategory('${category.name.toLowerCase()}')"
           >
-            ${category}
+            ${category.name}
           </button>
         `).join('');
       }
@@ -240,7 +240,7 @@ class GTGOTGApp {
   }
 
   toggleCategory(category) {
-    const button = document.querySelector(`[data-category="${category}"]`);
+    const button = document.querySelector(`[data-category="${category.name}"]`);
     
     if (this.selectedCategories.includes(category)) {
       this.selectedCategories = this.selectedCategories.filter(c => c !== category);
@@ -259,7 +259,7 @@ class GTGOTGApp {
     } else {
       this.filteredBusinesses = this.businesses.filter(business => 
         this.selectedCategories.some(category => 
-          business.category.toLowerCase().includes(category) ||
+          business.category.name.toLowerCase().includes(category) ||
           business.subcategory?.toLowerCase().includes(category)
         )
       );
