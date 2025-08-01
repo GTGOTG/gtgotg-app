@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="GTGOTG - Got To Go On The Go. Every Restroom, Everywhere. When you got to go on the go! Find safe and clean public restrooms with ratings, reviews, and safety information.">
+    <title>GTGOTG - Every Restroom, Everywhere | Got To Go On The Go</title>
+    <link rel="stylesheet" href="/assets/gtgotg-clean.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header Section -->
+        <header class="app-header">
+            <div class="logo-section">
+                <img src="/assets/gtgotg_logo_primary.png" alt="GTGOTG Logo" class="app-logo">
+                <div class="tagline-section">
+                    <h1>Every Restroom, Everywhere</h1>
+                    <h2>"Got To Go On The Go"</h2>
+                    <p>Your one-stop app to find clean, safe bathrooms when you're away from home. Discover verified restrooms with real reviews, safety ratings, and detailed amenities information.</p>
+                </div>
+            </div>
+            
+            <div class="feature-badges">
+                <span class="feature-badge">⭐ Real Reviews</span>
+                <span class="feature-badge">📍 Nationwide Coverage</span>
+                <span class="feature-badge">🔒 Safety Ratings</span>
+                <span class="feature-badge">♿ ADA Compliance</span>
+                <span class="feature-badge">📸 Photo Verified</span>
+            </div>
+
+            <div class="action-buttons">
+                <button class="action-btn login-btn" data-action="login">🔑 Login</button>
+                <button class="action-btn signup-btn" data-action="signup">✨ Sign Up</button>
+                <button class="action-btn business-btn" data-action="business">🏢 Business Owner?</button>
+            </div>
+        </header>
+
+        <!-- Search Section -->
+        <section class="search-section">
+            <h3>Where are you looking for a restroom?</h3>
+            <div class="search-container">
+                <input type="text" id="searchInput" placeholder="Search by city, state, zip code, or 'near me'..." />
+                <button id="searchBtn" class="search-btn">🔍 Search</button>
+            </div>
+            
+            <div class="location-permission-section">
+                <p>Looking for the closest restroom?</p>
+                <button id="locationBtn" class="location-btn">📍 Find Restrooms Near Me</button>
+                <p class="location-note">We'll ask for your location permission to show nearby restrooms</p>
+            </div>
+        </section>
+
+        <!-- Category Filter Section -->
+        <section class="category-section">
+            <h3>What type of business are you looking for?</h3>
+            <div class="category-filters">
+                <button class="category-btn" data-category="gas_station">⛽ Gas Station</button>
+                <button class="category-btn" data-category="restaurant">🍽️ Restaurant</button>
+                <button class="category-btn" data-category="coffee_shop">☕ Coffee Shop</button>
+                <button class="category-btn" data-category="retail_store">🏪 Retail Store</button>
+                <button class="category-btn" data-category="hotel">🏢 Hotel</button>
+                <button class="category-btn" data-category="hospital">🏥 Hospital</button>
+                <button class="category-btn" data-category="rest_park">🌳 Rest Park</button>
+            </div>
+        </section>
+
+        <!-- Results Section -->
+        <section class="results-section">
+            <h3>Restroom Locations</h3>
+            <div id="resultsContainer" class="results-container">
+                <div class="loading-message">
+                    <p>Searching for restrooms...</p>
+                    <div class="loading-spinner"></div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Modals will be inserted here by JavaScript -->
+    
+    <script src="/assets/gtgotg-clean.js"></script>
+</body>
+</html>
+
