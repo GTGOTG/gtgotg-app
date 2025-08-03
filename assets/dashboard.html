@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GTGOTG Admin Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: #ffffff;
+            min-height: 100vh;
+        }
+
+        .admin-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .admin-header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 2rem;
+            background: rgba(139, 92, 246, 0.1);
+            border-radius: 16px;
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+
+        .admin-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .admin-header p {
+            color: #a78bfa;
+            font-size: 1.1rem;
+        }
+
+        .login-section {
+            max-width: 400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 2rem;
+            border-radius: 16px;
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+
+        .dashboard-section {
+            display: none;
+        }
+
+        .dashboard-nav {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .nav-btn:hover, .nav-btn.active {
+            background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+            transform: translateY(-2px);
+        }
+
+        .dashboard-content {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 2rem;
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid rgba(139, 92, 246, 0.2);
+        }
+
+        .stat-card h3 {
+            color: #a78bfa;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-card .value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #ffffff;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #a78bfa;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            font-size: 1rem;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #8b5cf6;
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        }
+
+        .btn-danger:hover {
+            box-shadow: 0 6px 16px rgba(239, 68, 68, 0.4);
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(139, 92, 246, 0.2);
+        }
+
+        .data-table th {
+            background: rgba(139, 92, 246, 0.1);
+            color: #a78bfa;
+            font-weight: 600;
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .status-verified {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+        }
+
+        .status-pending {
+            background: rgba(245, 158, 11, 0.2);
+            color: #f59e0b;
+        }
+
+        .status-unrated {
+            background: rgba(107, 114, 128, 0.2);
+            color: #9ca3af;
+        }
+
+        .export-section {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: rgba(16, 185, 129, 0.1);
+            border-radius: 12px;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .export-section h3 {
+            color: #10b981;
+            margin-bottom: 1rem;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #a78bfa;
+        }
+
+        .error {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .admin-container {
+                padding: 1rem;
+            }
+            
+            .dashboard-nav {
+                flex-direction: column;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <div class="admin-header">
+            <h1>🏢 GTGOTG Admin Dashboard</h1>
+            <p>Complete management and analytics for "Got To Go On The Go"</p>
+        </div>
+
+        <!-- Login Section -->
+        <div id="loginSection" class="login-section">
+            <h2 style="text-align: center; margin-bottom: 2rem; color: #a78bfa;">Admin Login</h2>
+            <div id="loginError" class="error" style="display: none;"></div>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <button type="submit" class="btn">Login to Dashboard</button>
+            </form>
+            <div style="margin-top: 1rem; text-align: center; color: #9ca3af; font-size: 0.9rem;">
+                <p>Default credentials: admin / gtgotg2025!</p>
+            </div>
+        </div>
+
+        <!-- Dashboard Section -->
+        <div id="dashboardSection" class="dashboard-section">
+            <div class="dashboard-nav">
+                <button class="nav-btn active" data-section="overview">📊 Overview</button>
+                <button class="nav-btn" data-section="users">👥 Users</button>
+                <button class="nav-btn" data-section="businesses">🏢 Businesses</button>
+                <button class="nav-btn" data-section="analytics">📈 Analytics</button>
+                <button class="nav-btn" data-section="export">📋 Export Data</button>
+                <button class="nav-btn btn-danger" id="logoutBtn">🚪 Logout</button>
+            </div>
+
+            <div class="dashboard-content">
+                <!-- Overview Section -->
+                <div id="overviewContent" class="content-section">
+                    <h2 style="margin-bottom: 2rem; color: #a78bfa;">📊 Dashboard Overview</h2>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <h3>Total Users</h3>
+                            <div class="value" id="totalUsers">-</div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Total Businesses</h3>
+                            <div class="value" id="totalBusinesses">-</div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Total Reviews</h3>
+                            <div class="value" id="totalReviews">-</div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Monthly Revenue</h3>
+                            <div class="value" id="monthlyRevenue">-</div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Active Users (30d)</h3>
+                            <div class="value" id="activeUsers">-</div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Growth Rate</h3>
+                            <div class="value" id="growthRate">-</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Users Section -->
+                <div id="usersContent" class="content-section" style="display: none;">
+                    <h2 style="margin-bottom: 2rem; color: #a78bfa;">👥 User Management</h2>
+                    <div id="usersTable"></div>
+                </div>
+
+                <!-- Businesses Section -->
+                <div id="businessesContent" class="content-section" style="display: none;">
+                    <h2 style="margin-bottom: 2rem; color: #a78bfa;">🏢 Business Management</h2>
+                    <div id="businessesTable"></div>
+                </div>
+
+                <!-- Analytics Section -->
+                <div id="analyticsContent" class="content-section" style="display: none;">
+                    <h2 style="margin-bottom: 2rem; color: #a78bfa;">📈 Advanced Analytics</h2>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <h3>Advertising Revenue</h3>
+                            <div class="value" id="adRevenue">-</div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Subscription Revenue</h3>
+                            <div class="value" id="subRevenue">-</div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>User Retention</h3>
+                            <div class="value" id="userRetention">-</div>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Avg Rating</h3>
+                            <div class="value" id="avgRating">-</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Export Section -->
+                <div id="exportContent" class="content-section" style="display: none;">
+                    <h2 style="margin-bottom: 2rem; color: #a78bfa;">📋 Export Data for Sale</h2>
+                    <div class="export-section">
+                        <h3>💰 Business Valuation Data</h3>
+                        <p style="margin-bottom: 1rem; color: #d1d5db;">Export comprehensive analytics and metrics for potential buyers or investors.</p>
+                        <button class="btn" id="exportBtn">📊 Generate Export Report</button>
+                        <div id="exportResult" style="margin-top: 1rem;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class GTGOTGAdmin {
+            constructor() {
+                this.token = localStorage.getItem('gtgotg_admin_token');
+                this.init();
+            }
+
+            init() {
+                this.setupEventListeners();
+                if (this.token) {
+                    this.verifyToken();
+                }
+            }
+
+            setupEventListeners() {
+                // Login form
+                document.getElementById('loginForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.login();
+                });
+
+                // Navigation
+                document.querySelectorAll('.nav-btn[data-section]').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        this.showSection(e.target.dataset.section);
+                    });
+                });
+
+                // Logout
+                document.getElementById('logoutBtn').addEventListener('click', () => {
+                    this.logout();
+                });
+
+                // Export
+                document.getElementById('exportBtn').addEventListener('click', () => {
+                    this.exportData();
+                });
+            }
+
+            async login() {
+                const username = document.getElementById('username').value;
+                const password = document.getElementById('password').value;
+                const errorDiv = document.getElementById('loginError');
+
+                try {
+                    const response = await fetch('/admin/login', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ username, password })
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        this.token = result.token;
+                        localStorage.setItem('gtgotg_admin_token', this.token);
+                        this.showDashboard();
+                        this.loadDashboardData();
+                    } else {
+                        errorDiv.textContent = result.message || 'Login failed';
+                        errorDiv.style.display = 'block';
+                    }
+                } catch (error) {
+                    errorDiv.textContent = 'Login error: ' + error.message;
+                    errorDiv.style.display = 'block';
+                }
+            }
+
+            async verifyToken() {
+                try {
+                    const response = await fetch('/admin/verify', {
+                        headers: {
+                            'Authorization': `Bearer ${this.token}`
+                        }
+                    });
+
+                    if (response.ok) {
+                        this.showDashboard();
+                        this.loadDashboardData();
+                    } else {
+                        this.logout();
+                    }
+                } catch (error) {
+                    this.logout();
+                }
+            }
+
+            logout() {
+                localStorage.removeItem('gtgotg_admin_token');
+                this.token = null;
+                document.getElementById('loginSection').style.display = 'block';
+                document.getElementById('dashboardSection').style.display = 'none';
+            }
+
+            showDashboard() {
+                document.getElementById('loginSection').style.display = 'none';
+                document.getElementById('dashboardSection').style.display = 'block';
+            }
+
+            showSection(section) {
+                // Update nav buttons
+                document.querySelectorAll('.nav-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                document.querySelector(`[data-section="${section}"]`).classList.add('active');
+
+                // Show content
+                document.querySelectorAll('.content-section').forEach(content => {
+                    content.style.display = 'none';
+                });
+                document.getElementById(`${section}Content`).style.display = 'block';
+
+                // Load section-specific data
+                if (section === 'users') {
+                    this.loadUsers();
+                } else if (section === 'businesses') {
+                    this.loadBusinesses();
+                }
+            }
+
+            async loadDashboardData() {
+                try {
+                    const response = await fetch('/admin/dashboard/stats', {
+                        headers: {
+                            'Authorization': `Bearer ${this.token}`
+                        }
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        this.updateDashboardStats(data);
+                    }
+                } catch (error) {
+                    console.error('Error loading dashboard data:', error);
+                }
+            }
+
+            updateDashboardStats(data) {
+                // Overview stats
+                document.getElementById('totalUsers').textContent = data.overview.total_users.toLocaleString();
+                document.getElementById('totalBusinesses').textContent = data.overview.total_businesses.toLocaleString();
+                document.getElementById('totalReviews').textContent = data.overview.total_reviews.toLocaleString();
+                document.getElementById('monthlyRevenue').textContent = '$' + data.revenue.monthly_revenue.toLocaleString();
+                document.getElementById('activeUsers').textContent = data.overview.active_users_30d.toLocaleString();
+                document.getElementById('growthRate').textContent = data.revenue.growth_rate + '%';
+
+                // Analytics stats
+                document.getElementById('adRevenue').textContent = '$' + data.revenue.advertising_revenue.toLocaleString();
+                document.getElementById('subRevenue').textContent = '$' + data.revenue.subscription_revenue.toLocaleString();
+                document.getElementById('userRetention').textContent = data.engagement.user_retention + '%';
+                document.getElementById('avgRating').textContent = data.engagement.avg_rating + '/5';
+            }
+
+            async loadUsers() {
+                try {
+                    const response = await fetch('/admin/users', {
+                        headers: {
+                            'Authorization': `Bearer ${this.token}`
+                        }
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        this.renderUsersTable(data.users);
+                    }
+                } catch (error) {
+                    console.error('Error loading users:', error);
+                }
+            }
+
+            renderUsersTable(users) {
+                const tableHtml = `
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Username</th>
+                                <th>Email</th>
+                                <th>Badge</th>
+                                <th>Reviews</th>
+                                <th>Status</th>
+                                <th>Last Active</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${users.map(user => `
+                                <tr>
+                                    <td>${user.username}</td>
+                                    <td>${user.email}</td>
+                                    <td><span class="status-badge status-verified">${user.badge}</span></td>
+                                    <td>${user.reviews_count}</td>
+                                    <td><span class="status-badge status-${user.status}">${user.status}</span></td>
+                                    <td>${user.last_active}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+                document.getElementById('usersTable').innerHTML = tableHtml;
+            }
+
+            async loadBusinesses() {
+                try {
+                    const response = await fetch('/admin/businesses', {
+                        headers: {
+                            'Authorization': `Bearer ${this.token}`
+                        }
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        this.renderBusinessesTable(data.businesses);
+                    }
+                } catch (error) {
+                    console.error('Error loading businesses:', error);
+                }
+            }
+
+            renderBusinessesTable(businesses) {
+                const tableHtml = `
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Business Name</th>
+                                <th>Address</th>
+                                <th>Type</th>
+                                <th>Status</th>
+                                <th>Reviews</th>
+                                <th>Rating</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${businesses.map(business => `
+                                <tr>
+                                    <td>${business.name}</td>
+                                    <td>${business.address}</td>
+                                    <td>${business.type}</td>
+                                    <td><span class="status-badge status-${business.status}">${business.status}</span></td>
+                                    <td>${business.reviews_count}</td>
+                                    <td>${business.avg_rating}/5</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+                document.getElementById('businessesTable').innerHTML = tableHtml;
+            }
+
+            async exportData() {
+                const exportBtn = document.getElementById('exportBtn');
+                const exportResult = document.getElementById('exportResult');
+                
+                exportBtn.textContent = '⏳ Generating Report...';
+                exportBtn.disabled = true;
+
+                try {
+                    const response = await fetch('/admin/analytics/export', {
+                        headers: {
+                            'Authorization': `Bearer ${this.token}`
+                        }
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        
+                        // Create downloadable JSON file
+                        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `gtgotg-business-analytics-${new Date().toISOString().split('T')[0]}.json`;
+                        a.click();
+                        URL.revokeObjectURL(url);
+
+                        exportResult.innerHTML = `
+                            <div style="background: rgba(16, 185, 129, 0.1); padding: 1rem; border-radius: 8px; color: #10b981;">
+                                ✅ Export completed successfully!<br>
+                                📊 Annual Run Rate: $${data.financial_metrics.annual_run_rate.toLocaleString()}<br>
+                                👥 Total Users: ${data.business_overview.total_users.toLocaleString()}<br>
+                                🏢 Total Businesses: ${data.business_overview.total_businesses.toLocaleString()}<br>
+                                📈 Growth Rate: ${data.financial_metrics.revenue_growth_rate}%
+                            </div>
+                        `;
+                    }
+                } catch (error) {
+                    exportResult.innerHTML = `
+                        <div style="background: rgba(239, 68, 68, 0.1); padding: 1rem; border-radius: 8px; color: #ef4444;">
+                            ❌ Export failed: ${error.message}
+                        </div>
+                    `;
+                } finally {
+                    exportBtn.textContent = '📊 Generate Export Report';
+                    exportBtn.disabled = false;
+                }
+            }
+        }
+
+        // Initialize admin dashboard
+        const gtgotgAdmin = new GTGOTGAdmin();
+    </script>
+</body>
+</html>
+
