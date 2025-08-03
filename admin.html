@@ -30,13 +30,13 @@
             margin-bottom: 40px;
         }
         
-        .login-form {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 30px;
-            border-radius: 15px;
-            max-width: 400px;
-            margin: 0 auto;
-            backdrop-filter: blur(10px);
+       if (username === 'admin' && password === 'gtgotg2025!') {
+    document.getElementById('loginSection').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+} else {
+    alert('Invalid credentials. Please try: admin / gtgotg2025!');
+}
+
         }
         
         .form-group {
