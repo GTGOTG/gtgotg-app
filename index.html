@@ -123,6 +123,77 @@
                             </button>
                         </div>
                     </div>
+    <!-- Admin Panel Modal -->
+    <div id="adminModal" class="modal">
+        <div class="modal-content modal-fullscreen">
+            <div class="modal-header">
+                <h3>GTGOTG Admin Panel</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="admin-tabs">
+                    <button class="admin-tab active" data-tab="overview">Overview</button>
+                    <button class="admin-tab" data-tab="businesses">Businesses</button>
+                    <button class="admin-tab" data-tab="users">Users</button>
+                    <button class="admin-tab" data-tab="reviews">Reviews</button>
+                </div>
+
+                <!-- Overview Tab -->
+                <div id="overviewTab" class="admin-content active">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <h5>Total Businesses</h5>
+                            <div class="stat-number" id="totalBusinesses">5</div>
+                        </div>
+                        <div class="stat-card">
+                            <h5>Total Users</h5>
+                            <div class="stat-number" id="totalUsers">12</div>
+                        </div>
+                        <div class="stat-card">
+                            <h5>Total Reviews</h5>
+                            <div class="stat-number" id="totalReviews">28</div>
+                        </div>
+                        <div class="stat-card">
+                            <h5>Average Rating</h5>
+                            <div class="stat-number" id="averageRating">8.2</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Businesses Tab -->
+                <div id="businessesTab" class="admin-content">
+                    <div class="admin-actions">
+                        <button class="btn btn-primary">Add New Business</button>
+                        <button class="btn btn-secondary">Export Data</button>
+                    </div>
+                    <div class="admin-table">
+                        <p>Business management tools will be displayed here.</p>
+                    </div>
+                </div>
+
+                <!-- Users Tab -->
+                <div id="usersTab" class="admin-content">
+                    <div class="admin-actions">
+                        <button class="btn btn-secondary">Export Users</button>
+                    </div>
+                    <div class="admin-table">
+                        <p>User management tools will be displayed here.</p>
+                    </div>
+                </div>
+
+                <!-- Reviews Tab -->
+                <div id="reviewsTab" class="admin-content">
+                    <div class="admin-actions">
+                        <button class="btn btn-secondary">Export Reviews</button>
+                        <button class="btn btn-warning">Moderate Content</button>
+                    </div>
+                    <div class="admin-table">
+                        <p>Review management tools will be displayed here.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
                     <!-- Wheelchair Accessibility -->
                     <div class="form-section">
