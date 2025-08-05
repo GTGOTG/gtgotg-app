@@ -94,6 +94,106 @@
             </div>
         </div>
     </div>
+    <!-- Review Modal -->
+    <div id="reviewModal" class="modal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h3>Write a Review</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="reviewForm">
+                    <input type="hidden" id="reviewBusinessId">
+                    
+                    <!-- Bathroom Type Selection -->
+                    <div class="form-section">
+                        <h4>Which restroom did you use?</h4>
+                        <div class="bathroom-types">
+                            <button type="button" class="bathroom-type-btn" data-type="mens">
+                                <span class="bathroom-icon">🚹</span>
+                                <span class="bathroom-label">Men's</span>
+                            </button>
+                            <button type="button" class="bathroom-type-btn" data-type="womens">
+                                <span class="bathroom-icon">🚺</span>
+                                <span class="bathroom-label">Women's</span>
+                            </button>
+                            <button type="button" class="bathroom-type-btn" data-type="neutral">
+                                <span class="bathroom-icon">🚻</span>
+                                <span class="bathroom-label">Neutral</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Wheelchair Accessibility -->
+                    <div class="form-section">
+                        <h4>Accessibility</h4>
+                        <button type="button" class="wheelchair-btn" data-accessible="false">
+                            <span class="wheelchair-icon">♿</span>
+                            <span class="wheelchair-label">Wheelchair Accessible</span>
+                        </button>
+                    </div>
+
+                    <!-- 1-10 Star Rating System -->
+                    <div class="form-section">
+                        <h4>Rate Your Experience (1-10 Stars)</h4>
+                        
+                        <div class="rating-category">
+                            <label>Overall Rating</label>
+                            <div class="star-rating" data-rating="overall">
+                                <span class="star" data-value="1">★</span>
+                                <span class="star" data-value="2">★</span>
+                                <span class="star" data-value="3">★</span>
+                                <span class="star" data-value="4">★</span>
+                                <span class="star" data-value="5">★</span>
+                                <span class="star" data-value="6">★</span>
+                                <span class="star" data-value="7">★</span>
+                                <span class="star" data-value="8">★</span>
+                                <span class="star" data-value="9">★</span>
+                                <span class="star" data-value="10">★</span>
+                            </div>
+                        </div>
+
+                        <div class="rating-category">
+                            <label>Cleanliness</label>
+                            <div class="star-rating" data-rating="cleanliness">
+                                <span class="star" data-value="1">★</span>
+                                <span class="star" data-value="2">★</span>
+                                <span class="star" data-value="3">★</span>
+                                <span class="star" data-value="4">★</span>
+                                <span class="star" data-value="5">★</span>
+                                <span class="star" data-value="6">★</span>
+                                <span class="star" data-value="7">★</span>
+                                <span class="star" data-value="8">★</span>
+                                <span class="star" data-value="9">★</span>
+                                <span class="star" data-value="10">★</span>
+                            </div>
+                        </div>
+
+                        <div class="rating-category">
+                            <label>Safety</label>
+                            <div class="star-rating" data-rating="safety">
+                                <span class="star" data-value="1">★</span>
+                                <span class="star" data-value="2">★</span>
+                                <span class="star" data-value="3">★</span>
+                                <span class="star" data-value="4">★</span>
+                                <span class="star" data-value="5">★</span>
+                                <span class="star" data-value="6">★</span>
+                                <span class="star" data-value="7">★</span>
+                                <span class="star" data-value="8">★</span>
+                                <span class="star" data-value="9">★</span>
+                                <span class="star" data-value="10">★</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary modal-close">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Submit Review</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 
     <!-- Signup Modal -->
     <div id="signupModal" class="modal">
