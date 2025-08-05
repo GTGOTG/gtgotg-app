@@ -465,7 +465,375 @@ const ui = {
     resetReviewModal: () => {
         // Reset ratings
         AppState.ratings = { overall: 0, cleanliness: 0, safety: 0, accessibility: 0 };
-        AppState.selectedBathroom = { type: n
-(Content truncated due to size limit. Use page ranges or line ranges to read remaining content)
+        AppState.selectedBathroom = { type: null, wheelchair: false };
+        
+        // Reset star displays
+        document.querySelectorAll('.star-rating .star').forEach(star => {
+            star.classList.remove('active');
+        });
+        
+        // Reset rating displays
+        document.querySelectorAll('.rating-display').forEach(display => {
+            display.textContent = '0/10';
+        });
+        
+        // Reset bathroom type selection
+        document.querySelectorAll('.bathroom-type-btn').forEach(btn => {
+            btn.classList.remove('selected');
+        });
+        
+        // Reset wheelchair selection
+        document.getElementById('wheelchairBtn').classList.remove('selected');
+        
+        // Reset amenities
+        document.querySelectorAll('input[name="amenities"]').forEach(cb => {
+            cb.checked = false;
+        });
+    },
+    
+    setupStarRatings: () => {
+        document.querySelectorAll('.star-rating').forEach(ratingContainer => {
+            const ratingType = ratingContainer.getAttribute('data-rating');
+            const stars = ratingContainer.querySelectorAll('.star');
+            
+            stars.forEach((star, index) => {
+                star.addEventListener('click', () => {
+                    const rating = index + 1;
+                    AppState.ratings[ratingType] = rating;
+                    
+                    // Update visual state
+                    stars.forEach((s, i) => {
+                        s.classList.toggle('active', i < rating);
+                    });
+                    
+                    // Update rating display
+                    const displayId = ratingType + 'RatingDisplay';
+                    const display = document.getElementById(displayId);
+                    if (display) {
+                        display.textContent = `${rating}/10`;
+                    }
+                });
+                
+                star.addEventListener('mouseenter', () => {
+                    const rating = index + 1;
+                    stars.forEach((s, i) => {
+                        s.style.color = i < rating ? '#F59E0B' : '#D1D5DB';
+                    });
+                });
+                
+                star.addEventListener('mouseleave', () => {
+                    const currentRating = AppState.ratings[ratingType];
+                    stars.forEach((s, i) => {
+                        s.style.color = i < currentRating ? '#F59E0B' : '#D1D5DB';
+                    });
+                });
+            });
+        });
+    },
+    
+    setupBathroomTypeSelection: () => {
+        document.querySelectorAll('.bathroom-type-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Remove selection from all buttons
+                document.querySelectorAll('.bathroom-type-btn').forEach(b => b.classList.remove('selected'));
+                
+                // Add selection to clicked button
+                btn.classList.add('selected');
+                AppState.selectedBathroom.type = btn.getAttribute('data-type');
+            });
+        });
+        
+        document.getElementById('wheelchairBtn').addEventListener('click', (e) => {
+            e.target.classList.toggle('selected');
+            AppState.selectedBathroom.wheelchair = e.target.classList.contains('selected');
+        });
+    },
+    
+    applyFilter: (category) => {
+        AppState.currentFilter = category;
+        AppState.filteredBusinesses = businessManager.getBusinesses(category);
+        ui.renderBusinesses();
+        
+        // Update filter button states
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.getAttribute('data-category') === category);
+        });
+        
+        // Update dropdown
+        const dropdown = document.getElementById('categoryFilter');
+        if (dropdown) {
+            dropdown.value = category;
+        }
+    }
+};
 
+// Event Handlers
+const eventHandlers = {
+    setupAuthForms: () => {
+        // Login form
+        document.getElementById('loginForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            const result = auth.login(username, password);
+            
+            if (result.success) {
+                ui.closeModal('loginModal');
+                ui.updateUserStatus();
+                utils.showNotification(`Welcome back, ${result.user.firstName}!`);
+            } else {
+                utils.showNotification(result.message, 'error');
+            }
+        });
+        
+        // Signup form
+        document.getElementById('signupForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const firstName = utils.sanitizeInput(document.getElementById('signupFirstName').value);
+            const lastName = utils.sanitizeInput(document.getElementById('signupLastName').value);
+            const username = utils.sanitizeInput(document.getElementById('signupUsername').value);
+            const email = document.getElementById('signupEmail').value;
+            const password = document.getElementById('signupPassword').value;
+            const city = utils.sanitizeInput(document.getElementById('signupCity').value);
+            
+            // Validation
+            if (!firstName || !lastName || !username || !email || !password) {
+                utils.showNotification('Please fill in all required fields.', 'error');
+                return;
+            }
+            
+            if (!utils.validateEmail(email)) {
+                utils.showNotification('Please enter a valid email address.', 'error');
+                return;
+            }
+            
+            if (password.length < 6) {
+                utils.showNotification('Password must be at least 6 characters long.', 'error');
+                return;
+            }
+            
+            const result = auth.register({
+                firstName,
+                lastName,
+                username,
+                email,
+                password,
+                city
+            });
+            
+            if (result.success) {
+                ui.closeModal('signupModal');
+                ui.updateUserStatus();
+                utils.showNotification(`Welcome to GTGOTG, ${result.user.firstName}!`);
+            } else {
+                utils.showNotification(result.message, 'error');
+            }
+        });
+        
+        // Review form
+        document.getElementById('reviewForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const businessId = e.target.getAttribute('data-business-id');
+            const comment = utils.sanitizeInput(document.getElementById('reviewComment').value);
+            const user = auth.getCurrentUser();
+            
+            // Check if comment is provided but user is not logged in
+            if (comment && !user) {
+                utils.showNotification('Please log in to leave a comment.', 'warning');
+                return;
+            }
+            
+            // Validate ratings
+            if (AppState.ratings.overall === 0) {
+                utils.showNotification('Please provide an overall rating.', 'error');
+                return;
+            }
+            
+            // Collect amenities
+            const amenities = Array.from(document.querySelectorAll('input[name="amenities"]:checked'))
+                .map(cb => cb.value);
+            
+            const reviewData = {
+                ratings: { ...AppState.ratings },
+                bathroomType: AppState.selectedBathroom.type,
+                wheelchairAccessible: AppState.selectedBathroom.wheelchair,
+                amenities: amenities,
+                comment: comment || null
+            };
+            
+            const result = reviewSystem.submitReview(businessId, reviewData);
+            
+            if (result.success) {
+                ui.closeModal('reviewModal');
+                ui.updateUserStatus(); // Update badge if user is logged in
+                utils.showNotification('Thank you for your review! It helps others find great restrooms.');
+            } else {
+                utils.showNotification('Failed to submit review. Please try again.', 'error');
+            }
+        });
+    },
+    
+    setupSearch: () => {
+        const searchInput = document.getElementById('searchInput');
+        const searchBtn = document.getElementById('searchBtn');
+        
+        const performSearch = () => {
+            const query = searchInput.value.trim();
+            if (query) {
+                const results = businessManager.searchBusinesses(query);
+                ui.renderBusinesses(results);
+            } else {
+                ui.renderBusinesses(AppState.filteredBusinesses);
+            }
+        };
+        
+        searchBtn.addEventListener('click', performSearch);
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                performSearch();
+            }
+        });
+    },
+    
+    setupFilters: () => {
+        // Dropdown filter
+        document.getElementById('categoryFilter').addEventListener('change', (e) => {
+            ui.applyFilter(e.target.value);
+        });
+        
+        // Quick filter buttons
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const category = btn.getAttribute('data-category');
+                ui.applyFilter(category);
+            });
+        });
+    },
+    
+    setupModals: () => {
+        // Modal close buttons
+        document.querySelectorAll('.close').forEach(closeBtn => {
+            closeBtn.addEventListener('click', (e) => {
+                const modalId = e.target.getAttribute('data-modal');
+                ui.closeModal(modalId);
+            });
+        });
+        
+        // Modal background clicks
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    ui.closeModal(modal.id);
+                }
+            });
+        });
+        
+        // Header buttons
+        document.getElementById('loginBtn').addEventListener('click', () => {
+            ui.openModal('loginModal');
+        });
+        
+        document.getElementById('signupBtn').addEventListener('click', () => {
+            ui.openModal('signupModal');
+        });
+        
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            auth.logout();
+            ui.updateUserStatus();
+            utils.showNotification('You have been logged out.');
+        });
+        
+        // Notification close
+        document.getElementById('notificationClose').addEventListener('click', () => {
+            document.getElementById('notification').style.display = 'none';
+        });
+    }
+};
 
+// Progressive Web App Features
+const pwa = {
+    registerServiceWorker: () => {
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then((registration) => {
+                        console.log('SW registered: ', registration);
+                    })
+                    .catch((registrationError) => {
+                        console.log('SW registration failed: ', registrationError);
+                    });
+            });
+        }
+    },
+    
+    setupInstallPrompt: () => {
+        let deferredPrompt;
+        
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            
+            // Show install button or notification
+            utils.showNotification('Install GTGOTG for quick access to restroom information!');
+        });
+        
+        window.addEventListener('appinstalled', () => {
+            utils.showNotification('GTGOTG has been installed successfully!');
+            deferredPrompt = null;
+        });
+    }
+};
+
+// Application Initialization
+const app = {
+    init: () => {
+        console.log('🚽 GTGOTG - Got To Go On The Go - Initializing...');
+        
+        // Initialize application state
+        AppState.businesses = sampleBusinesses;
+        AppState.filteredBusinesses = sampleBusinesses;
+        
+        // Setup UI components
+        ui.renderBusinesses();
+        ui.updateUserStatus();
+        ui.setupStarRatings();
+        ui.setupBathroomTypeSelection();
+        
+        // Setup event handlers
+        eventHandlers.setupAuthForms();
+        eventHandlers.setupSearch();
+        eventHandlers.setupFilters();
+        eventHandlers.setupModals();
+        
+        // Setup PWA features
+        pwa.registerServiceWorker();
+        pwa.setupInstallPrompt();
+        
+        // Show welcome message
+        setTimeout(() => {
+            utils.showNotification('Welcome to GTGOTG! Find clean, safe restrooms everywhere.');
+        }, 1000);
+        
+        console.log('✅ GTGOTG - Application initialized successfully!');
+    }
+};
+
+// Start the application when DOM is loaded
+document.addEventListener('DOMContentLoaded', app.init);
+
+// Export for testing (if needed)
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = {
+        AppState,
+        utils,
+        auth,
+        businessManager,
+        reviewSystem,
+        ui,
+        badgeSystem
+    };
+}
