@@ -1,1 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GTGOTG - Got To Go On The Go | Every Restroom, Everywhere</title>
+    <meta name="description" content="Find clean, safe, and accessible restrooms wherever you are.">
+    <link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo-section">
+                    <h1 class="logo">GTGOTG</h1>
+                    <p class="tagline">Got To Go On The Go</p>
+                </div>
+                <nav class="nav">
+                    <button id="loginBtn" class="btn btn-secondary">Login</button>
+                    <button id="signupBtn" class="btn btn-primary">Sign Up</button>
+                    <button id="adminBtn" class="btn btn-admin" style="display: none;">Admin</button>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <h2 class="hero-title">Every Restroom, Everywhere</h2>
+            <p class="hero-subtitle">Find clean, safe, and accessible restrooms wherever you are</p>
+            <div class="search-container">
+                <input type="text" id="searchInput" class="search-input" placeholder="Search for restrooms...">
+                <button id="searchBtn" class="search-btn">🔍</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Filter Section -->
+    <section class="filter-section">
+        <div class="container">
+            <div class="filter-container">
+                <label class="filter-label">Filter by Type:</label>
+                <select id="categoryFilter" class="filter-select">
+                    <option value="">All Establishments</option>
+                    <option value="gas_station">Gas Station</option>
+                    <option value="restaurant">Restaurant</option>
+                    <option value="coffee_shop">Coffee Shop</option>
+                    <option value="retail">Retail</option>
+                </select>
+            </div>
+            <div class="quick-filters">
+                <button class="filter-btn active" data-category="">All</button>
+                <button class="filter-btn" data-category="gas_station">Gas</button>
+                <button class="filter-btn" data-category="restaurant">Food</button>
+                <button class="filter-btn" data-category="coffee_shop">Coffee</button>
+                <button class="filter-btn" data-category="retail">Retail</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Listings Section -->
+    <section class="listings-section">
+        <div class="container">
+            <h3 class="section-title">Featured Restrooms</h3>
+            <div id="businessGrid" class="business-grid">
+                <!-- Business cards will be loaded by JavaScript -->
+            </div>
+        </div>
+    </section>
+
+    <script src="assets/app.js"></script>
+</body>
+</html>
 
