@@ -466,29 +466,14 @@ const ui = {
         // Reset ratings
         AppState.ratings = { overall: 0, cleanliness: 0, safety: 0, accessibility: 0 };
         AppState.selectedBathroom = { type: null, wheelchair: false };
+        AppState.selectedAmenities = [];
         
-        // Reset star displays
-        document.querySelectorAll('.star-rating .star').forEach(star => {
-            star.classList.remove('active');
-        });
-        
-        // Reset rating displays
-        document.querySelectorAll('.rating-display').forEach(display => {
-            display.textContent = '0/10';
-        });
-        
-        // Reset bathroom type selection
-        document.querySelectorAll('.bathroom-type-btn').forEach(btn => {
-            btn.classList.remove('selected');
-        });
-        
-        // Reset wheelchair selection
+        // Reset UI elements
+        document.querySelectorAll('.star').forEach(star => star.classList.remove('active'));
+        document.querySelectorAll('.rating-display').forEach(display => display.textContent = '0/10');
+        document.querySelectorAll('.bathroom-type-btn').forEach(btn => btn.classList.remove('selected'));
         document.getElementById('wheelchairBtn').classList.remove('selected');
-        
-        // Reset amenities
-        document.querySelectorAll('input[name="amenities"]').forEach(cb => {
-            cb.checked = false;
-        });
+        document.querySelectorAll('input[name="amenities"]').forEach(cb => cb.checked = false);
     },
     
     setupStarRatings: () => {
@@ -506,12 +491,9 @@ const ui = {
                         s.classList.toggle('active', i < rating);
                     });
                     
-                    // Update rating display
-                    const displayId = ratingType + 'RatingDisplay';
-                    const display = document.getElementById(displayId);
-                    if (display) {
-                        display.textContent = `${rating}/10`;
-                    }
+                    // Update display
+                    const display = document.getElementById(`${ratingType}RatingDisplay`);
+                    display.textContent = `${rating}/10`;
                 });
                 
                 star.addEventListener('mouseenter', () => {
@@ -520,12 +502,12 @@ const ui = {
                         s.style.color = i < rating ? '#F59E0B' : '#D1D5DB';
                     });
                 });
-                
-                star.addEventListener('mouseleave', () => {
-                    const currentRating = AppState.ratings[ratingType];
-                    stars.forEach((s, i) => {
-                        s.style.color = i < currentRating ? '#F59E0B' : '#D1D5DB';
-                    });
+            });
+            
+            ratingContainer.addEventListener('mouseleave', () => {
+                const currentRating = AppState.ratings[ratingType];
+                stars.forEach((s, i) => {
+                    s.style.color = i < currentRating ? '#F59E0B' : '#D1D5DB';
                 });
             });
         });
@@ -559,11 +541,8 @@ const ui = {
             btn.classList.toggle('active', btn.getAttribute('data-category') === category);
         });
         
-        // Update dropdown
-        const dropdown = document.getElementById('categoryFilter');
-        if (dropdown) {
-            dropdown.value = category;
-        }
+        // Update select element
+        document.getElementById('categoryFilter').value = category;
     }
 };
 
@@ -574,7 +553,7 @@ const eventHandlers = {
         document.getElementById('loginForm').addEventListener('submit', (e) => {
             e.preventDefault();
             
-            const username = document.getElementById('loginUsername').value;
+            const username = utils.sanitizeInput(document.getElementById('loginUsername').value);
             const password = document.getElementById('loginPassword').value;
             
             const result = auth.login(username, password);
@@ -582,7 +561,7 @@ const eventHandlers = {
             if (result.success) {
                 ui.closeModal('loginModal');
                 ui.updateUserStatus();
-                utils.showNotification(`Welcome back, ${result.user.firstName}!`);
+                utils.showNotification('Welcome back! You are now logged in.');
             } else {
                 utils.showNotification(result.message, 'error');
             }
@@ -592,42 +571,32 @@ const eventHandlers = {
         document.getElementById('signupForm').addEventListener('submit', (e) => {
             e.preventDefault();
             
-            const firstName = utils.sanitizeInput(document.getElementById('signupFirstName').value);
-            const lastName = utils.sanitizeInput(document.getElementById('signupLastName').value);
-            const username = utils.sanitizeInput(document.getElementById('signupUsername').value);
-            const email = document.getElementById('signupEmail').value;
-            const password = document.getElementById('signupPassword').value;
-            const city = utils.sanitizeInput(document.getElementById('signupCity').value);
+            const formData = {
+                firstName: utils.sanitizeInput(document.getElementById('signupFirstName').value),
+                lastName: utils.sanitizeInput(document.getElementById('signupLastName').value),
+                username: utils.sanitizeInput(document.getElementById('signupUsername').value),
+                email: utils.sanitizeInput(document.getElementById('signupEmail').value),
+                password: document.getElementById('signupPassword').value,
+                city: utils.sanitizeInput(document.getElementById('signupCity').value)
+            };
             
             // Validation
-            if (!firstName || !lastName || !username || !email || !password) {
-                utils.showNotification('Please fill in all required fields.', 'error');
-                return;
-            }
-            
-            if (!utils.validateEmail(email)) {
+            if (!utils.validateEmail(formData.email)) {
                 utils.showNotification('Please enter a valid email address.', 'error');
                 return;
             }
             
-            if (password.length < 6) {
+            if (formData.password.length < 6) {
                 utils.showNotification('Password must be at least 6 characters long.', 'error');
                 return;
             }
             
-            const result = auth.register({
-                firstName,
-                lastName,
-                username,
-                email,
-                password,
-                city
-            });
+            const result = auth.register(formData);
             
             if (result.success) {
                 ui.closeModal('signupModal');
                 ui.updateUserStatus();
-                utils.showNotification(`Welcome to GTGOTG, ${result.user.firstName}!`);
+                utils.showNotification(`Welcome to GTGOTG, ${formData.firstName}! Your account has been created.`);
             } else {
                 utils.showNotification(result.message, 'error');
             }
@@ -684,10 +653,12 @@ const eventHandlers = {
         const performSearch = () => {
             const query = searchInput.value.trim();
             if (query) {
-                const results = businessManager.searchBusinesses(query);
-                ui.renderBusinesses(results);
+                AppState.filteredBusinesses = businessManager.searchBusinesses(query);
+                ui.renderBusinesses();
+                utils.showNotification(`Found ${AppState.filteredBusinesses.length} restrooms matching "${query}"`);
             } else {
-                ui.renderBusinesses(AppState.filteredBusinesses);
+                AppState.filteredBusinesses = businessManager.getBusinesses(AppState.currentFilter);
+                ui.renderBusinesses();
             }
         };
         
@@ -700,7 +671,7 @@ const eventHandlers = {
     },
     
     setupFilters: () => {
-        // Dropdown filter
+        // Category filter dropdown
         document.getElementById('categoryFilter').addEventListener('change', (e) => {
             ui.applyFilter(e.target.value);
         });
@@ -715,6 +686,15 @@ const eventHandlers = {
     },
     
     setupModals: () => {
+        // Modal open buttons
+        document.getElementById('loginBtn').addEventListener('click', () => ui.openModal('loginModal'));
+        document.getElementById('signupBtn').addEventListener('click', () => ui.openModal('signupModal'));
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            auth.logout();
+            ui.updateUserStatus();
+            utils.showNotification('You have been logged out successfully.');
+        });
+        
         // Modal close buttons
         document.querySelectorAll('.close').forEach(closeBtn => {
             closeBtn.addEventListener('click', (e) => {
@@ -723,28 +703,13 @@ const eventHandlers = {
             });
         });
         
-        // Modal background clicks
+        // Close modal when clicking outside
         document.querySelectorAll('.modal').forEach(modal => {
             modal.addEventListener('click', (e) => {
                 if (e.target === modal) {
                     ui.closeModal(modal.id);
                 }
             });
-        });
-        
-        // Header buttons
-        document.getElementById('loginBtn').addEventListener('click', () => {
-            ui.openModal('loginModal');
-        });
-        
-        document.getElementById('signupBtn').addEventListener('click', () => {
-            ui.openModal('signupModal');
-        });
-        
-        document.getElementById('logoutBtn').addEventListener('click', () => {
-            auth.logout();
-            ui.updateUserStatus();
-            utils.showNotification('You have been logged out.');
         });
         
         // Notification close
@@ -754,16 +719,16 @@ const eventHandlers = {
     }
 };
 
-// Progressive Web App Features
+// PWA Service Worker Registration
 const pwa = {
     registerServiceWorker: () => {
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/sw.js')
-                    .then((registration) => {
+                    .then(registration => {
                         console.log('SW registered: ', registration);
                     })
-                    .catch((registrationError) => {
+                    .catch(registrationError => {
                         console.log('SW registration failed: ', registrationError);
                     });
             });
@@ -777,8 +742,12 @@ const pwa = {
             e.preventDefault();
             deferredPrompt = e;
             
-            // Show install button or notification
-            utils.showNotification('Install GTGOTG for quick access to restroom information!');
+            // Show install button or prompt
+            setTimeout(() => {
+                if (deferredPrompt) {
+                    utils.showNotification('Install GTGOTG for quick access to restroom information!', 'info');
+                }
+            }, 30000); // Show after 30 seconds
         });
         
         window.addEventListener('appinstalled', () => {
@@ -829,11 +798,10 @@ document.addEventListener('DOMContentLoaded', app.init);
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = {
         AppState,
-        utils,
         auth,
         businessManager,
         reviewSystem,
-        ui,
+        utils,
         badgeSystem
     };
 }
