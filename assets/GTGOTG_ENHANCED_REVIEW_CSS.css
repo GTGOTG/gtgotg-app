@@ -1,0 +1,718 @@
+/* Enhanced Review System Styles for GTGOTG
+   Copyright © 2025 Jessica Esposito / Colorado Quality LLC. All rights reserved. */
+
+/* Universal Bathroom Symbol Selection */
+.bathroom-symbols {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.bathroom-symbol-btn {
+    background: white;
+    border: 3px solid #e2e8f0;
+    border-radius: 15px;
+    padding: 1.5rem 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 120px;
+    position: relative;
+    overflow: hidden;
+}
+
+.bathroom-symbol-btn:hover {
+    border-color: #8B5CF6;
+    background: #f8fafc;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(139, 92, 246, 0.2);
+}
+
+.bathroom-symbol-btn.selected {
+    background: linear-gradient(135deg, #8B5CF6, #7C3AED);
+    border-color: #8B5CF6;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(139, 92, 246, 0.3);
+}
+
+.bathroom-symbol-btn.selected::before {
+    content: '✓';
+    position: absolute;
+    top: 5px;
+    right: 8px;
+    background: #10B981;
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.symbol-icon {
+    font-size: 3rem;
+    margin-bottom: 0.5rem;
+    transition: transform 0.3s ease;
+}
+
+.bathroom-symbol-btn:hover .symbol-icon {
+    transform: scale(1.1);
+}
+
+.symbol-label {
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-align: center;
+}
+
+/* Wheelchair Accessibility Option */
+.accessibility-option {
+    margin-top: 1.5rem;
+    display: flex;
+    justify-content: center;
+}
+
+.wheelchair-btn {
+    background: white;
+    border: 3px solid #e2e8f0;
+    border-radius: 15px;
+    padding: 1rem 2rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.wheelchair-btn:hover {
+    border-color: #10B981;
+    background: #f0fdf4;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(16, 185, 129, 0.2);
+}
+
+.wheelchair-btn.selected {
+    background: linear-gradient(135deg, #10B981, #059669);
+    border-color: #10B981;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+}
+
+.wheelchair-btn.selected::before {
+    content: '✓';
+    position: absolute;
+    top: 5px;
+    right: 8px;
+    background: #8B5CF6;
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.wheelchair-icon {
+    font-size: 2rem;
+    color: #3B82F6;
+    transition: transform 0.3s ease;
+}
+
+.wheelchair-btn:hover .wheelchair-icon {
+    transform: scale(1.1);
+}
+
+.wheelchair-btn.selected .wheelchair-icon {
+    color: white;
+}
+
+.wheelchair-label {
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+/* Photo Upload Section */
+.photo-section {
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.photo-note {
+    color: #64748b;
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+    font-style: italic;
+    background: #f8fafc;
+    padding: 1rem;
+    border-radius: 8px;
+    border-left: 4px solid #8B5CF6;
+}
+
+.photo-upload-area {
+    margin-bottom: 1.5rem;
+}
+
+.upload-dropzone {
+    border: 3px dashed #d1d5db;
+    border-radius: 15px;
+    padding: 3rem 2rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: #fafafa;
+    position: relative;
+    overflow: hidden;
+}
+
+.upload-dropzone:hover {
+    border-color: #8B5CF6;
+    background: #f8fafc;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(139, 92, 246, 0.1);
+}
+
+.upload-dropzone.dragover {
+    border-color: #10B981;
+    background: #f0fdf4;
+    transform: scale(1.02);
+}
+
+.upload-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    color: #8B5CF6;
+    transition: transform 0.3s ease;
+}
+
+.upload-dropzone:hover .upload-icon {
+    transform: scale(1.1);
+}
+
+.upload-text {
+    font-size: 1.1rem;
+    color: #374151;
+    margin-bottom: 0.5rem;
+    line-height: 1.5;
+}
+
+.upload-text strong {
+    color: #8B5CF6;
+    font-weight: 600;
+}
+
+.upload-hint {
+    font-size: 0.85rem;
+    color: #64748b;
+    margin-top: 0.5rem;
+}
+
+/* Photo Preview */
+.photo-preview-container {
+    background: #f8fafc;
+    border-radius: 10px;
+    padding: 1.5rem;
+    border: 1px solid #e2e8f0;
+}
+
+.photo-preview-container h6 {
+    margin: 0 0 1rem 0;
+    color: #374151;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.photo-preview-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 1rem;
+}
+
+.photo-preview-item {
+    position: relative;
+    border-radius: 10px;
+    overflow: hidden;
+    background: white;
+    border: 2px solid #e2e8f0;
+    transition: all 0.3s ease;
+}
+
+.photo-preview-item:hover {
+    border-color: #8B5CF6;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.photo-preview-img {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+    display: block;
+}
+
+.photo-preview-info {
+    padding: 0.75rem;
+    background: white;
+}
+
+.photo-filename {
+    font-size: 0.8rem;
+    color: #64748b;
+    margin-bottom: 0.25rem;
+    word-break: break-word;
+}
+
+.photo-size {
+    font-size: 0.75rem;
+    color: #94a3b8;
+}
+
+.photo-remove {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: #EF4444;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 25px;
+    height: 25px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    opacity: 0.9;
+}
+
+.photo-remove:hover {
+    background: #DC2626;
+    transform: scale(1.1);
+    opacity: 1;
+}
+
+/* Photo Upload Progress */
+.upload-progress {
+    margin-top: 1rem;
+    background: #f1f5f9;
+    border-radius: 8px;
+    padding: 1rem;
+    display: none;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 8px;
+    background: #e2e8f0;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #8B5CF6, #10B981);
+    border-radius: 4px;
+    transition: width 0.3s ease;
+    width: 0%;
+}
+
+.progress-text {
+    font-size: 0.9rem;
+    color: #64748b;
+    text-align: center;
+}
+
+/* Enhanced Modal Styles for Review */
+.modal-large {
+    max-width: 900px;
+}
+
+.modal-large .modal-body {
+    max-height: 80vh;
+    overflow-y: auto;
+    padding: 2rem;
+}
+
+/* Enhanced Rating Section */
+.rating-section {
+    background: #f8fafc;
+    padding: 1.5rem;
+    border-radius: 10px;
+    margin-bottom: 2rem;
+    border: 1px solid #e2e8f0;
+}
+
+.rating-section h5 {
+    color: #1e293b;
+    margin-bottom: 1.5rem;
+    font-size: 1.2rem;
+    text-align: center;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #8B5CF6;
+}
+
+.rating-group {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: white;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    flex-wrap: wrap;
+}
+
+.rating-group:last-child {
+    margin-bottom: 0;
+}
+
+.rating-label {
+    min-width: 120px;
+    font-weight: 600;
+    color: #374151;
+    font-size: 0.95rem;
+}
+
+.star-rating {
+    display: flex;
+    gap: 0.25rem;
+    flex-wrap: wrap;
+}
+
+.star {
+    font-size: 1.8rem;
+    color: #d1d5db;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+}
+
+.star:hover,
+.star.active {
+    color: #f59e0b;
+    transform: scale(1.15);
+    text-shadow: 0 2px 4px rgba(245, 158, 11, 0.3);
+}
+
+.star:hover {
+    animation: starPulse 0.3s ease;
+}
+
+@keyframes starPulse {
+    0% { transform: scale(1.15); }
+    50% { transform: scale(1.25); }
+    100% { transform: scale(1.15); }
+}
+
+.rating-display {
+    font-weight: bold;
+    color: #1e293b;
+    min-width: 50px;
+    font-size: 1.1rem;
+    background: #8B5CF6;
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    text-align: center;
+}
+
+/* Enhanced Amenities Section */
+.amenities-section {
+    background: #f8fafc;
+    padding: 1.5rem;
+    border-radius: 10px;
+    margin-bottom: 2rem;
+    border: 1px solid #e2e8f0;
+}
+
+.amenities-section h5 {
+    color: #1e293b;
+    margin-bottom: 1.5rem;
+    font-size: 1.2rem;
+    text-align: center;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #10B981;
+}
+
+.amenities-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+}
+
+.amenity-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem;
+    background: white;
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.amenity-item:hover {
+    border-color: #10B981;
+    background: #f0fdf4;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(16, 185, 129, 0.1);
+}
+
+.amenity-item input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    margin: 0;
+    cursor: pointer;
+    accent-color: #10B981;
+}
+
+.amenity-item input[type="checkbox"]:checked + .amenity-label {
+    color: #10B981;
+    font-weight: 600;
+}
+
+.amenity-item:has(input[type="checkbox"]:checked) {
+    background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+    border-color: #10B981;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(16, 185, 129, 0.2);
+}
+
+.amenity-item:has(input[type="checkbox"]:checked)::before {
+    content: '✓';
+    position: absolute;
+    top: 5px;
+    right: 8px;
+    background: #10B981;
+    color: white;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: bold;
+}
+
+.amenity-label {
+    font-size: 0.95rem;
+    color: #374151;
+    transition: all 0.3s ease;
+    user-select: none;
+}
+
+/* Enhanced Comment Section */
+.comment-section {
+    background: #f8fafc;
+    padding: 1.5rem;
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+}
+
+.comment-section h5 {
+    color: #1e293b;
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+    text-align: center;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #3B82F6;
+}
+
+.comment-note {
+    color: #64748b;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+    font-style: italic;
+    background: white;
+    padding: 1rem;
+    border-radius: 8px;
+    border-left: 4px solid #3B82F6;
+}
+
+#reviewComment {
+    width: 100%;
+    min-height: 150px;
+    padding: 1rem;
+    border: 2px solid #d1d5db;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-family: inherit;
+    resize: vertical;
+    transition: border-color 0.3s ease;
+    background: white;
+}
+
+#reviewComment:focus {
+    outline: none;
+    border-color: #3B82F6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+#reviewComment::placeholder {
+    color: #94a3b8;
+    font-style: italic;
+}
+
+/* Form Actions Enhancement */
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e2e8f0;
+}
+
+.form-actions .btn {
+    min-width: 120px;
+    padding: 0.75rem 2rem;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+/* Responsive Design for Review Modal */
+@media (max-width: 768px) {
+    .modal-large {
+        width: 95%;
+        max-width: none;
+        margin: 5% auto;
+    }
+    
+    .modal-large .modal-body {
+        padding: 1.5rem;
+        max-height: 85vh;
+    }
+    
+    .bathroom-symbols {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .bathroom-symbol-btn {
+        min-width: 200px;
+    }
+    
+    .rating-group {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1rem;
+        text-align: center;
+    }
+    
+    .rating-label {
+        min-width: auto;
+    }
+    
+    .star-rating {
+        justify-content: center;
+    }
+    
+    .amenities-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .photo-preview-list {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .upload-dropzone {
+        padding: 2rem 1rem;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+    
+    .form-actions .btn {
+        min-width: auto;
+    }
+}
+
+@media (max-width: 480px) {
+    .bathroom-symbol-btn {
+        min-width: 150px;
+        padding: 1rem 0.5rem;
+    }
+    
+    .symbol-icon {
+        font-size: 2.5rem;
+    }
+    
+    .star {
+        font-size: 1.5rem;
+    }
+    
+    .photo-preview-list {
+        grid-template-columns: 1fr;
+    }
+    
+    .wheelchair-btn {
+        padding: 1rem;
+        flex-direction: column;
+        text-align: center;
+        gap: 0.5rem;
+    }
+    
+    .wheelchair-label {
+        font-size: 0.85rem;
+    }
+}
+
+/* Animation for successful submission */
+@keyframes successPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.form-success {
+    animation: successPulse 0.5s ease;
+}
+
+/* Loading state for photo upload */
+.photo-uploading {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+.photo-uploading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 30px;
+    height: 30px;
+    margin: -15px 0 0 -15px;
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #8B5CF6;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
