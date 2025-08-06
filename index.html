@@ -7,17 +7,24 @@
     <title>GTGOTG - Got To Go On The Go | Every Restroom, Everywhere</title>
     <link rel="stylesheet" href="assets/styles.css">
     
+    <!-- Favicon and App Icons -->
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/gtgotg-favicon-32.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="assets/gtgotg-app-icon-192.png">
+    <link rel="apple-touch-icon" sizes="512x512" href="assets/gtgotg-app-icon-512.png">
+    
     <!-- PWA Meta Tags -->
     <meta name="theme-color" content="#8B5CF6">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="GTGOTG">
+    <link rel="manifest" href="manifest.json">
     
     <!-- Open Graph Meta Tags -->
     <meta property="og:title" content="GTGOTG - Got To Go On The Go">
     <meta property="og:description" content="Find clean, safe, and accessible restrooms wherever you are.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://gtgotg.com">
+    <meta property="og:image" content="https://gtgotg.com/assets/gtgotg-app-icon-512.png">
     
     <!-- Copyright Notice -->
     <!-- 
@@ -38,8 +45,11 @@
         <div class="container">
             <div class="header-content">
                 <div class="logo-section">
-                    <h1 class="logo">GTGOTG</h1>
-                    <p class="tagline">Got To Go On The Go</p>
+                    <img src="assets/gtgotg_logo_primary-BE-ZRW_Y.png" alt="GTGOTG Logo" class="logo-image">
+                    <div class="logo-text">
+                        <h1 class="logo">GTGOTG</h1>
+                        <p class="tagline">Got To Go On The Go</p>
+                    </div>
                 </div>
                 <nav class="nav">
                     <button id="loginBtn" class="btn btn-secondary">Login</button>
@@ -132,6 +142,11 @@
                 </form>
                 <div class="modal-footer">
                     <p>Don't have an account? <a href="#" onclick="document.getElementById('loginModal').style.display='none'; document.getElementById('signupModal').style.display='block';">Sign up here</a></p>
+                    <div class="test-accounts">
+                        <p><strong>Test Accounts:</strong></p>
+                        <p>User: <code>johndoe</code> / <code>password123</code></p>
+                        <p>Admin: <code>admin</code> / <code>gtgotg2025!</code></p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -455,4 +470,3 @@
     <script src="assets/app.js"></script>
 </body>
 </html>
-
