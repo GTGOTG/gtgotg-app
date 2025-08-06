@@ -1,1 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="GTGOTG - Got To Go On The Go | Find clean, safe, and accessible restrooms wherever you are.">
+    <title>GTGOTG - Got To Go On The Go | Every Restroom, Everywhere</title>
+    <link rel="stylesheet" href="assets/styles.css">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/x-icon" href="assets/favicon.ico">
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#8B5CF6">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="GTGOTG">
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="GTGOTG - Got To Go On The Go">
+    <meta property="og:description" content="Find clean, safe, and accessible restrooms wherever you are.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://gtgotg.com">
+    
+    <!-- Copyright Notice -->
+    <!-- 
+    GTGOTG - "Got To Go On The Go" 
+    Copyright © 2025 Jessica Esposito / Colorado Quality LLC. All rights reserved.
+    
+    This application and all associated code, design, and content are the 
+    intellectual property of Jessica Esposito and Colorado Quality LLC 
+    and are protected by copyright law.
+    
+    Commercial use, distribution, or sale of this application is permitted 
+    only with explicit written permission from the copyright holder.
+    -->
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo-section">
+                    <h1 class="logo">GTGOTG</h1>
+                    <p class="tagline">Got To Go On The Go</p>
+                </div>
+                <nav class="nav">
+                    <button id="loginBtn" class="btn btn-secondary">Login</button>
+                    <button id="signupBtn" class="btn btn-primary">Sign Up</button>
+                    <button id="logoutBtn" class="btn btn-secondary" style="display: none;">Logout</button>
+                    <button id="adminBtn" class="btn btn-admin" style="display: none;">Admin</button>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- User Status Bar -->
+    <div id="userStatus" class="user-status" style="display: none;">
+        <div class="container">
+            <div class="user-welcome">
+                <span id="userWelcome">Welcome back!</span>
+                <span id="userBadge" class="user-badge">Reviewer</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h2 class="hero-title">Every Restroom, Everywhere</h2>
+                <p class="hero-subtitle">Find clean, safe, and accessible restrooms wherever you are</p>
+                <div class="search-container">
+                    <input type="text" id="searchInput" class="search-input" placeholder="Search for restrooms...">
+                    <button id="searchBtn" class="search-btn">🔍</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Filter Section -->
+    <section class="filter-section">
+        <div class="container">
+            <div class="filter-container">
+                <label class="filter-label">Filter by Type:</label>
+                <select id="categoryFilter" class="filter-select">
+                    <option value="">All Establishments</option>
+                    <option value="gas_station">Gas Station</option>
+                    <option value="restaurant">Restaurant</option>
+                    <option value="coffee_shop">Coffee Shop</option>
+                    <option value="retail">Retail</option>
+                </select>
+            </div>
+            <div class="quick-filters">
+                <button class="filter-btn active" data-category="">All</button>
+                <button class="filter-btn" data-category="gas_station">Gas</button>
+                <button class="filter-btn" data-category="restaurant">Food</button>
+                <button class="filter-btn" data-category="coffee_shop">Coffee</button>
+                <button class="filter-btn" data-category="retail">Retail</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Listings Section -->
+    <section class="listings-section">
+        <div class="container">
+            <h3 class="section-title">Featured Restrooms</h3>
+            <div id="businessGrid" class="business-grid">
+                <!-- Business cards will be loaded by JavaScript -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Login to GTGOTG</h4>
+                <button class="modal-close" data-modal="loginModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="loginUsername">Username or Email:</label>
+                        <input type="text" id="loginUsername" name="username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPassword">Password:</label>
+                        <input type="password" id="loginPassword" name="password" required>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Login</button>
+                        <button type="button" class="btn btn-secondary modal-close" data-modal="loginModal">Cancel</button>
+                    </div>
+                </form>
+                <div class="modal-footer">
+                    <p>Don't have an account? <a href="#" onclick="document.getElementById('loginModal').style.display='none'; document.getElementById('signupModal').style.display='block';">Sign up here</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Signup Modal -->
+    <div id="signupModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Join GTGOTG</h4>
+                <button class="modal-close" data-modal="signupModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="signupForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="signupFirstName">First Name:</label>
+                            <input type="text" id="signupFirstName" name="firstName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="signupLastName">Last Name:</label>
+                            <input type="text" id="signupLastName" name="lastName" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="signupUsername">Username:</label>
+                        <input type="text" id="signupUsername" name="username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="signupEmail">Email:</label>
+                        <input type="email" id="signupEmail" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="signupPassword">Password:</label>
+                        <input type="password" id="signupPassword" name="password" required minlength="6">
+                    </div>
+                    <div class="form-group">
+                        <label for="signupCity">City (Optional):</label>
+                        <input type="text" id="signupCity" name="city">
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Sign Up</button>
+                        <button type="button" class="btn btn-secondary modal-close" data-modal="signupModal">Cancel</button>
+                    </div>
+                </form>
+                <div class="modal-footer">
+                    <p>Already have an account? <a href="#" onclick="document.getElementById('signupModal').style.display='none'; document.getElementById('loginModal').style.display='block';">Login here</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Review Modal -->
+    <div id="reviewModal" class="modal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h4 class="modal-title" id="businessNameDisplay">Rate This Restroom</h4>
+                <button class="modal-close" data-modal="reviewModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="reviewForm">
+                    <!-- Rating Section -->
+                    <div class="rating-section">
+                        <h5>Rate Your Experience (1-10 stars)</h5>
+                        
+                        <div class="rating-group">
+                            <label class="rating-label">Overall Rating:</label>
+                            <div class="star-rating" data-rating="overall">
+                                <span class="star" data-value="1">★</span>
+                                <span class="star" data-value="2">★</span>
+                                <span class="star" data-value="3">★</span>
+                                <span class="star" data-value="4">★</span>
+                                <span class="star" data-value="5">★</span>
+                                <span class="star" data-value="6">★</span>
+                                <span class="star" data-value="7">★</span>
+                                <span class="star" data-value="8">★</span>
+                                <span class="star" data-value="9">★</span>
+                                <span class="star" data-value="10">★</span>
+                            </div>
+                            <span id="overallRatingDisplay" class="rating-display">0/10</span>
+                        </div>
+
+                        <div class="rating-group">
+                            <label class="rating-label">Cleanliness:</label>
+                            <div class="star-rating" data-rating="cleanliness">
+                                <span class="star" data-value="1">★</span>
+                                <span class="star" data-value="2">★</span>
+                                <span class="star" data-value="3">★</span>
+                                <span class="star" data-value="4">★</span>
+                                <span class="star" data-value="5">★</span>
+                                <span class="star" data-value="6">★</span>
+                                <span class="star" data-value="7">★</span>
+                                <span class="star" data-value="8">★</span>
+                                <span class="star" data-value="9">★</span>
+                                <span class="star" data-value="10">★</span>
+                            </div>
+                            <span id="cleanlinessRatingDisplay" class="rating-display">0/10</span>
+                        </div>
+
+                        <div class="rating-group">
+                            <label class="rating-label">Safety:</label>
+                            <div class="star-rating" data-rating="safety">
+                                <span class="star" data-value="1">★</span>
+                                <span class="star" data-value="2">★</span>
+                                <span class="star" data-value="3">★</span>
+                                <span class="star" data-value="4">★</span>
+                                <span class="star" data-value="5">★</span>
+                                <span class="star" data-value="6">★</span>
+                                <span class="star" data-value="7">★</span>
+                                <span class="star" data-value="8">★</span>
+                                <span class="star" data-value="9">★</span>
+                                <span class="star" data-value="10">★</span>
+                            </div>
+                            <span id="safetyRatingDisplay" class="rating-display">0/10</span>
+                        </div>
+
+                        <div class="rating-group">
+                            <label class="rating-label">Accessibility:</label>
+                            <div class="star-rating" data-rating="accessibility">
+                                <span class="star" data-value="1">★</span>
+                                <span class="star" data-value="2">★</span>
+                                <span class="star" data-value="3">★</span>
+                                <span class="star" data-value="4">★</span>
+                                <span class="star" data-value="5">★</span>
+                                <span class="star" data-value="6">★</span>
+                                <span class="star" data-value="7">★</span>
+                                <span class="star" data-value="8">★</span>
+                                <span class="star" data-value="9">★</span>
+                                <span class="star" data-value="10">★</span>
+                            </div>
+                            <span id="accessibilityRatingDisplay" class="rating-display">0/10</span>
+                        </div>
+                    </div>
+
+                    <!-- Bathroom Type Selection -->
+                    <div class="bathroom-section">
+                        <h5>Bathroom Type</h5>
+                        <div class="bathroom-types">
+                            <button type="button" class="bathroom-type-btn" data-type="mens">🚹 Men's</button>
+                            <button type="button" class="bathroom-type-btn" data-type="womens">🚺 Women's</button>
+                            <button type="button" class="bathroom-type-btn" data-type="unisex">🚻 Unisex</button>
+                            <button type="button" class="bathroom-type-btn wheelchair-btn" data-type="accessible">♿ Accessible</button>
+                        </div>
+                    </div>
+
+                    <!-- Amenities Section -->
+                    <div class="amenities-section">
+                        <h5>Available Amenities</h5>
+                        <div class="amenities-grid">
+                            <label class="amenity-item">
+                                <input type="checkbox" name="amenities" value="soap">
+                                <span class="amenity-label">🧼 Soap</span>
+                            </label>
+                            <label class="amenity-item">
+                                <input type="checkbox" name="amenities" value="paper_towels">
+                                <span class="amenity-label">📄 Paper Towels</span>
+                            </label>
+                            <label class="amenity-item">
+                                <input type="checkbox" name="amenities" value="hand_dryer">
+                                <span class="amenity-label">💨 Hand Dryer</span>
+                            </label>
+                            <label class="amenity-item">
+                                <input type="checkbox" name="amenities" value="toilet_paper">
+                                <span class="amenity-label">🧻 Toilet Paper</span>
+                            </label>
+                            <label class="amenity-item">
+                                <input type="checkbox" name="amenities" value="baby_changing">
+                                <span class="amenity-label">👶 Baby Changing</span>
+                            </label>
+                            <label class="amenity-item">
+                                <input type="checkbox" name="amenities" value="wheelchair_accessible">
+                                <span class="amenity-label">♿ Wheelchair Accessible</span>
+                            </label>
+                            <label class="amenity-item">
+                                <input type="checkbox" name="amenities" value="family_restroom">
+                                <span class="amenity-label">👨‍👩‍👧‍👦 Family Restroom</span>
+                            </label>
+                            <label class="amenity-item">
+                                <input type="checkbox" name="amenities" value="changing_table">
+                                <span class="amenity-label">🍼 Changing Table</span>
+                            </label>
+                            <label class="amenity-item">
+                                <input type="checkbox" name="amenities" value="grab_bars">
+                                <span class="amenity-label">🤝 Grab Bars</span>
+                            </label>
+                            <label class="amenity-item">
+                                <input type="checkbox" name="amenities" value="motion_sensor">
+                                <span class="amenity-label">👋 Motion Sensor</span>
+                            </label>
+                            <label class="amenity-item">
+                                <input type="checkbox" name="amenities" value="air_freshener">
+                                <span class="amenity-label">🌸 Air Freshener</span>
+                            </label>
+                            <label class="amenity-item">
+                                <input type="checkbox" name="amenities" value="privacy_lock">
+                                <span class="amenity-label">🔒 Privacy Lock</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Comment Section -->
+                    <div class="comment-section">
+                        <h5>Additional Comments (Optional)</h5>
+                        <p class="comment-note">Note: Comments require login. Anonymous ratings are welcome!</p>
+                        <textarea id="reviewComment" name="comment" placeholder="Share your experience to help others..." rows="4"></textarea>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Submit Review</button>
+                        <button type="button" class="btn btn-secondary modal-close" data-modal="reviewModal">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Modal -->
+    <div id="adminModal" class="modal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h4 class="modal-title">GTGOTG Admin Dashboard</h4>
+                <button class="modal-close" data-modal="adminModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="admin-tabs">
+                    <button class="admin-tab-btn active" data-tab="users">Users</button>
+                    <button class="admin-tab-btn" data-tab="businesses">Businesses</button>
+                    <button class="admin-tab-btn" data-tab="reviews">Reviews</button>
+                    <button class="admin-tab-btn" data-tab="analytics">Analytics</button>
+                </div>
+                
+                <div id="usersTab" class="admin-tab-content active">
+                    <h5>User Management</h5>
+                    <div id="usersList" class="admin-list">
+                        <!-- Users will be loaded by JavaScript -->
+                    </div>
+                </div>
+                
+                <div id="businessesTab" class="admin-tab-content">
+                    <h5>Business Management</h5>
+                    <div id="businessesList" class="admin-list">
+                        <!-- Businesses will be loaded by JavaScript -->
+                    </div>
+                </div>
+                
+                <div id="reviewsTab" class="admin-tab-content">
+                    <h5>Review Management</h5>
+                    <div id="reviewsList" class="admin-list">
+                        <!-- Reviews will be loaded by JavaScript -->
+                    </div>
+                </div>
+                
+                <div id="analyticsTab" class="admin-tab-content">
+                    <h5>Analytics Dashboard</h5>
+                    <div class="analytics-grid">
+                        <div class="analytics-card">
+                            <h6>Total Users</h6>
+                            <div class="analytics-number" id="totalUsers">0</div>
+                        </div>
+                        <div class="analytics-card">
+                            <h6>Total Businesses</h6>
+                            <div class="analytics-number" id="totalBusinesses">0</div>
+                        </div>
+                        <div class="analytics-card">
+                            <h6>Total Reviews</h6>
+                            <div class="analytics-number" id="totalReviews">0</div>
+                        </div>
+                        <div class="analytics-card">
+                            <h6>Average Rating</h6>
+                            <div class="analytics-number" id="averageRating">0.0</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification System -->
+    <div id="notification" class="notification" style="display: none;">
+        <div class="notification-content">
+            <span id="notificationText">Notification message</span>
+            <button id="notificationClose" class="notification-close">&times;</button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>GTGOTG</h4>
+                    <p>Every Restroom, Everywhere</p>
+                    <p>Making restroom access universal for everyone.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Features</h4>
+                    <ul>
+                        <li>Universal Access</li>
+                        <li>1-10 Star Ratings</li>
+                        <li>Accessibility Info</li>
+                        <li>Real-time Reviews</li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Community</h4>
+                    <ul>
+                        <li>User Guidelines</li>
+                        <li>Privacy Policy</li>
+                        <li>Terms of Service</li>
+                        <li>Contact Us</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 GTGOTG - "Got To Go On The Go". Created by Jessica Esposito / Colorado Quality LLC. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="assets/app.js"></script>
+    
+    <!-- Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('SW registered: ', registration);
+                    })
+                    .catch(registrationError => {
+                        console.log('SW registration failed: ', registrationError);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>
 
