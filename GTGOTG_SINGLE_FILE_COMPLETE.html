@@ -1,0 +1,2949 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GTGOTG - Got To Go On The Go | Every Restroom, Everywhere</title>
+    <meta name="description" content="Find clean, safe, and accessible restrooms wherever you are. Search by location, business name, city, state, or ZIP code.">
+    
+    <!-- 
+    GTGOTG - "Got To Go On The Go" 
+    Copyright © 2025 Jessica Esposito / Colorado Quality LLC. All rights reserved.
+    -->
+    
+    <style>
+        /* GTGOTG Complete Styles - All-in-One */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f8fafc;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        /* Header Styles */
+        .header {
+            background: linear-gradient(135deg, #8B5CF6, #7C3AED);
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo-image {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 0;
+        }
+
+        .tagline {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin: 0;
+        }
+
+        .nav {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: #10B981;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #059669;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .btn-admin {
+            background: #EF4444;
+            color: white;
+        }
+
+        .btn-admin:hover {
+            background: #DC2626;
+        }
+
+        /* User Status */
+        .user-status {
+            background: #1e293b;
+            color: white;
+            padding: 0.5rem 0;
+        }
+
+        .user-welcome {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .user-badge {
+            background: #8B5CF6;
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, #8B5CF6, #7C3AED);
+            color: white;
+            padding: 4rem 0;
+            text-align: center;
+        }
+
+        .hero-title {
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+
+        .hero-subtitle {
+            font-size: 1.2rem;
+            margin-bottom: 3rem;
+            opacity: 0.9;
+        }
+
+        .enhanced-search-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .search-main {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .search-input-container {
+            position: relative;
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 1rem 1.5rem;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .search-input:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
+        }
+
+        .location-btn {
+            white-space: nowrap;
+            border-radius: 50px;
+        }
+
+        .search-btn {
+            background: #10B981;
+            color: white;
+            border: none;
+            padding: 1rem 1.5rem;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .search-btn:hover {
+            background: #059669;
+            transform: translateY(-2px);
+        }
+
+        .search-tips {
+            text-align: center;
+            opacity: 0.8;
+        }
+
+        .tip-icon {
+            margin-right: 0.5rem;
+        }
+
+        /* Filter Section */
+        .filter-section {
+            background: white;
+            padding: 2rem 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .filter-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .filter-row {
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .filter-label {
+            font-weight: 600;
+            color: #374151;
+            white-space: nowrap;
+        }
+
+        .filter-select {
+            padding: 0.5rem 1rem;
+            border: 2px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 1rem;
+            min-width: 200px;
+        }
+
+        .quick-filters {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .filter-btn {
+            padding: 0.5rem 1rem;
+            border: 2px solid #d1d5db;
+            background: white;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .filter-btn:hover,
+        .filter-btn.active {
+            background: #8B5CF6;
+            color: white;
+            border-color: #8B5CF6;
+        }
+
+        /* Search Results */
+        .search-results-section {
+            background: white;
+            padding: 1rem 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .search-results-info {
+            text-align: center;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        /* Map Section */
+        .map-section {
+            background: white;
+            padding: 2rem 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            color: #1e293b;
+        }
+
+        .map-container {
+            height: 400px;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            background: #f8fafc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .map-placeholder {
+            text-align: center;
+            color: #64748b;
+            padding: 2rem;
+        }
+
+        /* Listings Section */
+        .listings-section {
+            background: white;
+            padding: 3rem 0;
+        }
+
+        .business-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .business-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            border: 1px solid #e2e8f0;
+            position: relative;
+        }
+
+        .business-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .business-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .business-name {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+        }
+
+        .business-address {
+            color: #64748b;
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .business-distance {
+            color: #8B5CF6;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .business-rating {
+            text-align: right;
+        }
+
+        .rating-stars {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            justify-content: flex-end;
+        }
+
+        .rating-number {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #f59e0b;
+        }
+
+        .rating-scale {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+
+        .review-count {
+            color: #64748b;
+            font-size: 0.8rem;
+        }
+
+        .business-details {
+            margin-bottom: 1.5rem;
+        }
+
+        .business-details > div {
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: #374151;
+            min-width: 80px;
+        }
+
+        .bathroom-symbols {
+            font-size: 1.2rem;
+        }
+
+        .amenity-icons {
+            font-size: 1rem;
+        }
+
+        .more-amenities {
+            color: #8B5CF6;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .hours-text {
+            color: #059669;
+            font-weight: 500;
+        }
+
+        .business-actions {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .business-actions .btn {
+            flex: 1;
+            min-width: 140px;
+        }
+
+        .verified-badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: #10B981;
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 15px;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: #64748b;
+            font-size: 1.1rem;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 3rem;
+            color: #64748b;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 0;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-large {
+            max-width: 900px;
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #8B5CF6, #7C3AED);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 15px 15px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            margin: 0;
+            font-size: 1.3rem;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background 0.3s ease;
+        }
+
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .modal-body {
+            padding: 2rem;
+        }
+
+        .modal-footer {
+            padding: 1rem 2rem;
+            border-top: 1px solid #e2e8f0;
+            text-align: center;
+            color: #64748b;
+        }
+
+        .modal-footer a {
+            color: #8B5CF6;
+            text-decoration: none;
+        }
+
+        .modal-footer a:hover {
+            text-decoration: underline;
+        }
+
+        .test-accounts {
+            background: #f8fafc;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+
+        .test-accounts code {
+            background: #e2e8f0;
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #8B5CF6;
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+
+        /* Enhanced Review Modal Styles */
+        .rating-section {
+            background: #f8fafc;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            border: 1px solid #e2e8f0;
+        }
+
+        .rating-section h5 {
+            color: #1e293b;
+            margin-bottom: 1.5rem;
+            font-size: 1.2rem;
+            text-align: center;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #8B5CF6;
+        }
+
+        .rating-group {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            flex-wrap: wrap;
+        }
+
+        .rating-label {
+            min-width: 120px;
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.95rem;
+        }
+
+        .star-rating {
+            display: flex;
+            gap: 0.25rem;
+            flex-wrap: wrap;
+        }
+
+        .star {
+            font-size: 1.8rem;
+            color: #d1d5db;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+
+        .star:hover,
+        .star.active {
+            color: #f59e0b;
+            transform: scale(1.15);
+            text-shadow: 0 2px 4px rgba(245, 158, 11, 0.3);
+        }
+
+        .rating-display {
+            font-weight: bold;
+            color: white;
+            min-width: 50px;
+            font-size: 1.1rem;
+            background: #8B5CF6;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            text-align: center;
+        }
+
+        /* Bathroom Symbol Selection */
+        .bathroom-section {
+            background: #f8fafc;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            border: 1px solid #e2e8f0;
+        }
+
+        .bathroom-section h5 {
+            color: #1e293b;
+            margin-bottom: 1.5rem;
+            font-size: 1.2rem;
+            text-align: center;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #10B981;
+        }
+
+        .bathroom-symbols {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .bathroom-symbol-btn {
+            background: white;
+            border: 3px solid #e2e8f0;
+            border-radius: 15px;
+            padding: 1.5rem 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            min-width: 120px;
+            position: relative;
+        }
+
+        .bathroom-symbol-btn:hover {
+            border-color: #8B5CF6;
+            background: #f8fafc;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(139, 92, 246, 0.2);
+        }
+
+        .bathroom-symbol-btn.selected {
+            background: linear-gradient(135deg, #8B5CF6, #7C3AED);
+            border-color: #8B5CF6;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(139, 92, 246, 0.3);
+        }
+
+        .bathroom-symbol-btn.selected::before {
+            content: '✓';
+            position: absolute;
+            top: 5px;
+            right: 8px;
+            background: #10B981;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .symbol-icon {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+            transition: transform 0.3s ease;
+        }
+
+        .bathroom-symbol-btn:hover .symbol-icon {
+            transform: scale(1.1);
+        }
+
+        .symbol-label {
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        .wheelchair-btn {
+            background: white;
+            border: 3px solid #e2e8f0;
+            border-radius: 15px;
+            padding: 1rem 2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            position: relative;
+        }
+
+        .wheelchair-btn:hover {
+            border-color: #10B981;
+            background: #f0fdf4;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.2);
+        }
+
+        .wheelchair-btn.selected {
+            background: linear-gradient(135deg, #10B981, #059669);
+            border-color: #10B981;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+        }
+
+        .wheelchair-btn.selected::before {
+            content: '✓';
+            position: absolute;
+            top: 5px;
+            right: 8px;
+            background: #8B5CF6;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .wheelchair-icon {
+            font-size: 2rem;
+            color: #3B82F6;
+            transition: transform 0.3s ease;
+        }
+
+        .wheelchair-btn:hover .wheelchair-icon {
+            transform: scale(1.1);
+        }
+
+        .wheelchair-btn.selected .wheelchair-icon {
+            color: white;
+        }
+
+        .wheelchair-label {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        /* Amenities Section */
+        .amenities-section {
+            background: #f8fafc;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            border: 1px solid #e2e8f0;
+        }
+
+        .amenities-section h5 {
+            color: #1e293b;
+            margin-bottom: 1.5rem;
+            font-size: 1.2rem;
+            text-align: center;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #10B981;
+        }
+
+        .amenities-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .amenity-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem;
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .amenity-item:hover {
+            border-color: #10B981;
+            background: #f0fdf4;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.1);
+        }
+
+        .amenity-item input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            margin: 0;
+            cursor: pointer;
+            accent-color: #10B981;
+        }
+
+        .amenity-item input[type="checkbox"]:checked + .amenity-label {
+            color: #10B981;
+            font-weight: 600;
+        }
+
+        .amenity-item:has(input[type="checkbox"]:checked) {
+            background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+            border-color: #10B981;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.2);
+        }
+
+        .amenity-item:has(input[type="checkbox"]:checked)::before {
+            content: '✓';
+            position: absolute;
+            top: 5px;
+            right: 8px;
+            background: #10B981;
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .amenity-label {
+            font-size: 0.95rem;
+            color: #374151;
+            transition: all 0.3s ease;
+            user-select: none;
+        }
+
+        /* Comment Section */
+        .comment-section {
+            background: #f8fafc;
+            padding: 1.5rem;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .comment-section h5 {
+            color: #1e293b;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+            text-align: center;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #3B82F6;
+        }
+
+        .comment-note {
+            color: #64748b;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            font-style: italic;
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 4px solid #3B82F6;
+        }
+
+        #reviewComment {
+            width: 100%;
+            min-height: 150px;
+            padding: 1rem;
+            border: 2px solid #d1d5db;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-family: inherit;
+            resize: vertical;
+            transition: border-color 0.3s ease;
+            background: white;
+        }
+
+        #reviewComment:focus {
+            outline: none;
+            border-color: #3B82F6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        /* Admin Panel */
+        .admin-tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .admin-tab-btn {
+            padding: 1rem 2rem;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #64748b;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .admin-tab-btn.active,
+        .admin-tab-btn:hover {
+            color: #8B5CF6;
+            border-bottom-color: #8B5CF6;
+        }
+
+        .admin-tab-content {
+            display: none;
+        }
+
+        .admin-tab-content.active {
+            display: block;
+        }
+
+        .admin-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .admin-item {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .admin-item-info h6 {
+            margin: 0 0 0.5rem 0;
+            color: #1e293b;
+        }
+
+        .admin-item-info p {
+            margin: 0.25rem 0;
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+
+        .admin-item-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+        }
+
+        .admin-badge {
+            background: #EF4444;
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 15px;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .analytics-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            text-align: center;
+        }
+
+        .analytics-card h6 {
+            margin: 0 0 1rem 0;
+            color: #64748b;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .analytics-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #8B5CF6;
+        }
+
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1001;
+            max-width: 400px;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            animation: slideIn 0.3s ease;
+        }
+
+        .notification-success {
+            background: #10B981;
+            color: white;
+        }
+
+        .notification-error {
+            background: #EF4444;
+            color: white;
+        }
+
+        .notification-warning {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .notification-info {
+            background: #3B82F6;
+            color: white;
+        }
+
+        .notification-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.5rem;
+        }
+
+        .notification-close {
+            background: none;
+            border: none;
+            color: inherit;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 0;
+            margin-left: 1rem;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Footer */
+        .footer {
+            background: #1e293b;
+            color: white;
+            padding: 3rem 0 1rem;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-section h4 {
+            margin-bottom: 1rem;
+            color: #8B5CF6;
+        }
+
+        .footer-section ul {
+            list-style: none;
+        }
+
+        .footer-section ul li {
+            margin-bottom: 0.5rem;
+            color: #94a3b8;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid #374151;
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2rem;
+            }
+
+            .search-main {
+                flex-direction: column;
+            }
+
+            .filter-row {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .business-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .business-header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .business-rating {
+                text-align: left;
+            }
+
+            .business-actions {
+                flex-direction: column;
+            }
+
+            .modal-content {
+                width: 95%;
+                margin: 2% auto;
+            }
+
+            .modal-large .modal-body {
+                padding: 1.5rem;
+            }
+
+            .bathroom-symbols {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .bathroom-symbol-btn {
+                min-width: 200px;
+            }
+
+            .rating-group {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 1rem;
+                text-align: center;
+            }
+
+            .star-rating {
+                justify-content: center;
+            }
+
+            .amenities-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-actions {
+                flex-direction: column;
+            }
+
+            .admin-tabs {
+                flex-wrap: wrap;
+            }
+
+            .admin-item {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 0 0.5rem;
+            }
+
+            .hero {
+                padding: 2rem 0;
+            }
+
+            .hero-title {
+                font-size: 1.5rem;
+            }
+
+            .hero-subtitle {
+                font-size: 1rem;
+            }
+
+            .search-input-container {
+                min-width: auto;
+            }
+
+            .bathroom-symbol-btn {
+                min-width: 150px;
+                padding: 1rem 0.5rem;
+            }
+
+            .symbol-icon {
+                font-size: 2.5rem;
+            }
+
+            .star {
+                font-size: 1.5rem;
+            }
+
+            .wheelchair-btn {
+                padding: 1rem;
+                flex-direction: column;
+                text-align: center;
+                gap: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo-section">
+                    <div class="logo-image">🚻</div>
+                    <div class="logo-text">
+                        <h1 class="logo">GTGOTG</h1>
+                        <p class="tagline">Got To Go On The Go</p>
+                    </div>
+                </div>
+                <nav class="nav">
+                    <button id="loginBtn" class="btn btn-secondary">Login</button>
+                    <button id="signupBtn" class="btn btn-primary">Sign Up</button>
+                    <button id="logoutBtn" class="btn btn-secondary" style="display: none;">Logout</button>
+                    <button id="adminBtn" class="btn btn-admin" style="display: none;">Admin</button>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- User Status Bar -->
+    <div id="userStatus" class="user-status" style="display: none;">
+        <div class="container">
+            <div class="user-welcome">
+                <span id="userWelcome">Welcome back!</span>
+                <span id="userBadge" class="user-badge">Reviewer</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h2 class="hero-title">Every Restroom, Everywhere</h2>
+                <p class="hero-subtitle">Find clean, safe, and accessible restrooms wherever you are</p>
+                
+                <div class="enhanced-search-container">
+                    <div class="search-main">
+                        <div class="search-input-container">
+                            <input type="text" id="searchInput" class="search-input" 
+                                   placeholder="Search by business name, city, state, or ZIP code...">
+                        </div>
+                        <button id="locationBtn" class="btn btn-secondary location-btn">
+                            📍 Enable Location
+                        </button>
+                        <button id="searchBtn" class="search-btn">🔍</button>
+                    </div>
+                    
+                    <div class="search-tips">
+                        <div class="search-tip">
+                            <span class="tip-icon">💡</span>
+                            <span class="tip-text">Try: "McDonald's", "Denver", "Colorado", "80202", or click "Enable Location" for nearby results</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Filter Section -->
+    <section class="filter-section">
+        <div class="container">
+            <div class="filter-controls">
+                <div class="filter-row">
+                    <div class="filter-group">
+                        <label class="filter-label">Filter by Type:</label>
+                        <select id="categoryFilter" class="filter-select">
+                            <option value="">All Establishments</option>
+                            <option value="gas_station">Gas Station</option>
+                            <option value="restaurant">Restaurant</option>
+                            <option value="coffee_shop">Coffee Shop</option>
+                            <option value="retail">Retail Store</option>
+                            <option value="rest_area">Rest Area</option>
+                            <option value="hotel">Hotel</option>
+                            <option value="hospital">Hospital</option>
+                            <option value="airport">Airport</option>
+                            <option value="mall">Shopping Mall</option>
+                            <option value="park">Park</option>
+                            <option value="library">Library</option>
+                            <option value="gym">Gym/Fitness</option>
+                            <option value="bar">Bar/Pub</option>
+                            <option value="theater">Theater/Cinema</option>
+                            <option value="stadium">Stadium/Arena</option>
+                            <option value="campground">Campground</option>
+                            <option value="fairground">Fairground</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label class="filter-label">Sort by:</label>
+                        <select id="sortBy" class="filter-select">
+                            <option value="relevance">Relevance</option>
+                            <option value="distance">Distance</option>
+                            <option value="rating">Highest Rated</option>
+                            <option value="reviews">Most Reviews</option>
+                            <option value="name">Name A-Z</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="quick-filters">
+                    <button class="filter-btn active" data-category="">All</button>
+                    <button class="filter-btn" data-category="gas_station">Gas</button>
+                    <button class="filter-btn" data-category="restaurant">Food</button>
+                    <button class="filter-btn" data-category="coffee_shop">Coffee</button>
+                    <button class="filter-btn" data-category="retail">Retail</button>
+                    <button class="filter-btn" data-category="rest_area">Rest Areas</button>
+                    <button class="filter-btn" data-category="hotel">Hotels</button>
+                    <button class="filter-btn" data-category="park">Parks</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Search Results Info -->
+    <section class="search-results-section">
+        <div class="container">
+            <div class="search-results-info">
+                <span id="searchResultsInfo">Loading restrooms...</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Map Section -->
+    <section class="map-section">
+        <div class="container">
+            <h3 class="section-title">Map View</h3>
+            <div class="map-container">
+                <div class="map-placeholder">
+                    <h4>Interactive Map</h4>
+                    <p>Map functionality available with full deployment</p>
+                    <p>Will show restroom locations with OpenStreetMap integration</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Listings Section -->
+    <section class="listings-section">
+        <div class="container">
+            <h3 class="section-title">Featured Restrooms</h3>
+            <div id="businessGrid" class="business-grid">
+                <div class="loading">Loading restrooms...</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Login to GTGOTG</h4>
+                <button class="modal-close" data-modal="loginModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="loginUsername">Username or Email:</label>
+                        <input type="text" id="loginUsername" name="username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPassword">Password:</label>
+                        <input type="password" id="loginPassword" name="password" required>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Login</button>
+                        <button type="button" class="btn btn-secondary modal-close" data-modal="loginModal">Cancel</button>
+                    </div>
+                </form>
+                <div class="modal-footer">
+                    <p>Don't have an account? <a href="#" onclick="document.getElementById('loginModal').style.display='none'; document.getElementById('signupModal').style.display='block';">Sign up here</a></p>
+                    <div class="test-accounts">
+                        <p><strong>Test Accounts:</strong></p>
+                        <p>User: <code>johndoe</code> / <code>password123</code></p>
+                        <p>Admin: <code>admin</code> / <code>gtgotg2025!</code></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Signup Modal -->
+    <div id="signupModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Join GTGOTG</h4>
+                <button class="modal-close" data-modal="signupModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="signupForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="signupFirstName">First Name:</label>
+                            <input type="text" id="signupFirstName" name="firstName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="signupLastName">Last Name:</label>
+                            <input type="text" id="signupLastName" name="lastName" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="signupUsername">Username:</label>
+                        <input type="text" id="signupUsername" name="username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="signupEmail">Email:</label>
+                        <input type="email" id="signupEmail" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="signupPassword">Password:</label>
+                        <input type="password" id="signupPassword" name="password" required minlength="6">
+                    </div>
+                    <div class="form-group">
+                        <label for="signupCity">City (Optional):</label>
+                        <input type="text" id="signupCity" name="city">
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Sign Up</button>
+                        <button type="button" class="btn btn-secondary modal-close" data-modal="signupModal">Cancel</button>
+                    </div>
+                </form>
+                <div class="modal-footer">
+                    <p>Already have an account? <a href="#" onclick="document.getElementById('signupModal').style.display='none'; document.getElementById('loginModal').style.display='block';">Login here</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Enhanced Review Modal -->
+    <div id="reviewModal" class="modal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h4 class="modal-title" id="businessNameDisplay">Rate This Restroom</h4>
+                <button class="modal-close" data-modal="reviewModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="reviewForm">
+                    <!-- Rating Section -->
+                    <div class="rating-section">
+                        <h5>Rate Your Experience (1-10 stars)</h5>
+                        
+                        <div class="rating-group">
+                            <label class="rating-label">Overall Rating:</label>
+                            <div class="star-rating" data-rating="overall">
+                                <span class="star" data-value="1">★</span>
+                                <span class="star" data-value="2">★</span>
+                                <span class="star" data-value="3">★</span>
+                                <span class="star" data-value="4">★</span>
+                                <span class="star" data-value="5">★</span>
+                                <span class="star" data-value="6">★</span>
+                                <span class="star" data-value="7">★</span>
+                                <span class="star" data-value="8">★</span>
+                                <span class="star" data-value="9">★</span>
+                                <span class="star" data-value="10">★</span>
+                            </div>
+                            <span id="overallRatingDisplay" class="rating-display">0/10</span>
+                        </div>
+
+                        <div class="rating-group">
+                            <label class="rating-label">Cleanliness:</label>
+                            <div class="star-rating" data-rating="cleanliness">
+                                <span class="star" data-value="1">★</span>
+                                <span class="star" data-value="2">★</span>
+                                <span class="star" data-value="3">★</span>
+                                <span class="star" data-value="4">★</span>
+                                <span class="star" data-value="5">★</span>
+                                <span class="star" data-value="6">★</span>
+                                <span class="star" data-value="7">★</span>
+                                <span class="star" data-value="8">★</span>
+                                <span class="star" data-value="9">★</span>
+                                <span class="star" data-value="10">★</span>
+                            </div>
+                            <span id="cleanlinessRatingDisplay" class="rating-display">0/10</span>
+                        </div>
+
+                        <div class="rating-group">
+                            <label class="rating-label">Safety:</label>
+                            <div class="star-rating" data-rating="safety">
+                                <span class="star" data-value="1">★</span>
+                                <span class="star" data-value="2">★</span>
+                                <span class="star" data-value="3">★</span>
+                                <span class="star" data-value="4">★</span>
+                                <span class="star" data-value="5">★</span>
+                                <span class="star" data-value="6">★</span>
+                                <span class="star" data-value="7">★</span>
+                                <span class="star" data-value="8">★</span>
+                                <span class="star" data-value="9">★</span>
+                                <span class="star" data-value="10">★</span>
+                            </div>
+                            <span id="safetyRatingDisplay" class="rating-display">0/10</span>
+                        </div>
+
+                        <div class="rating-group">
+                            <label class="rating-label">Accessibility:</label>
+                            <div class="star-rating" data-rating="accessibility">
+                                <span class="star" data-value="1">★</span>
+                                <span class="star" data-value="2">★</span>
+                                <span class="star" data-value="3">★</span>
+                                <span class="star" data-value="4">★</span>
+                                <span class="star" data-value="5">★</span>
+                                <span class="star" data-value="6">★</span>
+                                <span class="star" data-value="7">★</span>
+                                <span class="star" data-value="8">★</span>
+                                <span class="star" data-value="9">★</span>
+                                <span class="star" data-value="10">★</span>
+                            </div>
+                            <span id="accessibilityRatingDisplay" class="rating-display">0/10</span>
+                        </div>
+                    </div>
+
+                    <!-- Universal Bathroom Symbol Selection -->
+                    <div class="bathroom-section">
+                        <h5>Which Bathroom Did You Use?</h5>
+                        <div class="bathroom-symbols">
+                            <button type="button" class="bathroom-symbol-btn" data-type="mens">
+                                <div class="symbol-icon">🚹</div>
+                                <div class="symbol-label">Men's</div>
+                            </button>
+                            <button type="button" class="bathroom-symbol-btn" data-type="womens">
+                                <div class="symbol-icon">🚺</div>
+                                <div class="symbol-label">Women's</div>
+                            </button>
+                            <button type="button" class="bathroom-symbol-btn" data-type="unisex">
+                                <div class="symbol-icon">🚻</div>
+                                <div class="symbol-label">Unisex/Family</div>
+                            </button>
+                        </div>
+                        
+                        <!-- Wheelchair Accessibility Option -->
+                        <div style="margin-top: 1.5rem; display: flex; justify-content: center;">
+                            <button type="button" class="wheelchair-btn" data-accessible="false">
+                                <div class="wheelchair-icon">♿</div>
+                                <div class="wheelchair-label">I used the wheelchair accessible stall</div>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Amenities Section -->
+                    <div class="amenities-section">
+                        <h5>Available Amenities</h5>
+                        <div class="amenities-grid">
+                            <label class="amenity-item">
+                                <input type="checkbox" name="amenities" value="soap">
+                                <span class="amenity-label">🧼 Soap</span>
+                            </label>
+                            <label class="amenity-item">
+                                <input type="checkbox" name="amenities" value="paper_towels">
+                                <span class="amenity-label">📄 Paper Towels</span>
+                            </label>
+                            <label class="amenity-item">
+                                <input type="checkbox" name="amenities" value="hand_dryer">
+                                <span class="amenity-label">💨 Hand Dryer</span>
+                            </label>
+                            <label class="amenity-item">
+                                <input type="checkbox" name="amenities" value="toilet_paper">
+                                <span class="amenity-label">🧻 Toilet Paper</span>
+                            </label>
+                            <label class="amenity-item">
+                                <input type="checkbox" name="amenities" value="baby_changing">
+                                <span class="amenity-label">👶 Baby Changing</span>
+                            </label>
+                            <label class="amenity-item">
+                                <input type="checkbox" name="amenities" value="wheelchair_accessible">
+                                <span class="amenity-label">♿ Wheelchair Accessible</span>
+                            </label>
+                            <label class="amenity-item">
+                                <input type="checkbox" name="amenities" value="family_restroom">
+                                <span class="amenity-label">👨‍👩‍👧‍👦 Family Restroom</span>
+                            </label>
+                            <label class="amenity-item">
+                                <input type="checkbox" name="amenities" value="changing_table">
+                                <span class="amenity-label">🍼 Changing Table</span>
+                            </label>
+                            <label class="amenity-item">
+                                <input type="checkbox" name="amenities" value="grab_bars">
+                                <span class="amenity-label">🤝 Grab Bars</span>
+                            </label>
+                            <label class="amenity-item">
+                                <input type="checkbox" name="amenities" value="motion_sensor">
+                                <span class="amenity-label">👋 Motion Sensor</span>
+                            </label>
+                            <label class="amenity-item">
+                                <input type="checkbox" name="amenities" value="air_freshener">
+                                <span class="amenity-label">🌸 Air Freshener</span>
+                            </label>
+                            <label class="amenity-item">
+                                <input type="checkbox" name="amenities" value="privacy_lock">
+                                <span class="amenity-label">🔒 Privacy Lock</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Comment Section -->
+                    <div class="comment-section">
+                        <h5>Additional Comments (Optional)</h5>
+                        <p class="comment-note">Note: Comments require login. Anonymous ratings are welcome!</p>
+                        <textarea id="reviewComment" name="comment" placeholder="Share your experience to help others find great restrooms..." rows="6"></textarea>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Submit Review</button>
+                        <button type="button" class="btn btn-secondary modal-close" data-modal="reviewModal">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Modal -->
+    <div id="adminModal" class="modal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h4 class="modal-title">GTGOTG Admin Dashboard</h4>
+                <button class="modal-close" data-modal="adminModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="admin-tabs">
+                    <button class="admin-tab-btn active" data-tab="users">Users</button>
+                    <button class="admin-tab-btn" data-tab="businesses">Businesses</button>
+                    <button class="admin-tab-btn" data-tab="reviews">Reviews</button>
+                    <button class="admin-tab-btn" data-tab="analytics">Analytics</button>
+                </div>
+                
+                <div id="usersTab" class="admin-tab-content active">
+                    <h5>User Management</h5>
+                    <div id="usersList" class="admin-list">
+                        <!-- Users will be loaded by JavaScript -->
+                    </div>
+                </div>
+                
+                <div id="businessesTab" class="admin-tab-content">
+                    <h5>Business Management</h5>
+                    <div id="businessesList" class="admin-list">
+                        <!-- Businesses will be loaded by JavaScript -->
+                    </div>
+                </div>
+                
+                <div id="reviewsTab" class="admin-tab-content">
+                    <h5>Review Management</h5>
+                    <div id="reviewsList" class="admin-list">
+                        <!-- Reviews will be loaded by JavaScript -->
+                    </div>
+                </div>
+                
+                <div id="analyticsTab" class="admin-tab-content">
+                    <h5>Analytics Dashboard</h5>
+                    <div class="analytics-grid">
+                        <div class="analytics-card">
+                            <h6>Total Users</h6>
+                            <div class="analytics-number" id="totalUsers">0</div>
+                        </div>
+                        <div class="analytics-card">
+                            <h6>Total Businesses</h6>
+                            <div class="analytics-number" id="totalBusinesses">0</div>
+                        </div>
+                        <div class="analytics-card">
+                            <h6>Total Reviews</h6>
+                            <div class="analytics-number" id="totalReviews">0</div>
+                        </div>
+                        <div class="analytics-card">
+                            <h6>Average Rating</h6>
+                            <div class="analytics-number" id="averageRating">0.0</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification System -->
+    <div id="notification" class="notification" style="display: none;">
+        <div class="notification-content">
+            <span id="notificationText">Notification message</span>
+            <button id="notificationClose" class="notification-close">&times;</button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>GTGOTG</h4>
+                    <p>Every Restroom, Everywhere</p>
+                    <p>Making restroom access universal for everyone.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Features</h4>
+                    <ul>
+                        <li>Location-Based Search</li>
+                        <li>1-10 Star Ratings</li>
+                        <li>Accessibility Info</li>
+                        <li>Real-time Reviews</li>
+                        <li>Photo Sharing</li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Search Options</h4>
+                    <ul>
+                        <li>Business Names</li>
+                        <li>Cities & States</li>
+                        <li>ZIP Codes</li>
+                        <li>Near Your Location</li>
+                        <li>Category Filters</li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Community</h4>
+                    <ul>
+                        <li>User Guidelines</li>
+                        <li>Privacy Policy</li>
+                        <li>Terms of Service</li>
+                        <li>Contact Us</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 GTGOTG - "Got To Go On The Go". Created by Jessica Esposito / Colorado Quality LLC. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // GTGOTG - Complete Application JavaScript
+        // Copyright © 2025 Jessica Esposito / Colorado Quality LLC. All rights reserved.
+
+        console.log('🚽 GTGOTG - Got To Go On The Go - Initializing...');
+
+        // Global variables
+        let currentUser = null;
+        let currentBusinesses = [];
+        let currentBusinessForReview = null;
+        let userLocation = null;
+
+        // Review system variables
+        let selectedBathroomType = null;
+        let isWheelchairAccessible = false;
+        let currentRatings = {
+            overall: 0,
+            cleanliness: 0,
+            safety: 0,
+            accessibility: 0
+        };
+
+        // Sample business data
+        const sampleBusinesses = [
+            {
+                id: 1,
+                name: "Shell Gas Station",
+                category: "gas_station",
+                address: "1234 Main St, Denver, CO 80202",
+                distance: "0.2 miles",
+                ratings: { overall: 8.5, cleanliness: 9.0, safety: 8.0, accessibility: 7.5 },
+                reviewCount: 127,
+                amenities: ["soap", "paper_towels", "toilet_paper", "wheelchair_accessible"],
+                bathroomTypes: ["mens", "womens", "accessible"],
+                hours: "24/7",
+                verified: true
+            },
+            {
+                id: 2,
+                name: "McDonald's",
+                category: "restaurant",
+                address: "5678 Broadway, Denver, CO 80203",
+                distance: "0.5 miles",
+                ratings: { overall: 7.8, cleanliness: 8.2, safety: 8.5, accessibility: 8.0 },
+                reviewCount: 89,
+                amenities: ["soap", "hand_dryer", "toilet_paper", "baby_changing", "wheelchair_accessible"],
+                bathroomTypes: ["mens", "womens", "accessible"],
+                hours: "6:00 AM - 11:00 PM",
+                verified: true
+            },
+            {
+                id: 3,
+                name: "Starbucks Coffee",
+                category: "coffee_shop",
+                address: "9012 17th Ave, Denver, CO 80204",
+                distance: "0.8 miles",
+                ratings: { overall: 8.9, cleanliness: 9.2, safety: 9.0, accessibility: 8.5 },
+                reviewCount: 156,
+                amenities: ["soap", "paper_towels", "hand_dryer", "toilet_paper", "air_freshener"],
+                bathroomTypes: ["unisex"],
+                hours: "5:30 AM - 9:00 PM",
+                verified: true
+            },
+            {
+                id: 4,
+                name: "Walmart Supercenter",
+                category: "retail",
+                address: "3456 Colorado Blvd, Denver, CO 80205",
+                distance: "1.2 miles",
+                ratings: { overall: 7.2, cleanliness: 7.5, safety: 7.8, accessibility: 9.0 },
+                reviewCount: 203,
+                amenities: ["soap", "paper_towels", "toilet_paper", "baby_changing", "wheelchair_accessible", "family_restroom"],
+                bathroomTypes: ["mens", "womens", "family", "accessible"],
+                hours: "6:00 AM - 11:00 PM",
+                verified: true
+            },
+            {
+                id: 5,
+                name: "Target",
+                category: "retail",
+                address: "7890 Federal Blvd, Denver, CO 80221",
+                distance: "1.5 miles",
+                ratings: { overall: 8.3, cleanliness: 8.7, safety: 8.5, accessibility: 8.8 },
+                reviewCount: 94,
+                amenities: ["soap", "paper_towels", "hand_dryer", "toilet_paper", "baby_changing", "wheelchair_accessible"],
+                bathroomTypes: ["mens", "womens", "family", "accessible"],
+                hours: "8:00 AM - 10:00 PM",
+                verified: true
+            },
+            {
+                id: 6,
+                name: "Colorado Rest Area - Mile 247",
+                category: "rest_area",
+                address: "I-25 Mile 247, Colorado Springs, CO 80909",
+                distance: "65 miles",
+                ratings: { overall: 6.8, cleanliness: 6.5, safety: 7.2, accessibility: 8.0 },
+                reviewCount: 78,
+                amenities: ["soap", "paper_towels", "toilet_paper", "wheelchair_accessible", "baby_changing"],
+                bathroomTypes: ["mens", "womens", "accessible"],
+                hours: "24/7",
+                verified: true
+            },
+            {
+                id: 7,
+                name: "Denver International Airport - Terminal B",
+                category: "airport",
+                address: "8500 Peña Blvd, Denver, CO 80249",
+                distance: "25 miles",
+                ratings: { overall: 8.7, cleanliness: 9.1, safety: 9.2, accessibility: 9.5 },
+                reviewCount: 312,
+                amenities: ["soap", "paper_towels", "hand_dryer", "toilet_paper", "wheelchair_accessible", "baby_changing", "family_restroom"],
+                bathroomTypes: ["mens", "womens", "family", "accessible"],
+                hours: "24/7",
+                verified: true
+            },
+            {
+                id: 8,
+                name: "Cherry Creek Mall",
+                category: "mall",
+                address: "3000 E 1st Ave, Denver, CO 80206",
+                distance: "2.1 miles",
+                ratings: { overall: 8.1, cleanliness: 8.4, safety: 8.3, accessibility: 8.7 },
+                reviewCount: 145,
+                amenities: ["soap", "paper_towels", "hand_dryer", "toilet_paper", "baby_changing", "wheelchair_accessible", "family_restroom"],
+                bathroomTypes: ["mens", "womens", "family", "accessible"],
+                hours: "10:00 AM - 9:00 PM",
+                verified: true
+            }
+        ];
+
+        // Sample users
+        const sampleUsers = [
+            {
+                id: 1,
+                username: "johndoe",
+                email: "john@example.com",
+                firstName: "John",
+                lastName: "Doe",
+                password: "password123",
+                badge: "Bronze",
+                reviewCount: 8,
+                joinDate: "2024-01-15",
+                city: "Denver"
+            },
+            {
+                id: 2,
+                username: "admin",
+                email: "admin@gtgotg.com",
+                firstName: "Admin",
+                lastName: "User",
+                password: "gtgotg2025!",
+                badge: "Expert",
+                reviewCount: 50,
+                joinDate: "2024-01-01",
+                city: "Denver",
+                isAdmin: true
+            }
+        ];
+
+        // Initialize application
+        function initializeApp() {
+            console.log('🔧 Setting up UI components...');
+            
+            setupEventHandlers();
+            initializeEnhancedReviewSystem();
+            loadBusinesses();
+            checkUserSession();
+            
+            console.log('✅ GTGOTG - Application initialized successfully!');
+        }
+
+        // Setup event handlers
+        function setupEventHandlers() {
+            console.log('🔧 Setting up event handlers...');
+            
+            // Search functionality
+            const searchBtn = document.getElementById('searchBtn');
+            const searchInput = document.getElementById('searchInput');
+            const locationBtn = document.getElementById('locationBtn');
+            
+            if (searchBtn) searchBtn.addEventListener('click', performSearch);
+            if (searchInput) {
+                searchInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') performSearch();
+                });
+            }
+            if (locationBtn) locationBtn.addEventListener('click', enableLocation);
+            
+            // Filter functionality
+            const categoryFilter = document.getElementById('categoryFilter');
+            const sortBy = document.getElementById('sortBy');
+            
+            if (categoryFilter) categoryFilter.addEventListener('change', applyFilters);
+            if (sortBy) sortBy.addEventListener('change', applyFilters);
+            
+            // Quick filter buttons
+            const filterBtns = document.querySelectorAll('.filter-btn');
+            filterBtns.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    filterBtns.forEach(b => b.classList.remove('active'));
+                    e.target.classList.add('active');
+                    
+                    const category = e.target.dataset.category;
+                    if (categoryFilter) categoryFilter.value = category;
+                    applyFilters();
+                });
+            });
+            
+            // Authentication
+            const loginBtn = document.getElementById('loginBtn');
+            const signupBtn = document.getElementById('signupBtn');
+            const logoutBtn = document.getElementById('logoutBtn');
+            const adminBtn = document.getElementById('adminBtn');
+            
+            if (loginBtn) loginBtn.addEventListener('click', () => showModal('loginModal'));
+            if (signupBtn) signupBtn.addEventListener('click', () => showModal('signupModal'));
+            if (logoutBtn) logoutBtn.addEventListener('click', logout);
+            if (adminBtn) adminBtn.addEventListener('click', () => showModal('adminModal'));
+            
+            // Form submissions
+            const loginForm = document.getElementById('loginForm');
+            const signupForm = document.getElementById('signupForm');
+            const reviewForm = document.getElementById('reviewForm');
+            
+            if (loginForm) loginForm.addEventListener('submit', handleLogin);
+            if (signupForm) signupForm.addEventListener('submit', handleSignup);
+            if (reviewForm) reviewForm.addEventListener('submit', handleReviewSubmission);
+            
+            // Modal close handlers
+            const modalCloses = document.querySelectorAll('.modal-close');
+            modalCloses.forEach(close => {
+                close.addEventListener('click', (e) => {
+                    const modal = e.target.dataset.modal || e.target.closest('.modal').id;
+                    closeModal(modal);
+                });
+            });
+            
+            // Admin panel tabs
+            const adminTabBtns = document.querySelectorAll('.admin-tab-btn');
+            adminTabBtns.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const tabName = e.target.dataset.tab;
+                    switchAdminTab(tabName);
+                });
+            });
+            
+            // Notification close
+            const notificationClose = document.getElementById('notificationClose');
+            if (notificationClose) {
+                notificationClose.addEventListener('click', () => {
+                    document.getElementById('notification').style.display = 'none';
+                });
+            }
+            
+            console.log('✅ Event handlers set up successfully');
+        }
+
+        // Perform search
+        function performSearch() {
+            const searchInput = document.getElementById('searchInput');
+            const query = searchInput ? searchInput.value.toLowerCase().trim() : '';
+            
+            console.log(`🔍 Performing search for: "${query}"`);
+            
+            if (!query) {
+                loadBusinesses();
+                return;
+            }
+            
+            let filteredBusinesses = sampleBusinesses.filter(business => {
+                return business.name.toLowerCase().includes(query) ||
+                       business.address.toLowerCase().includes(query) ||
+                       business.category.toLowerCase().includes(query);
+            });
+            
+            if (filteredBusinesses.length === 0) {
+                filteredBusinesses = sampleBusinesses.filter(business => {
+                    const searchTerms = query.split(' ');
+                    return searchTerms.some(term => 
+                        business.name.toLowerCase().includes(term) ||
+                        business.address.toLowerCase().includes(term)
+                    );
+                });
+            }
+            
+            currentBusinesses = filteredBusinesses;
+            renderBusinesses(currentBusinesses);
+            updateSearchResultsInfo(query, currentBusinesses.length);
+        }
+
+        // Enable location services
+        function enableLocation() {
+            console.log('📍 Requesting user location...');
+            
+            const locationBtn = document.getElementById('locationBtn');
+            if (locationBtn) {
+                locationBtn.textContent = '📍 Getting Location...';
+                locationBtn.disabled = true;
+            }
+            
+            if (!navigator.geolocation) {
+                showNotification('Geolocation is not supported by this browser.', 'error');
+                resetLocationButton();
+                return;
+            }
+            
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    userLocation = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                    };
+                    
+                    console.log('✅ User location obtained:', userLocation);
+                    
+                    if (locationBtn) {
+                        locationBtn.textContent = '📍 Location Enabled';
+                        locationBtn.classList.add('location-enabled');
+                    }
+                    
+                    showNotification('Location enabled! Results sorted by distance.', 'success');
+                    applyFilters();
+                },
+                (error) => {
+                    console.error('❌ Error getting location:', error);
+                    showNotification('Unable to get your location. Please check permissions.', 'error');
+                    resetLocationButton();
+                }
+            );
+        }
+
+        function resetLocationButton() {
+            const locationBtn = document.getElementById('locationBtn');
+            if (locationBtn) {
+                locationBtn.textContent = '📍 Enable Location';
+                locationBtn.disabled = false;
+                locationBtn.classList.remove('location-enabled');
+            }
+        }
+
+        // Apply filters and sorting
+        function applyFilters() {
+            console.log('🔧 Applying filters...');
+            
+            const categoryFilter = document.getElementById('categoryFilter');
+            const sortBy = document.getElementById('sortBy');
+            
+            const category = categoryFilter ? categoryFilter.value : '';
+            const sort = sortBy ? sortBy.value : 'relevance';
+            
+            let filteredBusinesses = category ? 
+                sampleBusinesses.filter(business => business.category === category) :
+                [...sampleBusinesses];
+            
+            // Sort businesses
+            switch (sort) {
+                case 'rating':
+                    filteredBusinesses.sort((a, b) => b.ratings.overall - a.ratings.overall);
+                    break;
+                case 'reviews':
+                    filteredBusinesses.sort((a, b) => b.reviewCount - a.reviewCount);
+                    break;
+                case 'name':
+                    filteredBusinesses.sort((a, b) => a.name.localeCompare(b.name));
+                    break;
+                default:
+                    break;
+            }
+            
+            currentBusinesses = filteredBusinesses;
+            renderBusinesses(currentBusinesses);
+            updateSearchResultsInfo('', currentBusinesses.length);
+        }
+
+        // Load and render businesses
+        function loadBusinesses() {
+            console.log('📊 Loading businesses...');
+            currentBusinesses = [...sampleBusinesses];
+            renderBusinesses(currentBusinesses);
+            updateSearchResultsInfo('', currentBusinesses.length);
+        }
+
+        // Render businesses
+        function renderBusinesses(businesses) {
+            console.log(`🏢 Rendering ${businesses.length} businesses...`);
+            
+            const businessGrid = document.getElementById('businessGrid');
+            if (!businessGrid) {
+                console.error('❌ Business grid element not found');
+                return;
+            }
+            
+            if (businesses.length === 0) {
+                businessGrid.innerHTML = `
+                    <div class="no-results">
+                        <h3>No restrooms found</h3>
+                        <p>Try adjusting your search or filters</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            businessGrid.innerHTML = businesses.map(business => createBusinessCard(business)).join('');
+            
+            console.log('✅ Business cards rendered successfully');
+        }
+
+        // Create business card HTML
+        function createBusinessCard(business) {
+            const bathroomSymbols = business.bathroomTypes.map(type => {
+                switch(type) {
+                    case 'mens': return '🚹';
+                    case 'womens': return '🚺';
+                    case 'unisex': return '🚻';
+                    case 'family': return '👨‍👩‍👧‍👦';
+                    case 'accessible': return '♿';
+                    default: return '';
+                }
+            }).join(' ');
+            
+            const amenityIcons = business.amenities.slice(0, 4).map(amenity => {
+                switch(amenity) {
+                    case 'soap': return '🧼';
+                    case 'paper_towels': return '📄';
+                    case 'hand_dryer': return '💨';
+                    case 'toilet_paper': return '🧻';
+                    case 'baby_changing': return '👶';
+                    case 'wheelchair_accessible': return '♿';
+                    case 'family_restroom': return '👨‍👩‍👧‍👦';
+                    case 'air_freshener': return '🌸';
+                    default: return '✓';
+                }
+            }).join(' ');
+            
+            return `
+                <div class="business-card" data-business-id="${business.id}">
+                    <div class="business-header">
+                        <div class="business-info">
+                            <h3 class="business-name">${business.name}</h3>
+                            <p class="business-address">${business.address}</p>
+                            <p class="business-distance">${business.distance}</p>
+                        </div>
+                        <div class="business-rating">
+                            <div class="rating-stars">
+                                <span class="rating-number">${business.ratings.overall.toFixed(1)}</span>
+                                <span class="rating-scale">/10</span>
+                            </div>
+                            <div class="review-count">${business.reviewCount} reviews</div>
+                        </div>
+                    </div>
+                    
+                    <div class="business-details">
+                        <div class="bathroom-types">
+                            <span class="detail-label">Bathrooms:</span>
+                            <span class="bathroom-symbols">${bathroomSymbols}</span>
+                        </div>
+                        
+                        <div class="amenities">
+                            <span class="detail-label">Amenities:</span>
+                            <span class="amenity-icons">${amenityIcons}</span>
+                            ${business.amenities.length > 4 ? `<span class="more-amenities">+${business.amenities.length - 4} more</span>` : ''}
+                        </div>
+                        
+                        <div class="business-hours">
+                            <span class="detail-label">Hours:</span>
+                            <span class="hours-text">${business.hours}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="business-actions">
+                        <button class="btn btn-primary" onclick="openReviewModal(${business.id})">
+                            Rate This Restroom
+                        </button>
+                        <button class="btn btn-secondary" onclick="getDirections(${business.id})">
+                            Get Directions
+                        </button>
+                    </div>
+                    
+                    ${business.verified ? '<div class="verified-badge">✓ Verified</div>' : ''}
+                </div>
+            `;
+        }
+
+        // Update search results info
+        function updateSearchResultsInfo(query, count) {
+            const searchResultsInfo = document.getElementById('searchResultsInfo');
+            if (!searchResultsInfo) return;
+            
+            let message = '';
+            if (query) {
+                message = `Found ${count} restroom${count !== 1 ? 's' : ''} for "${query}"`;
+            } else {
+                message = `Showing ${count} restroom${count !== 1 ? 's' : ''}`;
+            }
+            
+            if (userLocation) {
+                message += ' (sorted by distance)';
+            }
+            
+            searchResultsInfo.textContent = message;
+        }
+
+        // Get directions to business
+        function getDirections(businessId) {
+            const business = sampleBusinesses.find(b => b.id === businessId);
+            if (!business) return;
+            
+            const address = encodeURIComponent(business.address);
+            const url = `https://www.google.com/maps/dir/?api=1&destination=${address}`;
+            window.open(url, '_blank');
+            
+            console.log(`🗺️ Opening directions to: ${business.name}`);
+        }
+
+        // Enhanced review system initialization
+        function initializeEnhancedReviewSystem() {
+            console.log('🔧 Initializing enhanced review system...');
+            
+            initializeBathroomSymbols();
+            initializeEnhancedRatings();
+            
+            console.log('✅ Enhanced review system initialized');
+        }
+
+        // Initialize bathroom symbol selection
+        function initializeBathroomSymbols() {
+            const bathroomBtns = document.querySelectorAll('.bathroom-symbol-btn');
+            const wheelchairBtn = document.querySelector('.wheelchair-btn');
+            
+            bathroomBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    bathroomBtns.forEach(b => b.classList.remove('selected'));
+                    btn.classList.add('selected');
+                    selectedBathroomType = btn.dataset.type;
+                    console.log(`🚻 Selected bathroom type: ${selectedBathroomType}`);
+                });
+            });
+            
+            if (wheelchairBtn) {
+                wheelchairBtn.addEventListener('click', () => {
+                    isWheelchairAccessible = !isWheelchairAccessible;
+                    wheelchairBtn.classList.toggle('selected', isWheelchairAccessible);
+                    wheelchairBtn.dataset.accessible = isWheelchairAccessible;
+                    console.log(`♿ Wheelchair accessible: ${isWheelchairAccessible}`);
+                });
+            }
+            
+            console.log('🚻 Bathroom symbol selection initialized');
+        }
+
+        // Initialize enhanced star ratings
+        function initializeEnhancedRatings() {
+            const starRatings = document.querySelectorAll('.star-rating');
+            
+            starRatings.forEach(rating => {
+                const ratingType = rating.dataset.rating;
+                const stars = rating.querySelectorAll('.star');
+                const display = document.getElementById(`${ratingType}RatingDisplay`);
+                
+                stars.forEach((star, index) => {
+                    star.addEventListener('click', () => {
+                        const value = parseInt(star.dataset.value);
+                        setRating(ratingType, value, stars, display);
+                    });
+                    
+                    star.addEventListener('mouseenter', () => {
+                        highlightStars(stars, parseInt(star.dataset.value));
+                    });
+                });
+                
+                rating.addEventListener('mouseleave', () => {
+                    highlightStars(stars, currentRatings[ratingType] || 0);
+                });
+            });
+            
+            console.log('⭐ Enhanced star ratings initialized');
+        }
+
+        // Set rating value
+        function setRating(type, value, stars, display) {
+            currentRatings[type] = value;
+            highlightStars(stars, value);
+            
+            if (display) {
+                display.textContent = `${value}/10`;
+            }
+            
+            console.log(`⭐ Set ${type} rating to ${value}/10`);
+        }
+
+        // Highlight stars up to value
+        function highlightStars(stars, value) {
+            stars.forEach((star, index) => {
+                if (index < value) {
+                    star.classList.add('active');
+                } else {
+                    star.classList.remove('active');
+                }
+            });
+        }
+
+        // Handle review submission
+        async function handleReviewSubmission(event) {
+            event.preventDefault();
+            
+            console.log('📝 Submitting review...');
+            
+            if (!validateReviewForm()) {
+                return;
+            }
+            
+            const reviewData = prepareReviewData();
+            
+            try {
+                await submitReview(reviewData);
+                showNotification('Review submitted successfully! Thank you for helping others find great restrooms.', 'success');
+                updateBusinessWithReview(reviewData);
+                closeModal('reviewModal');
+                resetReviewForm();
+                
+                if (currentUser) {
+                    updateUserBadge();
+                }
+                
+            } catch (error) {
+                console.error('Error submitting review:', error);
+                showNotification('Error submitting review. Please try again.', 'error');
+            }
+        }
+
+        // Validate review form
+        function validateReviewForm() {
+            if (currentRatings.overall === 0) {
+                showNotification('Please provide at least an overall rating.', 'warning');
+                return false;
+            }
+            
+            if (!selectedBathroomType) {
+                showNotification('Please select which bathroom you used.', 'warning');
+                return false;
+            }
+            
+            return true;
+        }
+
+        // Prepare review data
+        function prepareReviewData() {
+            const form = document.getElementById('reviewForm');
+            const formData = new FormData(form);
+            
+            const reviewData = {
+                businessId: currentBusinessForReview,
+                userId: currentUser ? currentUser.id : null,
+                ratings: { ...currentRatings },
+                bathroomType: selectedBathroomType,
+                wheelchairAccessible: isWheelchairAccessible,
+                amenities: [],
+                comment: formData.get('comment') || '',
+                timestamp: new Date().toISOString(),
+                anonymous: !currentUser
+            };
+            
+            const amenityCheckboxes = form.querySelectorAll('input[name="amenities"]:checked');
+            reviewData.amenities = Array.from(amenityCheckboxes).map(cb => cb.value);
+            
+            return reviewData;
+        }
+
+        // Submit review
+        async function submitReview(reviewData) {
+            console.log('📤 Submitting review...');
+            
+            const reviews = JSON.parse(localStorage.getItem('gtgotg_reviews') || '[]');
+            reviews.push(reviewData);
+            localStorage.setItem('gtgotg_reviews', JSON.stringify(reviews));
+            
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            console.log('✅ Review submitted successfully');
+        }
+
+        // Update business with new review
+        function updateBusinessWithReview(reviewData) {
+            const business = sampleBusinesses.find(b => b.id === reviewData.businessId);
+            if (!business) return;
+            
+            business.reviewCount = (business.reviewCount || 0) + 1;
+            
+            const totalReviews = business.reviewCount;
+            Object.keys(reviewData.ratings).forEach(key => {
+                if (reviewData.ratings[key] > 0) {
+                    const currentRating = business.ratings[key] || 0;
+                    const newRating = reviewData.ratings[key];
+                    business.ratings[key] = ((currentRating * (totalReviews - 1)) + newRating) / totalReviews;
+                }
+            });
+            
+            if (reviewData.amenities.length > 0) {
+                business.amenities = [...new Set([...business.amenities, ...reviewData.amenities])];
+            }
+            
+            if (reviewData.bathroomType && !business.bathroomTypes.includes(reviewData.bathroomType)) {
+                business.bathroomTypes.push(reviewData.bathroomType);
+            }
+            
+            if (reviewData.wheelchairAccessible && !business.bathroomTypes.includes('accessible')) {
+                business.bathroomTypes.push('accessible');
+            }
+            
+            renderBusinesses(currentBusinesses);
+            
+            console.log('🔄 Business data updated with new review');
+        }
+
+        // Reset review form
+        function resetReviewForm() {
+            currentRatings = {
+                overall: 0,
+                cleanliness: 0,
+                safety: 0,
+                accessibility: 0
+            };
+            
+            Object.keys(currentRatings).forEach(type => {
+                const display = document.getElementById(`${type}RatingDisplay`);
+                if (display) display.textContent = '0/10';
+                
+                const stars = document.querySelectorAll(`[data-rating="${type}"] .star`);
+                stars.forEach(star => star.classList.remove('active'));
+            });
+            
+            selectedBathroomType = null;
+            isWheelchairAccessible = false;
+            
+            document.querySelectorAll('.bathroom-symbol-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            
+            const wheelchairBtn = document.querySelector('.wheelchair-btn');
+            if (wheelchairBtn) {
+                wheelchairBtn.classList.remove('selected');
+                wheelchairBtn.dataset.accessible = 'false';
+            }
+            
+            const form = document.getElementById('reviewForm');
+            if (form) {
+                form.reset();
+            }
+            
+            console.log('🔄 Review form reset');
+        }
+
+        // Open review modal
+        function openReviewModal(businessId) {
+            const business = sampleBusinesses.find(b => b.id === businessId);
+            if (!business) return;
+            
+            currentBusinessForReview = businessId;
+            
+            const titleElement = document.getElementById('businessNameDisplay');
+            if (titleElement) {
+                titleElement.textContent = `Rate ${business.name}`;
+            }
+            
+            resetReviewForm();
+            showModal('reviewModal');
+            
+            console.log(`📝 Opened review modal for: ${business.name}`);
+        }
+
+        // Authentication functions
+        function handleLogin(event) {
+            event.preventDefault();
+            
+            const formData = new FormData(event.target);
+            const username = formData.get('username');
+            const password = formData.get('password');
+            
+            console.log(`🔐 Attempting login for: ${username}`);
+            
+            const user = sampleUsers.find(u => 
+                (u.username === username || u.email === username) && u.password === password
+            );
+            
+            if (user) {
+                currentUser = { ...user };
+                delete currentUser.password;
+                
+                updateUserStatus();
+                closeModal('loginModal');
+                showNotification(`Welcome back, ${user.firstName}!`, 'success');
+                
+                console.log(`✅ Login successful for: ${user.username}`);
+            } else {
+                showNotification('Invalid username or password.', 'error');
+                console.log(`❌ Login failed for: ${username}`);
+            }
+        }
+
+        function handleSignup(event) {
+            event.preventDefault();
+            
+            const formData = new FormData(event.target);
+            const userData = {
+                id: Date.now(),
+                username: formData.get('username'),
+                email: formData.get('email'),
+                firstName: formData.get('firstName'),
+                lastName: formData.get('lastName'),
+                password: formData.get('password'),
+                city: formData.get('city'),
+                badge: 'Reviewer',
+                reviewCount: 0,
+                joinDate: new Date().toISOString().split('T')[0],
+                isAdmin: false
+            };
+            
+            console.log(`📝 Creating account for: ${userData.username}`);
+            
+            const existingUser = sampleUsers.find(u => 
+                u.username === userData.username || u.email === userData.email
+            );
+            
+            if (existingUser) {
+                showNotification('Username or email already exists.', 'error');
+                return;
+            }
+            
+            sampleUsers.push(userData);
+            
+            currentUser = { ...userData };
+            delete currentUser.password;
+            
+            updateUserStatus();
+            closeModal('signupModal');
+            showNotification(`Welcome to GTGOTG, ${userData.firstName}!`, 'success');
+            
+            console.log(`✅ Account created for: ${userData.username}`);
+        }
+
+        function logout() {
+            console.log('🚪 Logging out user');
+            
+            currentUser = null;
+            updateUserStatus();
+            showNotification('You have been logged out.', 'info');
+        }
+
+        function updateUserStatus() {
+            const userStatus = document.getElementById('userStatus');
+            const userWelcome = document.getElementById('userWelcome');
+            const userBadge = document.getElementById('userBadge');
+            const loginBtn = document.getElementById('loginBtn');
+            const signupBtn = document.getElementById('signupBtn');
+            const logoutBtn = document.getElementById('logoutBtn');
+            const adminBtn = document.getElementById('adminBtn');
+            
+            if (currentUser) {
+                if (userStatus) userStatus.style.display = 'block';
+                if (userWelcome) userWelcome.textContent = `Welcome, ${currentUser.firstName}!`;
+                if (userBadge) {
+                    userBadge.textContent = currentUser.badge;
+                    userBadge.className = `user-badge badge-${currentUser.badge.toLowerCase()}`;
+                }
+                
+                if (loginBtn) loginBtn.style.display = 'none';
+                if (signupBtn) signupBtn.style.display = 'none';
+                if (logoutBtn) logoutBtn.style.display = 'inline-block';
+                if (adminBtn && currentUser.isAdmin) adminBtn.style.display = 'inline-block';
+            } else {
+                if (userStatus) userStatus.style.display = 'none';
+                if (loginBtn) loginBtn.style.display = 'inline-block';
+                if (signupBtn) signupBtn.style.display = 'inline-block';
+                if (logoutBtn) logoutBtn.style.display = 'none';
+                if (adminBtn) adminBtn.style.display = 'none';
+            }
+        }
+
+        function checkUserSession() {
+            console.log('🔍 Checking for existing user session...');
+        }
+
+        // Update user badge after review
+        function updateUserBadge() {
+            if (!currentUser) return;
+            
+            const reviews = JSON.parse(localStorage.getItem('gtgotg_reviews') || '[]');
+            const userReviews = reviews.filter(r => r.userId === currentUser.id);
+            const reviewCount = userReviews.length;
+            
+            let newBadge = 'Reviewer';
+            if (reviewCount >= 25) newBadge = 'Expert';
+            else if (reviewCount >= 20) newBadge = 'Platinum';
+            else if (reviewCount >= 15) newBadge = 'Gold';
+            else if (reviewCount >= 10) newBadge = 'Silver';
+            else if (reviewCount >= 5) newBadge = 'Bronze';
+            
+            if (newBadge !== currentUser.badge) {
+                currentUser.badge = newBadge;
+                updateUserStatus();
+                showNotification(`Congratulations! You've earned the ${newBadge} badge!`, 'success');
+                
+                const userIndex = sampleUsers.findIndex(u => u.id === currentUser.id);
+                if (userIndex !== -1) {
+                    sampleUsers[userIndex].badge = newBadge;
+                }
+            }
+        }
+
+        // Admin panel functions
+        function switchAdminTab(tabName) {
+            document.querySelectorAll('.admin-tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            document.querySelectorAll('.admin-tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            const selectedTab = document.getElementById(`${tabName}Tab`);
+            if (selectedTab) {
+                selectedTab.classList.add('active');
+            }
+            
+            const selectedBtn = document.querySelector(`[data-tab="${tabName}"]`);
+            if (selectedBtn) {
+                selectedBtn.classList.add('active');
+            }
+            
+            loadAdminTabData(tabName);
+        }
+
+        function loadAdminTabData(tabName) {
+            switch (tabName) {
+                case 'users':
+                    loadUsersData();
+                    break;
+                case 'businesses':
+                    loadBusinessesData();
+                    break;
+                case 'reviews':
+                    loadReviewsData();
+                    break;
+                case 'analytics':
+                    loadAnalyticsData();
+                    break;
+            }
+        }
+
+        function loadUsersData() {
+            const usersList = document.getElementById('usersList');
+            if (!usersList) return;
+            
+            usersList.innerHTML = sampleUsers.map(user => `
+                <div class="admin-item">
+                    <div class="admin-item-info">
+                        <h6>${user.firstName} ${user.lastName} (@${user.username})</h6>
+                        <p>Email: ${user.email}</p>
+                        <p>Badge: ${user.badge} | Reviews: ${user.reviewCount} | Joined: ${user.joinDate}</p>
+                    </div>
+                    <div class="admin-item-actions">
+                        <button class="btn btn-sm btn-secondary">Edit</button>
+                        ${user.isAdmin ? '<span class="admin-badge">Admin</span>' : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function loadBusinessesData() {
+            const businessesList = document.getElementById('businessesList');
+            if (!businessesList) return;
+            
+            businessesList.innerHTML = sampleBusinesses.map(business => `
+                <div class="admin-item">
+                    <div class="admin-item-info">
+                        <h6>${business.name}</h6>
+                        <p>${business.address}</p>
+                        <p>Rating: ${business.ratings.overall.toFixed(1)}/10 | Reviews: ${business.reviewCount}</p>
+                    </div>
+                    <div class="admin-item-actions">
+                        <button class="btn btn-sm btn-secondary">Edit</button>
+                        ${business.verified ? '<span class="verified-badge">Verified</span>' : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function loadReviewsData() {
+            const reviewsList = document.getElementById('reviewsList');
+            if (!reviewsList) return;
+            
+            const reviews = JSON.parse(localStorage.getItem('gtgotg_reviews') || '[]');
+            
+            if (reviews.length === 0) {
+                reviewsList.innerHTML = '<p>No reviews yet.</p>';
+                return;
+            }
+            
+            reviewsList.innerHTML = reviews.map(review => {
+                const business = sampleBusinesses.find(b => b.id === review.businessId);
+                const user = sampleUsers.find(u => u.id === review.userId);
+                
+                return `
+                    <div class="admin-item">
+                        <div class="admin-item-info">
+                            <h6>${business ? business.name : 'Unknown Business'}</h6>
+                            <p>By: ${user ? user.firstName + ' ' + user.lastName : 'Anonymous'}</p>
+                            <p>Rating: ${review.ratings.overall}/10 | Date: ${new Date(review.timestamp).toLocaleDateString()}</p>
+                            ${review.comment ? `<p>Comment: "${review.comment}"</p>` : ''}
+                        </div>
+                        <div class="admin-item-actions">
+                            <button class="btn btn-sm btn-secondary">Moderate</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function loadAnalyticsData() {
+            const reviews = JSON.parse(localStorage.getItem('gtgotg_reviews') || '[]');
+            
+            const totalUsers = document.getElementById('totalUsers');
+            const totalBusinesses = document.getElementById('totalBusinesses');
+            const totalReviews = document.getElementById('totalReviews');
+            const averageRating = document.getElementById('averageRating');
+            
+            if (totalUsers) totalUsers.textContent = sampleUsers.length;
+            if (totalBusinesses) totalBusinesses.textContent = sampleBusinesses.length;
+            if (totalReviews) totalReviews.textContent = reviews.length;
+            
+            if (averageRating && reviews.length > 0) {
+                const avgRating = reviews.reduce((sum, review) => sum + review.ratings.overall, 0) / reviews.length;
+                averageRating.textContent = avgRating.toFixed(1);
+            } else if (averageRating) {
+                averageRating.textContent = '0.0';
+            }
+        }
+
+        // Modal functions
+        function showModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.style.display = 'block';
+                document.body.style.overflow = 'hidden';
+                
+                if (modalId === 'adminModal') {
+                    loadAdminTabData('users');
+                }
+            }
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            }
+        }
+
+        // Notification system
+        function showNotification(message, type = 'info') {
+            const notification = document.getElementById('notification');
+            const notificationText = document.getElementById('notificationText');
+            
+            if (!notification || !notificationText) return;
+            
+            notificationText.textContent = message;
+            notification.className = `notification notification-${type}`;
+            notification.style.display = 'block';
+            
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 5000);
+            
+            console.log(`📢 Notification (${type}): ${message}`);
+        }
+
+        // Close modals when clicking outside
+        window.addEventListener('click', (event) => {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            }
+        });
+
+        // Initialize when DOM is ready
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🚀 DOM Content Loaded - Starting GTGOTG...');
+            setTimeout(initializeApp, 100);
+        });
+
+        // Export functions for global use
+        window.openReviewModal = openReviewModal;
+        window.getDirections = getDirections;
+
+        console.log('✅ GTGOTG - Got To Go On The Go - Loaded successfully!');
+    </script>
+</body>
+</html>
+
