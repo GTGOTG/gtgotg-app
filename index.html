@@ -11,6 +11,9 @@
     Copyright © 2025 Jessica Esposito / Colorado Quality LLC. All rights reserved.
     -->
     
+    <!-- Leaflet CSS for OpenStreetMap -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
     <style>
         /* GTGOTG Complete Styles - All-in-One */
         * {
@@ -58,8 +61,26 @@
             width: 50px;
             height: 50px;
             border-radius: 8px;
-            background: rgba(255, 255, 255, 0.2);
+            overflow: hidden;
             display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .logo-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .logo-fallback {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            display: none;
             align-items: center;
             justify-content: center;
             font-size: 1.5rem;
@@ -206,6 +227,11 @@
             border-radius: 50px;
         }
 
+        .location-btn.location-enabled {
+            background: #10B981;
+            border-color: #10B981;
+        }
+
         .search-btn {
             background: #10B981;
             color: white;
@@ -327,15 +353,23 @@
             overflow: hidden;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
             background: #f8fafc;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            position: relative;
         }
 
-        .map-placeholder {
+        #map {
+            height: 100%;
+            width: 100%;
+            border-radius: 15px;
+        }
+
+        .map-loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
             text-align: center;
             color: #64748b;
-            padding: 2rem;
+            z-index: 1000;
         }
 
         /* Listings Section */
@@ -1328,7 +1362,12 @@
         <div class="container">
             <div class="header-content">
                 <div class="logo-section">
-                    <div class="logo-image">🚻</div>
+                    <div class="logo-image">
+                        <img src="assets/gtgotg_logo_primary-BE-ZRW_Y.png" alt="GTGOTG Logo" 
+                             onload="this.style.display='block'; this.nextElementSibling.style.display='none';"
+                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <div class="logo-fallback">🚻</div>
+                    </div>
                     <div class="logo-text">
                         <h1 class="logo">GTGOTG</h1>
                         <p class="tagline">Got To Go On The Go</p>
@@ -1451,13 +1490,13 @@
     <!-- Map Section -->
     <section class="map-section">
         <div class="container">
-            <h3 class="section-title">Map View</h3>
+            <h3 class="section-title">Interactive Map</h3>
             <div class="map-container">
-                <div class="map-placeholder">
-                    <h4>Interactive Map</h4>
-                    <p>Map functionality available with full deployment</p>
-                    <p>Will show restroom locations with OpenStreetMap integration</p>
+                <div class="map-loading" id="mapLoading">
+                    <h4>🗺️ Loading Interactive Map...</h4>
+                    <p>OpenStreetMap integration with business markers</p>
                 </div>
+                <div id="map"></div>
             </div>
         </div>
     </section>
@@ -1847,8 +1886,11 @@
         </div>
     </footer>
 
+    <!-- Leaflet JavaScript for OpenStreetMap -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
     <script>
-        // GTGOTG - Complete Application JavaScript
+        // GTGOTG - Complete Application JavaScript with OpenStreetMap Integration
         // Copyright © 2025 Jessica Esposito / Colorado Quality LLC. All rights reserved.
 
         console.log('🚽 GTGOTG - Got To Go On The Go - Initializing...');
@@ -1858,6 +1900,8 @@
         let currentBusinesses = [];
         let currentBusinessForReview = null;
         let userLocation = null;
+        let map = null;
+        let businessMarkers = [];
 
         // Review system variables
         let selectedBathroomType = null;
@@ -1869,7 +1913,7 @@
             accessibility: 0
         };
 
-        // Sample business data
+        // Sample business data with coordinates for mapping
         const sampleBusinesses = [
             {
                 id: 1,
@@ -1877,6 +1921,8 @@
                 category: "gas_station",
                 address: "1234 Main St, Denver, CO 80202",
                 distance: "0.2 miles",
+                lat: 39.7392,
+                lng: -104.9903,
                 ratings: { overall: 8.5, cleanliness: 9.0, safety: 8.0, accessibility: 7.5 },
                 reviewCount: 127,
                 amenities: ["soap", "paper_towels", "toilet_paper", "wheelchair_accessible"],
@@ -1890,6 +1936,8 @@
                 category: "restaurant",
                 address: "5678 Broadway, Denver, CO 80203",
                 distance: "0.5 miles",
+                lat: 39.7317,
+                lng: -104.9871,
                 ratings: { overall: 7.8, cleanliness: 8.2, safety: 8.5, accessibility: 8.0 },
                 reviewCount: 89,
                 amenities: ["soap", "hand_dryer", "toilet_paper", "baby_changing", "wheelchair_accessible"],
@@ -1903,6 +1951,8 @@
                 category: "coffee_shop",
                 address: "9012 17th Ave, Denver, CO 80204",
                 distance: "0.8 miles",
+                lat: 39.7462,
+                lng: -105.0178,
                 ratings: { overall: 8.9, cleanliness: 9.2, safety: 9.0, accessibility: 8.5 },
                 reviewCount: 156,
                 amenities: ["soap", "paper_towels", "hand_dryer", "toilet_paper", "air_freshener"],
@@ -1916,6 +1966,8 @@
                 category: "retail",
                 address: "3456 Colorado Blvd, Denver, CO 80205",
                 distance: "1.2 miles",
+                lat: 39.7691,
+                lng: -104.9406,
                 ratings: { overall: 7.2, cleanliness: 7.5, safety: 7.8, accessibility: 9.0 },
                 reviewCount: 203,
                 amenities: ["soap", "paper_towels", "toilet_paper", "baby_changing", "wheelchair_accessible", "family_restroom"],
@@ -1929,6 +1981,8 @@
                 category: "retail",
                 address: "7890 Federal Blvd, Denver, CO 80221",
                 distance: "1.5 miles",
+                lat: 39.7817,
+                lng: -105.0253,
                 ratings: { overall: 8.3, cleanliness: 8.7, safety: 8.5, accessibility: 8.8 },
                 reviewCount: 94,
                 amenities: ["soap", "paper_towels", "hand_dryer", "toilet_paper", "baby_changing", "wheelchair_accessible"],
@@ -1942,6 +1996,8 @@
                 category: "rest_area",
                 address: "I-25 Mile 247, Colorado Springs, CO 80909",
                 distance: "65 miles",
+                lat: 38.8339,
+                lng: -104.8214,
                 ratings: { overall: 6.8, cleanliness: 6.5, safety: 7.2, accessibility: 8.0 },
                 reviewCount: 78,
                 amenities: ["soap", "paper_towels", "toilet_paper", "wheelchair_accessible", "baby_changing"],
@@ -1955,6 +2011,8 @@
                 category: "airport",
                 address: "8500 Peña Blvd, Denver, CO 80249",
                 distance: "25 miles",
+                lat: 39.8561,
+                lng: -104.6737,
                 ratings: { overall: 8.7, cleanliness: 9.1, safety: 9.2, accessibility: 9.5 },
                 reviewCount: 312,
                 amenities: ["soap", "paper_towels", "hand_dryer", "toilet_paper", "wheelchair_accessible", "baby_changing", "family_restroom"],
@@ -1968,6 +2026,8 @@
                 category: "mall",
                 address: "3000 E 1st Ave, Denver, CO 80206",
                 distance: "2.1 miles",
+                lat: 39.7169,
+                lng: -104.9536,
                 ratings: { overall: 8.1, cleanliness: 8.4, safety: 8.3, accessibility: 8.7 },
                 reviewCount: 145,
                 amenities: ["soap", "paper_towels", "hand_dryer", "toilet_paper", "baby_changing", "wheelchair_accessible", "family_restroom"],
@@ -2012,10 +2072,90 @@
             
             setupEventHandlers();
             initializeEnhancedReviewSystem();
+            initializeMap();
             loadBusinesses();
             checkUserSession();
             
             console.log('✅ GTGOTG - Application initialized successfully!');
+        }
+
+        // Initialize OpenStreetMap
+        function initializeMap() {
+            console.log('🗺️ Initializing OpenStreetMap...');
+            
+            try {
+                // Initialize map centered on Denver
+                map = L.map('map').setView([39.7392, -104.9903], 11);
+                
+                // Add OpenStreetMap tiles
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '© OpenStreetMap contributors'
+                }).addTo(map);
+                
+                // Hide loading message
+                const mapLoading = document.getElementById('mapLoading');
+                if (mapLoading) {
+                    mapLoading.style.display = 'none';
+                }
+                
+                // Add business markers
+                addBusinessMarkersToMap();
+                
+                console.log('✅ OpenStreetMap initialized successfully');
+                
+            } catch (error) {
+                console.error('❌ Error initializing map:', error);
+                const mapLoading = document.getElementById('mapLoading');
+                if (mapLoading) {
+                    mapLoading.innerHTML = `
+                        <h4>🗺️ Map Loading...</h4>
+                        <p>Interactive map will appear here</p>
+                    `;
+                }
+            }
+        }
+
+        // Add business markers to map
+        function addBusinessMarkersToMap() {
+            if (!map) return;
+            
+            console.log('📍 Adding business markers to map...');
+            
+            // Clear existing markers
+            businessMarkers.forEach(marker => map.removeLayer(marker));
+            businessMarkers = [];
+            
+            // Add markers for each business
+            currentBusinesses.forEach(business => {
+                if (business.lat && business.lng) {
+                    const marker = L.marker([business.lat, business.lng])
+                        .addTo(map)
+                        .bindPopup(`
+                            <div style="min-width: 200px;">
+                                <h6 style="margin: 0 0 0.5rem 0; color: #1e293b;">${business.name}</h6>
+                                <p style="margin: 0 0 0.5rem 0; font-size: 0.9rem; color: #64748b;">${business.address}</p>
+                                <p style="margin: 0 0 0.5rem 0; font-size: 0.9rem;">
+                                    <strong>Rating:</strong> ${business.ratings.overall.toFixed(1)}/10 
+                                    (${business.reviewCount} reviews)
+                                </p>
+                                <div style="margin-top: 1rem;">
+                                    <button onclick="openReviewModal(${business.id})" 
+                                            style="background: #8B5CF6; color: white; border: none; padding: 0.5rem 1rem; border-radius: 5px; cursor: pointer; margin-right: 0.5rem;">
+                                        Rate This Restroom
+                                    </button>
+                                    <button onclick="getDirections(${business.id})" 
+                                            style="background: #10B981; color: white; border: none; padding: 0.5rem 1rem; border-radius: 5px; cursor: pointer;">
+                                        Get Directions
+                                    </button>
+                                </div>
+                            </div>
+                        `);
+                    
+                    businessMarkers.push(marker);
+                }
+            });
+            
+            console.log(`✅ Added ${businessMarkers.length} markers to map`);
         }
 
         // Setup event handlers
@@ -2135,6 +2275,7 @@
             currentBusinesses = filteredBusinesses;
             renderBusinesses(currentBusinesses);
             updateSearchResultsInfo(query, currentBusinesses.length);
+            addBusinessMarkersToMap();
         }
 
         // Enable location services
@@ -2165,6 +2306,18 @@
                     if (locationBtn) {
                         locationBtn.textContent = '📍 Location Enabled';
                         locationBtn.classList.add('location-enabled');
+                        locationBtn.disabled = false;
+                    }
+                    
+                    // Update map center to user location
+                    if (map) {
+                        map.setView([userLocation.lat, userLocation.lng], 13);
+                        
+                        // Add user location marker
+                        L.marker([userLocation.lat, userLocation.lng])
+                            .addTo(map)
+                            .bindPopup('Your Location')
+                            .openPopup();
                     }
                     
                     showNotification('Location enabled! Results sorted by distance.', 'success');
@@ -2212,6 +2365,15 @@
                 case 'name':
                     filteredBusinesses.sort((a, b) => a.name.localeCompare(b.name));
                     break;
+                case 'distance':
+                    if (userLocation) {
+                        filteredBusinesses.sort((a, b) => {
+                            const distA = calculateDistance(userLocation.lat, userLocation.lng, a.lat, a.lng);
+                            const distB = calculateDistance(userLocation.lat, userLocation.lng, b.lat, b.lng);
+                            return distA - distB;
+                        });
+                    }
+                    break;
                 default:
                     break;
             }
@@ -2219,6 +2381,19 @@
             currentBusinesses = filteredBusinesses;
             renderBusinesses(currentBusinesses);
             updateSearchResultsInfo('', currentBusinesses.length);
+            addBusinessMarkersToMap();
+        }
+
+        // Calculate distance between two points
+        function calculateDistance(lat1, lng1, lat2, lng2) {
+            const R = 3959; // Earth's radius in miles
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLng = (lng2 - lng1) * Math.PI / 180;
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                      Math.sin(dLng/2) * Math.sin(dLng/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return R * c;
         }
 
         // Load and render businesses
@@ -2227,6 +2402,7 @@
             currentBusinesses = [...sampleBusinesses];
             renderBusinesses(currentBusinesses);
             updateSearchResultsInfo('', currentBusinesses.length);
+            addBusinessMarkersToMap();
         }
 
         // Render businesses
@@ -2281,13 +2457,20 @@
                 }
             }).join(' ');
             
+            // Calculate distance if user location is available
+            let distanceText = business.distance;
+            if (userLocation && business.lat && business.lng) {
+                const distance = calculateDistance(userLocation.lat, userLocation.lng, business.lat, business.lng);
+                distanceText = `${distance.toFixed(1)} miles`;
+            }
+            
             return `
                 <div class="business-card" data-business-id="${business.id}">
                     <div class="business-header">
                         <div class="business-info">
                             <h3 class="business-name">${business.name}</h3>
                             <p class="business-address">${business.address}</p>
-                            <p class="business-distance">${business.distance}</p>
+                            <p class="business-distance">${distanceText}</p>
                         </div>
                         <div class="business-rating">
                             <div class="rating-stars">
@@ -2557,6 +2740,7 @@
             }
             
             renderBusinesses(currentBusinesses);
+            addBusinessMarkersToMap();
             
             console.log('🔄 Business data updated with new review');
         }
