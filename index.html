@@ -58,42 +58,43 @@
         }
 
         .logo-image {
-            width: 50px;
-            height: 50px;
-            border-radius: 8px;
+            width: 70px;
+            height: 70px;
+            border-radius: 12px;
             overflow: hidden;
             display: flex;
             align-items: center;
             justify-content: center;
             background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
         }
 
         .logo-image img {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            border-radius: 8px;
+            border-radius: 10px;
         }
 
         .logo-fallback {
-            width: 50px;
-            height: 50px;
-            border-radius: 8px;
+            width: 70px;
+            height: 70px;
+            border-radius: 12px;
             background: rgba(255, 255, 255, 0.2);
             display: none;
             align-items: center;
             justify-content: center;
-            font-size: 1.5rem;
+            font-size: 2rem;
         }
 
         .logo {
-            font-size: 2rem;
+            font-size: 2.2rem;
             font-weight: bold;
             margin: 0;
         }
 
         .tagline {
-            font-size: 0.9rem;
+            font-size: 1rem;
             opacity: 0.9;
             margin: 0;
         }
@@ -372,6 +373,76 @@
             z-index: 1000;
         }
 
+        /* Business Owner CTA Section */
+        .business-owner-cta {
+            background: linear-gradient(135deg, #10B981, #059669);
+            color: white;
+            padding: 3rem 0;
+            text-align: center;
+        }
+
+        .cta-content {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .cta-title {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+
+        .cta-subtitle {
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        .cta-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .cta-feature {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1.5rem;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .cta-feature-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .cta-feature-title {
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .cta-feature-desc {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .btn-cta {
+            background: white;
+            color: #10B981;
+            font-size: 1.1rem;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-cta:hover {
+            background: #f8fafc;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
         /* Listings Section */
         .listings-section {
             background: white;
@@ -428,6 +499,7 @@
 
         .business-rating {
             text-align: right;
+            min-width: 120px;
         }
 
         .rating-stars {
@@ -511,6 +583,44 @@
             border-radius: 15px;
             font-size: 0.7rem;
             font-weight: bold;
+            z-index: 10;
+        }
+
+        .business-owner-signup {
+            background: #f8fafc;
+            border: 2px dashed #8B5CF6;
+            border-radius: 10px;
+            padding: 1rem;
+            margin-top: 1rem;
+            text-align: center;
+        }
+
+        .business-owner-signup h6 {
+            color: #8B5CF6;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .business-owner-signup p {
+            color: #64748b;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .btn-owner-signup {
+            background: #8B5CF6;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+
+        .btn-owner-signup:hover {
+            background: #7C3AED;
+            transform: translateY(-2px);
         }
 
         .loading {
@@ -1222,7 +1332,16 @@
 
         .footer-section ul li {
             margin-bottom: 0.5rem;
+        }
+
+        .footer-section ul li a {
             color: #94a3b8;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-section ul li a:hover {
+            color: #8B5CF6;
         }
 
         .footer-bottom {
@@ -1311,6 +1430,10 @@
                 gap: 1rem;
                 text-align: center;
             }
+
+            .cta-features {
+                grid-template-columns: 1fr;
+            }
         }
 
         @media (max-width: 480px) {
@@ -1352,6 +1475,15 @@
                 flex-direction: column;
                 text-align: center;
                 gap: 0.5rem;
+            }
+
+            .logo-image {
+                width: 60px;
+                height: 60px;
+            }
+
+            .logo {
+                font-size: 1.8rem;
             }
         }
     </style>
@@ -1501,6 +1633,41 @@
         </div>
     </section>
 
+    <!-- Business Owner CTA Section -->
+    <section class="business-owner-cta">
+        <div class="container">
+            <div class="cta-content">
+                <h3 class="cta-title">Business Owners</h3>
+                <p class="cta-subtitle">Join GTGOTG and showcase your clean, accessible restrooms to millions of travelers!</p>
+                
+                <div class="cta-features">
+                    <div class="cta-feature">
+                        <div class="cta-feature-icon">🏢</div>
+                        <div class="cta-feature-title">Claim Your Listing</div>
+                        <div class="cta-feature-desc">Verify ownership and manage your business profile</div>
+                    </div>
+                    <div class="cta-feature">
+                        <div class="cta-feature-icon">💬</div>
+                        <div class="cta-feature-title">Respond to Reviews</div>
+                        <div class="cta-feature-desc">Engage with customers and show you care</div>
+                    </div>
+                    <div class="cta-feature">
+                        <div class="cta-feature-icon">📊</div>
+                        <div class="cta-feature-title">Track Performance</div>
+                        <div class="cta-feature-desc">Monitor ratings and improve your facilities</div>
+                    </div>
+                    <div class="cta-feature">
+                        <div class="cta-feature-icon">🏆</div>
+                        <div class="cta-feature-title">Earn Badges</div>
+                        <div class="cta-feature-desc">Get recognized for excellent restroom maintenance</div>
+                    </div>
+                </div>
+                
+                <button id="businessOwnerSignupBtn" class="btn btn-cta">Sign Up Your Business</button>
+            </div>
+        </div>
+    </section>
+
     <!-- Listings Section -->
     <section class="listings-section">
         <div class="container">
@@ -1587,6 +1754,76 @@
                 </form>
                 <div class="modal-footer">
                     <p>Already have an account? <a href="#" onclick="document.getElementById('signupModal').style.display='none'; document.getElementById('loginModal').style.display='block';">Login here</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Business Owner Signup Modal -->
+    <div id="businessOwnerModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Business Owner Registration</h4>
+                <button class="modal-close" data-modal="businessOwnerModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="businessOwnerForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="ownerFirstName">First Name:</label>
+                            <input type="text" id="ownerFirstName" name="firstName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="ownerLastName">Last Name:</label>
+                            <input type="text" id="ownerLastName" name="lastName" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="ownerEmail">Email:</label>
+                        <input type="email" id="ownerEmail" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="businessName">Business Name:</label>
+                        <input type="text" id="businessName" name="businessName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="businessAddress">Business Address:</label>
+                        <input type="text" id="businessAddress" name="businessAddress" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="businessType">Business Type:</label>
+                        <select id="businessType" name="businessType" required>
+                            <option value="">Select Business Type</option>
+                            <option value="gas_station">Gas Station</option>
+                            <option value="restaurant">Restaurant</option>
+                            <option value="coffee_shop">Coffee Shop</option>
+                            <option value="retail">Retail Store</option>
+                            <option value="rest_area">Rest Area</option>
+                            <option value="hotel">Hotel</option>
+                            <option value="hospital">Hospital</option>
+                            <option value="airport">Airport</option>
+                            <option value="mall">Shopping Mall</option>
+                            <option value="park">Park</option>
+                            <option value="library">Library</option>
+                            <option value="gym">Gym/Fitness</option>
+                            <option value="bar">Bar/Pub</option>
+                            <option value="theater">Theater/Cinema</option>
+                            <option value="stadium">Stadium/Arena</option>
+                            <option value="campground">Campground</option>
+                            <option value="fairground">Fairground</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="ownerPassword">Password:</label>
+                        <input type="password" id="ownerPassword" name="password" required minlength="6">
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Register Business</button>
+                        <button type="button" class="btn btn-secondary modal-close" data-modal="businessOwnerModal">Cancel</button>
+                    </div>
+                </form>
+                <div class="modal-footer">
+                    <p>Already have a business account? <a href="#" onclick="document.getElementById('businessOwnerModal').style.display='none'; document.getElementById('loginModal').style.display='block';">Login here</a></p>
                 </div>
             </div>
         </div>
@@ -1853,30 +2090,30 @@
                 <div class="footer-section">
                     <h4>Features</h4>
                     <ul>
-                        <li>Location-Based Search</li>
-                        <li>1-10 Star Ratings</li>
-                        <li>Accessibility Info</li>
-                        <li>Real-time Reviews</li>
-                        <li>Photo Sharing</li>
+                        <li><a href="#" onclick="showFeatureInfo('location')">Location-Based Search</a></li>
+                        <li><a href="#" onclick="showFeatureInfo('ratings')">1-10 Star Ratings</a></li>
+                        <li><a href="#" onclick="showFeatureInfo('accessibility')">Accessibility Info</a></li>
+                        <li><a href="#" onclick="showFeatureInfo('reviews')">Real-time Reviews</a></li>
+                        <li><a href="#" onclick="showFeatureInfo('photos')">Photo Sharing</a></li>
                     </ul>
                 </div>
                 <div class="footer-section">
                     <h4>Search Options</h4>
                     <ul>
-                        <li>Business Names</li>
-                        <li>Cities & States</li>
-                        <li>ZIP Codes</li>
-                        <li>Near Your Location</li>
-                        <li>Category Filters</li>
+                        <li><a href="#" onclick="showSearchInfo('business')">Business Names</a></li>
+                        <li><a href="#" onclick="showSearchInfo('location')">Cities & States</a></li>
+                        <li><a href="#" onclick="showSearchInfo('zip')">ZIP Codes</a></li>
+                        <li><a href="#" onclick="showSearchInfo('nearby')">Near Your Location</a></li>
+                        <li><a href="#" onclick="showSearchInfo('category')">Category Filters</a></li>
                     </ul>
                 </div>
                 <div class="footer-section">
                     <h4>Community</h4>
                     <ul>
-                        <li>User Guidelines</li>
-                        <li>Privacy Policy</li>
-                        <li>Terms of Service</li>
-                        <li>Contact Us</li>
+                        <li><a href="#" onclick="showCommunityInfo('guidelines')">User Guidelines</a></li>
+                        <li><a href="#" onclick="showCommunityInfo('privacy')">Privacy Policy</a></li>
+                        <li><a href="#" onclick="showCommunityInfo('terms')">Terms of Service</a></li>
+                        <li><a href="#" onclick="showCommunityInfo('contact')">Contact Us</a></li>
                     </ul>
                 </div>
             </div>
@@ -1913,8 +2150,9 @@
             accessibility: 0
         };
 
-        // Sample business data with coordinates for mapping
+        // Expanded business data with multiple locations including Nebraska
         const sampleBusinesses = [
+            // Colorado locations
             {
                 id: 1,
                 name: "Shell Gas Station",
@@ -2034,6 +2272,97 @@
                 bathroomTypes: ["mens", "womens", "family", "accessible"],
                 hours: "10:00 AM - 9:00 PM",
                 verified: true
+            },
+            // Nebraska locations
+            {
+                id: 9,
+                name: "Nebraska Rest Area - Mile 126",
+                category: "rest_area",
+                address: "I-80 Mile 126, Omaha, NE 68102",
+                distance: "0.3 miles",
+                lat: 41.2565,
+                lng: -95.9345,
+                ratings: { overall: 7.2, cleanliness: 7.8, safety: 7.5, accessibility: 8.2 },
+                reviewCount: 156,
+                amenities: ["soap", "paper_towels", "toilet_paper", "wheelchair_accessible", "baby_changing", "grab_bars"],
+                bathroomTypes: ["mens", "womens", "accessible"],
+                hours: "24/7",
+                verified: true
+            },
+            {
+                id: 10,
+                name: "Nebraska Rest Area - Mile 177",
+                category: "rest_area",
+                address: "I-80 Mile 177, Grand Island, NE 68801",
+                distance: "45 miles",
+                lat: 40.9264,
+                lng: -98.3420,
+                ratings: { overall: 6.9, cleanliness: 7.1, safety: 7.0, accessibility: 7.8 },
+                reviewCount: 89,
+                amenities: ["soap", "paper_towels", "toilet_paper", "wheelchair_accessible", "baby_changing"],
+                bathroomTypes: ["mens", "womens", "accessible"],
+                hours: "24/7",
+                verified: true
+            },
+            {
+                id: 11,
+                name: "Nebraska Rest Area - Mile 205",
+                category: "rest_area",
+                address: "I-80 Mile 205, Kearney, NE 68847",
+                distance: "78 miles",
+                lat: 40.6994,
+                lng: -99.0817,
+                ratings: { overall: 7.5, cleanliness: 8.0, safety: 7.8, accessibility: 8.5 },
+                reviewCount: 134,
+                amenities: ["soap", "paper_towels", "toilet_paper", "wheelchair_accessible", "baby_changing", "family_restroom"],
+                bathroomTypes: ["mens", "womens", "family", "accessible"],
+                hours: "24/7",
+                verified: true
+            },
+            {
+                id: 12,
+                name: "Shell Gas Station",
+                category: "gas_station",
+                address: "2468 Dodge St, Omaha, NE 68131",
+                distance: "1.2 miles",
+                lat: 41.2619,
+                lng: -96.0169,
+                ratings: { overall: 8.1, cleanliness: 8.5, safety: 8.0, accessibility: 7.9 },
+                reviewCount: 67,
+                amenities: ["soap", "paper_towels", "toilet_paper", "wheelchair_accessible"],
+                bathroomTypes: ["mens", "womens", "accessible"],
+                hours: "24/7",
+                verified: true
+            },
+            {
+                id: 13,
+                name: "McDonald's",
+                category: "restaurant",
+                address: "1357 N 72nd St, Omaha, NE 68114",
+                distance: "2.1 miles",
+                lat: 41.2802,
+                lng: -96.0311,
+                ratings: { overall: 7.6, cleanliness: 8.0, safety: 8.2, accessibility: 8.1 },
+                reviewCount: 92,
+                amenities: ["soap", "hand_dryer", "toilet_paper", "baby_changing", "wheelchair_accessible"],
+                bathroomTypes: ["mens", "womens", "accessible"],
+                hours: "6:00 AM - 11:00 PM",
+                verified: true
+            },
+            {
+                id: 14,
+                name: "Walmart Supercenter",
+                category: "retail",
+                address: "8525 W Dodge Rd, Omaha, NE 68114",
+                distance: "3.5 miles",
+                lat: 41.2619,
+                lng: -96.0669,
+                ratings: { overall: 7.4, cleanliness: 7.7, safety: 7.6, accessibility: 8.8 },
+                reviewCount: 178,
+                amenities: ["soap", "paper_towels", "toilet_paper", "baby_changing", "wheelchair_accessible", "family_restroom"],
+                bathroomTypes: ["mens", "womens", "family", "accessible"],
+                hours: "6:00 AM - 11:00 PM",
+                verified: true
             }
         ];
 
@@ -2085,7 +2414,7 @@
             
             try {
                 // Initialize map centered on Denver
-                map = L.map('map').setView([39.7392, -104.9903], 11);
+                map = L.map('map').setView([39.7392, -104.9903], 6);
                 
                 // Add OpenStreetMap tiles
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -2200,20 +2529,24 @@
             const signupBtn = document.getElementById('signupBtn');
             const logoutBtn = document.getElementById('logoutBtn');
             const adminBtn = document.getElementById('adminBtn');
+            const businessOwnerSignupBtn = document.getElementById('businessOwnerSignupBtn');
             
             if (loginBtn) loginBtn.addEventListener('click', () => showModal('loginModal'));
             if (signupBtn) signupBtn.addEventListener('click', () => showModal('signupModal'));
             if (logoutBtn) logoutBtn.addEventListener('click', logout);
             if (adminBtn) adminBtn.addEventListener('click', () => showModal('adminModal'));
+            if (businessOwnerSignupBtn) businessOwnerSignupBtn.addEventListener('click', () => showModal('businessOwnerModal'));
             
             // Form submissions
             const loginForm = document.getElementById('loginForm');
             const signupForm = document.getElementById('signupForm');
             const reviewForm = document.getElementById('reviewForm');
+            const businessOwnerForm = document.getElementById('businessOwnerForm');
             
             if (loginForm) loginForm.addEventListener('submit', handleLogin);
             if (signupForm) signupForm.addEventListener('submit', handleSignup);
             if (reviewForm) reviewForm.addEventListener('submit', handleReviewSubmission);
+            if (businessOwnerForm) businessOwnerForm.addEventListener('submit', handleBusinessOwnerSignup);
             
             // Modal close handlers
             const modalCloses = document.querySelectorAll('.modal-close');
@@ -2244,7 +2577,7 @@
             console.log('✅ Event handlers set up successfully');
         }
 
-        // Perform search
+        // Enhanced search with location support
         function performSearch() {
             const searchInput = document.getElementById('searchInput');
             const query = searchInput ? searchInput.value.toLowerCase().trim() : '';
@@ -2261,6 +2594,31 @@
                        business.address.toLowerCase().includes(query) ||
                        business.category.toLowerCase().includes(query);
             });
+            
+            // Enhanced location-based search
+            if (query.includes('nebraska') || query.includes('ne') || query.includes('omaha')) {
+                filteredBusinesses = sampleBusinesses.filter(business => 
+                    business.address.toLowerCase().includes('ne') ||
+                    business.address.toLowerCase().includes('nebraska') ||
+                    business.address.toLowerCase().includes('omaha')
+                );
+                
+                // Center map on Nebraska if searching for Nebraska locations
+                if (map) {
+                    map.setView([41.2565, -95.9345], 7);
+                }
+            } else if (query.includes('colorado') || query.includes('co') || query.includes('denver')) {
+                filteredBusinesses = sampleBusinesses.filter(business => 
+                    business.address.toLowerCase().includes('co') ||
+                    business.address.toLowerCase().includes('colorado') ||
+                    business.address.toLowerCase().includes('denver')
+                );
+                
+                // Center map on Colorado if searching for Colorado locations
+                if (map) {
+                    map.setView([39.7392, -104.9903], 7);
+                }
+            }
             
             if (filteredBusinesses.length === 0) {
                 filteredBusinesses = sampleBusinesses.filter(business => {
@@ -2311,7 +2669,7 @@
                     
                     // Update map center to user location
                     if (map) {
-                        map.setView([userLocation.lat, userLocation.lng], 13);
+                        map.setView([userLocation.lat, userLocation.lng], 10);
                         
                         // Add user location marker
                         L.marker([userLocation.lat, userLocation.lng])
@@ -2506,6 +2864,12 @@
                         <button class="btn btn-secondary" onclick="getDirections(${business.id})">
                             Get Directions
                         </button>
+                    </div>
+                    
+                    <div class="business-owner-signup">
+                        <h6>Business Owner?</h6>
+                        <p>Claim this listing and respond to reviews</p>
+                        <a href="#" class="btn-owner-signup" onclick="showModal('businessOwnerModal')">Sign Up Here</a>
                     </div>
                     
                     ${business.verified ? '<div class="verified-badge">✓ Verified</div>' : ''}
@@ -2871,6 +3235,36 @@
             console.log(`✅ Account created for: ${userData.username}`);
         }
 
+        function handleBusinessOwnerSignup(event) {
+            event.preventDefault();
+            
+            const formData = new FormData(event.target);
+            const businessData = {
+                id: Date.now(),
+                ownerName: `${formData.get('firstName')} ${formData.get('lastName')}`,
+                email: formData.get('email'),
+                businessName: formData.get('businessName'),
+                businessAddress: formData.get('businessAddress'),
+                businessType: formData.get('businessType'),
+                password: formData.get('password'),
+                isBusinessOwner: true,
+                verified: false,
+                joinDate: new Date().toISOString().split('T')[0]
+            };
+            
+            console.log(`🏢 Creating business account for: ${businessData.businessName}`);
+            
+            // Store business owner data (in real app, this would go to a database)
+            const businessOwners = JSON.parse(localStorage.getItem('gtgotg_business_owners') || '[]');
+            businessOwners.push(businessData);
+            localStorage.setItem('gtgotg_business_owners', JSON.stringify(businessOwners));
+            
+            closeModal('businessOwnerModal');
+            showNotification(`Business registration submitted for ${businessData.businessName}! We'll review and contact you within 24 hours.`, 'success');
+            
+            console.log(`✅ Business account created for: ${businessData.businessName}`);
+        }
+
         function logout() {
             console.log('🚪 Logging out user');
             
@@ -3007,127 +3401,5 @@
                 <div class="admin-item">
                     <div class="admin-item-info">
                         <h6>${business.name}</h6>
-                        <p>${business.address}</p>
-                        <p>Rating: ${business.ratings.overall.toFixed(1)}/10 | Reviews: ${business.reviewCount}</p>
-                    </div>
-                    <div class="admin-item-actions">
-                        <button class="btn btn-sm btn-secondary">Edit</button>
-                        ${business.verified ? '<span class="verified-badge">Verified</span>' : ''}
-                    </div>
-                </div>
-            `).join('');
-        }
 
-        function loadReviewsData() {
-            const reviewsList = document.getElementById('reviewsList');
-            if (!reviewsList) return;
-            
-            const reviews = JSON.parse(localStorage.getItem('gtgotg_reviews') || '[]');
-            
-            if (reviews.length === 0) {
-                reviewsList.innerHTML = '<p>No reviews yet.</p>';
-                return;
-            }
-            
-            reviewsList.innerHTML = reviews.map(review => {
-                const business = sampleBusinesses.find(b => b.id === review.businessId);
-                const user = sampleUsers.find(u => u.id === review.userId);
-                
-                return `
-                    <div class="admin-item">
-                        <div class="admin-item-info">
-                            <h6>${business ? business.name : 'Unknown Business'}</h6>
-                            <p>By: ${user ? user.firstName + ' ' + user.lastName : 'Anonymous'}</p>
-                            <p>Rating: ${review.ratings.overall}/10 | Date: ${new Date(review.timestamp).toLocaleDateString()}</p>
-                            ${review.comment ? `<p>Comment: "${review.comment}"</p>` : ''}
-                        </div>
-                        <div class="admin-item-actions">
-                            <button class="btn btn-sm btn-secondary">Moderate</button>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function loadAnalyticsData() {
-            const reviews = JSON.parse(localStorage.getItem('gtgotg_reviews') || '[]');
-            
-            const totalUsers = document.getElementById('totalUsers');
-            const totalBusinesses = document.getElementById('totalBusinesses');
-            const totalReviews = document.getElementById('totalReviews');
-            const averageRating = document.getElementById('averageRating');
-            
-            if (totalUsers) totalUsers.textContent = sampleUsers.length;
-            if (totalBusinesses) totalBusinesses.textContent = sampleBusinesses.length;
-            if (totalReviews) totalReviews.textContent = reviews.length;
-            
-            if (averageRating && reviews.length > 0) {
-                const avgRating = reviews.reduce((sum, review) => sum + review.ratings.overall, 0) / reviews.length;
-                averageRating.textContent = avgRating.toFixed(1);
-            } else if (averageRating) {
-                averageRating.textContent = '0.0';
-            }
-        }
-
-        // Modal functions
-        function showModal(modalId) {
-            const modal = document.getElementById(modalId);
-            if (modal) {
-                modal.style.display = 'block';
-                document.body.style.overflow = 'hidden';
-                
-                if (modalId === 'adminModal') {
-                    loadAdminTabData('users');
-                }
-            }
-        }
-
-        function closeModal(modalId) {
-            const modal = document.getElementById(modalId);
-            if (modal) {
-                modal.style.display = 'none';
-                document.body.style.overflow = 'auto';
-            }
-        }
-
-        // Notification system
-        function showNotification(message, type = 'info') {
-            const notification = document.getElementById('notification');
-            const notificationText = document.getElementById('notificationText');
-            
-            if (!notification || !notificationText) return;
-            
-            notificationText.textContent = message;
-            notification.className = `notification notification-${type}`;
-            notification.style.display = 'block';
-            
-            setTimeout(() => {
-                notification.style.display = 'none';
-            }, 5000);
-            
-            console.log(`📢 Notification (${type}): ${message}`);
-        }
-
-        // Close modals when clicking outside
-        window.addEventListener('click', (event) => {
-            if (event.target.classList.contains('modal')) {
-                event.target.style.display = 'none';
-                document.body.style.overflow = 'auto';
-            }
-        });
-
-        // Initialize when DOM is ready
-        document.addEventListener('DOMContentLoaded', () => {
-            console.log('🚀 DOM Content Loaded - Starting GTGOTG...');
-            setTimeout(initializeApp, 100);
-        });
-
-        // Export functions for global use
-        window.openReviewModal = openReviewModal;
-        window.getDirections = getDirections;
-
-        console.log('✅ GTGOTG - Got To Go On The Go - Loaded successfully!');
-    </script>
-</body>
-</html>
 
