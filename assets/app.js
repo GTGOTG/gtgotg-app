@@ -317,6 +317,131 @@ const reviewSystem = {
     }
 };
 
+// Admin system
+const adminSystem = {
+    loadUsers: () => {
+        console.log('🔧 Loading users for admin panel');
+        const usersList = document.getElementById('usersList');
+        if (!usersList) return;
+        
+        usersList.innerHTML = auth.users.map(user => `
+            <div class="admin-item">
+                <div class="admin-item-info">
+                    <h6>${user.firstName} ${user.lastName}</h6>
+                    <p>@${user.username} | ${user.email}</p>
+                    <span class="badge" style="background-color: ${badgeSystem.getBadgeColor(user.badgeLevel)}">${user.badgeLevel}</span>
+                    <span class="review-count">${user.reviewCount} reviews</span>
+                </div>
+                <div class="admin-item-actions">
+                    ${user.isAdmin ? '<span class="admin-tag">Admin</span>' : ''}
+                    <button class="btn btn-small">Edit</button>
+                </div>
+            </div>
+        `).join('');
+    },
+    
+    loadBusinesses: () => {
+        console.log('🔧 Loading businesses for admin panel');
+        const businessesList = document.getElementById('businessesList');
+        if (!businessesList) return;
+        
+        businessesList.innerHTML = AppState.businesses.map(business => `
+            <div class="admin-item">
+                <div class="admin-item-info">
+                    <h6>${business.name}</h6>
+                    <p>${business.address}, ${business.city}, ${business.state}</p>
+                    <span class="category-tag">${utils.capitalizeWords(business.category)}</span>
+                    <span class="rating-tag">${utils.formatRating(business.ratings.overall)} (${business.reviewCount} reviews)</span>
+                </div>
+                <div class="admin-item-actions">
+                    ${business.verified ? '<span class="verified-tag">Verified</span>' : ''}
+                    <button class="btn btn-small">Edit</button>
+                </div>
+            </div>
+        `).join('');
+    },
+    
+    loadReviews: () => {
+        console.log('🔧 Loading reviews for admin panel');
+        const reviewsList = document.getElementById('reviewsList');
+        if (!reviewsList) return;
+        
+        reviewsList.innerHTML = `
+            <div class="admin-item">
+                <div class="admin-item-info">
+                    <h6>Sample Review</h6>
+                    <p>Great restroom, very clean and accessible!</p>
+                    <span class="user-tag">By: johndoe</span>
+                    <span class="business-tag">At: Shell Gas Station</span>
+                </div>
+                <div class="admin-item-actions">
+                    <button class="btn btn-small">Approve</button>
+                    <button class="btn btn-small btn-danger">Remove</button>
+                </div>
+            </div>
+            <div class="admin-item">
+                <div class="admin-item-info">
+                    <h6>Another Review</h6>
+                    <p>Could use better lighting, but overall decent facilities.</p>
+                    <span class="user-tag">By: sarahj</span>
+                    <span class="business-tag">At: McDonald's</span>
+                </div>
+                <div class="admin-item-actions">
+                    <button class="btn btn-small">Approve</button>
+                    <button class="btn btn-small btn-danger">Remove</button>
+                </div>
+            </div>
+        `;
+    },
+    
+    loadAnalytics: () => {
+        console.log('🔧 Loading analytics for admin panel');
+        const totalUsers = document.getElementById('totalUsers');
+        const totalBusinesses = document.getElementById('totalBusinesses');
+        const totalReviews = document.getElementById('totalReviews');
+        const averageRating = document.getElementById('averageRating');
+        
+        if (totalUsers) totalUsers.textContent = auth.users.length;
+        if (totalBusinesses) totalBusinesses.textContent = AppState.businesses.length;
+        if (totalReviews) totalReviews.textContent = AppState.businesses.reduce((sum, b) => sum + b.reviewCount, 0);
+        
+        if (averageRating) {
+            const avgRating = AppState.businesses.reduce((sum, b) => sum + b.ratings.overall, 0) / AppState.businesses.length;
+            averageRating.textContent = avgRating.toFixed(1);
+        }
+    },
+    
+    switchTab: (tabName) => {
+        console.log('🔧 Switching admin tab to:', tabName);
+        
+        // Update tab buttons
+        document.querySelectorAll('.admin-tab-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.getAttribute('data-tab') === tabName);
+        });
+        
+        // Update tab content
+        document.querySelectorAll('.admin-tab-content').forEach(content => {
+            content.classList.toggle('active', content.id === `${tabName}Tab`);
+        });
+        
+        // Load appropriate data
+        switch(tabName) {
+            case 'users':
+                adminSystem.loadUsers();
+                break;
+            case 'businesses':
+                adminSystem.loadBusinesses();
+                break;
+            case 'reviews':
+                adminSystem.loadReviews();
+                break;
+            case 'analytics':
+                adminSystem.loadAnalytics();
+                break;
+        }
+    }
+};
+
 // UI Manager
 const ui = {
     renderBusinesses: (businesses = null) => {
@@ -438,7 +563,10 @@ const ui = {
             if (loginBtn) loginBtn.style.display = 'none';
             if (signupBtn) signupBtn.style.display = 'none';
             if (logoutBtn) logoutBtn.style.display = 'inline-flex';
-            if (adminBtn && user.isAdmin) adminBtn.style.display = 'inline-flex';
+            if (adminBtn && user.isAdmin) {
+                adminBtn.style.display = 'inline-flex';
+                console.log('✅ Admin button shown for admin user');
+            }
         } else {
             if (userStatus) userStatus.style.display = 'none';
             if (loginBtn) loginBtn.style.display = 'inline-flex';
@@ -455,6 +583,14 @@ const ui = {
         if (modal) {
             modal.style.display = 'block';
             document.body.style.overflow = 'hidden';
+            
+            // If opening admin modal, load initial data
+            if (modalId === 'adminModal') {
+                console.log('🔧 Loading admin panel data');
+                setTimeout(() => {
+                    adminSystem.switchTab('users');
+                }, 100);
+            }
         }
     },
     
@@ -559,7 +695,12 @@ const app = {
         
         if (loginBtn) loginBtn.addEventListener('click', () => ui.openModal('loginModal'));
         if (signupBtn) signupBtn.addEventListener('click', () => ui.openModal('signupModal'));
-        if (adminBtn) adminBtn.addEventListener('click', () => ui.openModal('adminModal'));
+        if (adminBtn) {
+            adminBtn.addEventListener('click', () => {
+                console.log('🔧 Admin button clicked');
+                ui.openModal('adminModal');
+            });
+        }
         if (logoutBtn) logoutBtn.addEventListener('click', () => {
             auth.logout();
             ui.updateUserStatus();
@@ -614,6 +755,14 @@ const app = {
                 if (e.target === modal) {
                     ui.closeModal(modal.id);
                 }
+            });
+        });
+        
+        // Setup admin tab handlers
+        document.querySelectorAll('.admin-tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const tabName = btn.getAttribute('data-tab');
+                adminSystem.switchTab(tabName);
             });
         });
         
