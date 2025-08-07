@@ -5,13 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GTGOTG - Got To Go On The Go | Find Clean Restrooms Everywhere</title>
     <meta name="description" content="Find clean, safe, and accessible restrooms anywhere in the United States. Real-time reviews, photos, and directions to the nearest bathroom.">
-    <meta name="keywords" content="restroom finder, bathroom locator, clean restrooms, accessible bathrooms, travel app">
+    <meta name="keywords" content="restroom finder, bathroom locator, clean restrooms, accessible bathrooms, travel app, truck stops">
     
     <!-- Open Graph for viral sharing -->
     <meta property="og:title" content="GTGOTG - Find Clean Restrooms Everywhere">
     <meta property="og:description" content="Never worry about finding a clean bathroom again! Get directions to verified restrooms nationwide.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://gtgotg.com">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#8B5CF6">
     
     <!-- Leaflet CSS for maps -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -99,6 +103,11 @@
 
         .btn-signup {
             background: #10B981;
+            color: white;
+        }
+
+        .btn-admin {
+            background: #8B5CF6;
             color: white;
         }
 
@@ -319,12 +328,12 @@
         .rating-score {
             font-size: 1.5rem;
             font-weight: 700;
-            color: #F59E0B;
+            color: #EAB308;
             margin-bottom: 0.25rem;
         }
 
         .rating-stars {
-            color: #F59E0B;
+            color: #EAB308;
             font-size: 1.1rem;
             margin-bottom: 0.25rem;
         }
@@ -385,7 +394,7 @@
         }
 
         .btn-rate {
-            background: #F59E0B;
+            background: #EAB308;
             color: white;
         }
 
@@ -394,7 +403,7 @@
         }
 
         .btn-rate:hover {
-            background: #D97706;
+            background: #CA8A04;
         }
 
         .loading {
@@ -456,7 +465,7 @@
         }
 
         .business-owner-cta {
-            background: linear-gradient(135deg, #F59E0B, #D97706);
+            background: linear-gradient(135deg, #8B5CF6, #6366F1);
             color: white;
             padding: 1rem;
             border-radius: 10px;
@@ -470,13 +479,117 @@
 
         .business-owner-cta button {
             background: white;
-            color: #D97706;
+            color: #8B5CF6;
             border: none;
             padding: 0.5rem 1rem;
             border-radius: 5px;
             font-weight: 600;
             cursor: pointer;
             margin-top: 0.5rem;
+        }
+
+        /* Admin Panel Styles */
+        .admin-panel {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            z-index: 3000;
+            overflow-y: auto;
+        }
+
+        .admin-header {
+            background: #8B5CF6;
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .admin-nav {
+            background: #F8FAFC;
+            padding: 1rem 2rem;
+            border-bottom: 1px solid #E5E7EB;
+        }
+
+        .admin-nav button {
+            background: none;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            margin-right: 1rem;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .admin-nav button.active {
+            background: #8B5CF6;
+            color: white;
+        }
+
+        .admin-content {
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .admin-section {
+            display: none;
+        }
+
+        .admin-section.active {
+            display: block;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            border: 2px solid #E5E7EB;
+            border-radius: 15px;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #8B5CF6;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: #6B7280;
+            font-weight: 600;
+        }
+
+        /* Email Verification Styles */
+        .verification-notice {
+            background: #FEF3C7;
+            border: 2px solid #F59E0B;
+            border-radius: 10px;
+            padding: 1rem;
+            margin: 1rem 0;
+            text-align: center;
+        }
+
+        .verification-notice h4 {
+            color: #92400E;
+            margin-bottom: 0.5rem;
+        }
+
+        .verification-notice p {
+            color: #92400E;
         }
 
         /* Mobile Responsive */
@@ -638,7 +751,7 @@
 
         .star.active,
         .star:hover {
-            color: #F59E0B;
+            color: #EAB308;
         }
 
         .bathroom-selection {
@@ -750,6 +863,7 @@
         <div class="auth-buttons">
             <button class="btn btn-login" onclick="openModal('loginModal')">Login</button>
             <button class="btn btn-signup" onclick="openModal('signupModal')">Sign Up</button>
+            <button class="btn btn-admin" onclick="openAdminPanel()" id="adminBtn" style="display: none;">Admin</button>
         </div>
     </header>
 
@@ -775,10 +889,11 @@
                 <label for="typeFilter">Filter by Type:</label>
                 <select id="typeFilter" class="filter-select" onchange="applyFilters()">
                     <option value="">All Establishments</option>
-                    <option value="gas">Gas Stations</option>
+                    <option value="fuel">Gas Stations</option>
+                    <option value="fuel">Truck Stops</option>
                     <option value="restaurant">Restaurants</option>
-                    <option value="coffee">Coffee Shops</option>
-                    <option value="retail">Retail Stores</option>
+                    <option value="cafe">Coffee Shops</option>
+                    <option value="shop">Retail Stores</option>
                     <option value="rest_area">Rest Areas</option>
                     <option value="hotel">Hotels</option>
                     <option value="park">Parks</option>
@@ -802,10 +917,11 @@
         <div class="filters">
             <div class="category-buttons">
                 <button class="category-btn active" data-category="" onclick="selectCategory(this, '')">All</button>
-                <button class="category-btn" data-category="gas" onclick="selectCategory(this, 'gas')">Gas</button>
+                <button class="category-btn" data-category="fuel" onclick="selectCategory(this, 'fuel')">Gas</button>
+                <button class="category-btn" data-category="fuel" onclick="selectCategory(this, 'fuel')">Truck Stops</button>
                 <button class="category-btn" data-category="restaurant" onclick="selectCategory(this, 'restaurant')">Food</button>
-                <button class="category-btn" data-category="coffee" onclick="selectCategory(this, 'coffee')">Coffee</button>
-                <button class="category-btn" data-category="retail" onclick="selectCategory(this, 'retail')">Retail</button>
+                <button class="category-btn" data-category="cafe" onclick="selectCategory(this, 'cafe')">Coffee</button>
+                <button class="category-btn" data-category="shop" onclick="selectCategory(this, 'shop')">Retail</button>
                 <button class="category-btn" data-category="rest_area" onclick="selectCategory(this, 'rest_area')">Rest Areas</button>
                 <button class="category-btn" data-category="hotel" onclick="selectCategory(this, 'hotel')">Hotels</button>
                 <button class="category-btn" data-category="park" onclick="selectCategory(this, 'park')">Parks</button>
@@ -823,14 +939,71 @@
                 <div id="map"></div>
             </div>
         </div>
-
-        <!-- Business Owner CTA -->
-        <div class="business-owner-cta">
-            <h4>Business Owners - Claim Your Listing!</h4>
-            <p>Manage your restroom information and respond to customer reviews</p>
-            <button onclick="openModal('businessOwnerModal')">Sign Up as Business Owner</button>
-        </div>
     </main>
+
+    <!-- Admin Panel -->
+    <div id="adminPanel" class="admin-panel">
+        <div class="admin-header">
+            <h2>GTGOTG Admin Dashboard</h2>
+            <button class="btn btn-login" onclick="closeAdminPanel()">Close</button>
+        </div>
+        
+        <div class="admin-nav">
+            <button class="active" onclick="showAdminSection('dashboard')">Dashboard</button>
+            <button onclick="showAdminSection('users')">Users</button>
+            <button onclick="showAdminSection('businesses')">Businesses</button>
+            <button onclick="showAdminSection('reviews')">Reviews</button>
+            <button onclick="showAdminSection('analytics')">Analytics</button>
+        </div>
+        
+        <div class="admin-content">
+            <div id="dashboard" class="admin-section active">
+                <h3>Dashboard Overview</h3>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number">1,247</div>
+                        <div class="stat-label">Total Users</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">3,892</div>
+                        <div class="stat-label">Businesses Listed</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">8,456</div>
+                        <div class="stat-label">Reviews Submitted</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">4.7</div>
+                        <div class="stat-label">Average Rating</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="users" class="admin-section">
+                <h3>User Management</h3>
+                <p>Manage user accounts, verify emails, and handle user reports.</p>
+                <!-- User management interface would go here -->
+            </div>
+            
+            <div id="businesses" class="admin-section">
+                <h3>Business Management</h3>
+                <p>Approve business listings, manage business owner accounts, and handle verification requests.</p>
+                <!-- Business management interface would go here -->
+            </div>
+            
+            <div id="reviews" class="admin-section">
+                <h3>Review Moderation</h3>
+                <p>Review and moderate user submissions, handle reports, and manage content quality.</p>
+                <!-- Review moderation interface would go here -->
+            </div>
+            
+            <div id="analytics" class="admin-section">
+                <h3>Analytics & Reports</h3>
+                <p>View detailed analytics, user engagement metrics, and generate reports.</p>
+                <!-- Analytics interface would go here -->
+            </div>
+        </div>
+    </div>
 
     <!-- Footer -->
     <footer class="footer">
@@ -1092,127 +1265,9 @@
             accessibility: 0
         };
         let uploadedPhotos = [];
-
-        // Comprehensive business database covering all US states
-        const businessDatabase = [
-            // Colorado
-            { id: 1, name: "Shell Gas Station", type: "gas", address: "1234 Main St, Denver, CO 80202", lat: 39.7392, lng: -104.9903, rating: 8.5, reviews: 127, hours: "24/7", amenities: ["soap", "paper_towels", "hand_dryer", "wheelchair_accessible"], bathrooms: ["🚹", "🚺", "🚻", "♿"] },
-            { id: 2, name: "McDonald's", type: "restaurant", address: "5678 Broadway, Boulder, CO 80301", lat: 40.0150, lng: -105.2705, rating: 7.8, reviews: 89, hours: "6:00 AM - 11:00 PM", amenities: ["soap", "paper_towels", "changing_table"], bathrooms: ["🚹", "🚺", "🚻"] },
-            { id: 3, name: "Starbucks Coffee", type: "coffee", address: "9012 17th St, Denver, CO 80202", lat: 39.7462, lng: -104.9876, rating: 8.9, reviews: 203, hours: "5:30 AM - 9:00 PM", amenities: ["soap", "paper_towels", "hand_dryer", "baby_station"], bathrooms: ["🚻"] },
-            { id: 4, name: "Walmart Supercenter", type: "retail", address: "3456 Wadsworth Blvd, Lakewood, CO 80214", lat: 39.7084, lng: -105.0816, rating: 7.2, reviews: 156, hours: "6:00 AM - 11:00 PM", amenities: ["soap", "paper_towels", "hand_dryer", "wheelchair_accessible", "changing_table"], bathrooms: ["🚹", "🚺", "♿"] },
-            { id: 5, name: "Target", type: "retail", address: "7890 Colorado Blvd, Thornton, CO 80229", lat: 39.8681, lng: -104.9420, rating: 8.1, reviews: 94, hours: "8:00 AM - 10:00 PM", amenities: ["soap", "paper_towels", "hand_dryer", "family_restroom"], bathrooms: ["🚹", "🚺", "🚻"] },
-            { id: 6, name: "I-25 Rest Area", type: "rest_area", address: "I-25 Mile Marker 235, Colorado Springs, CO", lat: 38.8339, lng: -104.8214, rating: 6.8, reviews: 67, hours: "24/7", amenities: ["soap", "paper_towels", "wheelchair_accessible", "vending"], bathrooms: ["🚹", "🚺", "♿"] },
-
-            // Nebraska
-            { id: 7, name: "I-80 Rest Area East", type: "rest_area", address: "I-80 Mile Marker 126, Omaha, NE", lat: 41.2565, lng: -95.9345, rating: 7.1, reviews: 89, hours: "24/7", amenities: ["soap", "paper_towels", "wheelchair_accessible", "vending", "picnic_area"], bathrooms: ["🚹", "🚺", "♿"] },
-            { id: 8, name: "I-80 Rest Area West", type: "rest_area", address: "I-80 Mile Marker 85, Grand Island, NE", lat: 40.9264, lng: -98.3420, rating: 6.9, reviews: 72, hours: "24/7", amenities: ["soap", "paper_towels", "wheelchair_accessible", "pet_area"], bathrooms: ["🚹", "🚺", "♿"] },
-            { id: 9, name: "Casey's General Store", type: "gas", address: "4521 Dodge St, Omaha, NE 68132", lat: 41.2619, lng: -96.1951, rating: 7.5, reviews: 45, hours: "5:00 AM - 11:00 PM", amenities: ["soap", "paper_towels", "hand_dryer"], bathrooms: ["🚹", "🚺"] },
-            { id: 10, name: "Runza Restaurant", type: "restaurant", address: "1234 O St, Lincoln, NE 68508", lat: 40.8136, lng: -96.7026, rating: 8.2, reviews: 67, hours: "10:30 AM - 10:00 PM", amenities: ["soap", "paper_towels", "changing_table"], bathrooms: ["🚹", "🚺", "🚻"] },
-            { id: 11, name: "Hy-Vee", type: "retail", address: "7890 West Dodge Rd, Omaha, NE 68114", lat: 41.2586, lng: -96.0969, rating: 8.4, reviews: 112, hours: "6:00 AM - 11:00 PM", amenities: ["soap", "paper_towels", "hand_dryer", "wheelchair_accessible", "family_restroom"], bathrooms: ["🚹", "🚺", "🚻", "♿"] },
-
-            // California
-            { id: 12, name: "In-N-Out Burger", type: "restaurant", address: "9149 Sunset Blvd, West Hollywood, CA 90069", lat: 34.0902, lng: -118.3870, rating: 8.7, reviews: 234, hours: "10:30 AM - 1:00 AM", amenities: ["soap", "paper_towels", "hand_dryer"], bathrooms: ["🚹", "🚺"] },
-            { id: 13, name: "Chevron", type: "gas", address: "1234 Pacific Coast Hwy, Malibu, CA 90265", lat: 34.0259, lng: -118.7798, rating: 7.3, reviews: 89, hours: "24/7", amenities: ["soap", "paper_towels", "wheelchair_accessible"], bathrooms: ["🚹", "🚺", "♿"] },
-            { id: 14, name: "I-5 Rest Area", type: "rest_area", address: "I-5 Mile Marker 158, Coalinga, CA", lat: 36.1627, lng: -120.3271, rating: 6.5, reviews: 156, hours: "24/7", amenities: ["soap", "paper_towels", "wheelchair_accessible", "vending", "pet_area"], bathrooms: ["🚹", "🚺", "♿"] },
-
-            // Texas
-            { id: 15, name: "Buc-ee's Travel Center", type: "gas", address: "10070 I-10, Baytown, TX 77523", lat: 29.7355, lng: -94.9774, rating: 9.2, reviews: 567, hours: "24/7", amenities: ["soap", "paper_towels", "hand_dryer", "wheelchair_accessible", "family_restroom", "baby_station"], bathrooms: ["🚹", "🚺", "🚻", "♿"] },
-            { id: 16, name: "Whataburger", type: "restaurant", address: "1234 Congress Ave, Austin, TX 78701", lat: 30.2672, lng: -97.7431, rating: 8.1, reviews: 178, hours: "24/7", amenities: ["soap", "paper_towels", "hand_dryer"], bathrooms: ["🚹", "🚺"] },
-            { id: 17, name: "I-35 Rest Area", type: "rest_area", address: "I-35 Mile Marker 234, Waco, TX", lat: 31.5493, lng: -97.1467, rating: 7.0, reviews: 123, hours: "24/7", amenities: ["soap", "paper_towels", "wheelchair_accessible", "vending"], bathrooms: ["🚹", "🚺", "♿"] },
-
-            // Florida
-            { id: 18, name: "Wawa", type: "gas", address: "1234 Ocean Dr, Miami Beach, FL 33139", lat: 25.7617, lng: -80.1918, rating: 8.3, reviews: 145, hours: "24/7", amenities: ["soap", "paper_towels", "hand_dryer", "wheelchair_accessible"], bathrooms: ["🚹", "🚺", "♿"] },
-            { id: 19, name: "I-75 Rest Area", type: "rest_area", address: "I-75 Mile Marker 341, Gainesville, FL", lat: 29.6516, lng: -82.3248, rating: 6.8, reviews: 89, hours: "24/7", amenities: ["soap", "paper_towels", "wheelchair_accessible", "vending"], bathrooms: ["🚹", "🚺", "♿"] },
-
-            // New York
-            { id: 20, name: "Times Square McDonald's", type: "restaurant", address: "1560 Broadway, New York, NY 10036", lat: 40.7589, lng: -73.9851, rating: 6.9, reviews: 289, hours: "24/7", amenities: ["soap", "paper_towels", "hand_dryer", "wheelchair_accessible"], bathrooms: ["🚹", "🚺", "♿"] },
-            { id: 21, name: "I-90 Rest Area", type: "rest_area", address: "I-90 Mile Marker 182, Syracuse, NY", lat: 43.0481, lng: -76.1474, rating: 7.2, reviews: 67, hours: "24/7", amenities: ["soap", "paper_towels", "wheelchair_accessible", "vending"], bathrooms: ["🚹", "🚺", "♿"] },
-
-            // Illinois
-            { id: 22, name: "I-80 Rest Area", type: "rest_area", address: "I-80 Mile Marker 97, LaSalle, IL", lat: 41.3431, lng: -89.0912, rating: 7.1, reviews: 78, hours: "24/7", amenities: ["soap", "paper_towels", "wheelchair_accessible", "vending"], bathrooms: ["🚹", "🚺", "♿"] },
-            { id: 23, name: "Portillo's", type: "restaurant", address: "100 W Ontario St, Chicago, IL 60654", lat: 41.8936, lng: -87.6331, rating: 8.6, reviews: 234, hours: "10:30 AM - 11:00 PM", amenities: ["soap", "paper_towels", "hand_dryer", "family_restroom"], bathrooms: ["🚹", "🚺", "🚻"] },
-
-            // Ohio
-            { id: 24, name: "I-70 Rest Area", type: "rest_area", address: "I-70 Mile Marker 112, Columbus, OH", lat: 39.9612, lng: -82.9988, rating: 6.9, reviews: 89, hours: "24/7", amenities: ["soap", "paper_towels", "wheelchair_accessible", "vending"], bathrooms: ["🚹", "🚺", "♿"] },
-
-            // Pennsylvania
-            { id: 25, name: "I-76 Rest Area", type: "rest_area", address: "I-76 Mile Marker 161, Harrisburg, PA", lat: 40.2732, lng: -76.8839, rating: 7.0, reviews: 56, hours: "24/7", amenities: ["soap", "paper_towels", "wheelchair_accessible", "vending"], bathrooms: ["🚹", "🚺", "♿"] },
-
-            // Georgia
-            { id: 26, name: "I-75 Rest Area", type: "rest_area", address: "I-75 Mile Marker 187, Macon, GA", lat: 32.8407, lng: -83.6324, rating: 7.3, reviews: 67, hours: "24/7", amenities: ["soap", "paper_towels", "wheelchair_accessible", "vending", "picnic_area"], bathrooms: ["🚹", "🚺", "♿"] },
-
-            // North Carolina
-            { id: 27, name: "I-95 Rest Area", type: "rest_area", address: "I-95 Mile Marker 138, Fayetteville, NC", lat: 35.0527, lng: -78.8784, rating: 6.8, reviews: 45, hours: "24/7", amenities: ["soap", "paper_towels", "wheelchair_accessible", "vending"], bathrooms: ["🚹", "🚺", "♿"] },
-
-            // Virginia
-            { id: 28, name: "I-64 Rest Area", type: "rest_area", address: "I-64 Mile Marker 234, Richmond, VA", lat: 37.5407, lng: -77.4360, rating: 7.1, reviews: 78, hours: "24/7", amenities: ["soap", "paper_towels", "wheelchair_accessible", "vending"], bathrooms: ["🚹", "🚺", "♿"] },
-
-            // Tennessee
-            { id: 29, name: "I-40 Rest Area", type: "rest_area", address: "I-40 Mile Marker 143, Nashville, TN", lat: 36.1627, lng: -86.7816, rating: 7.2, reviews: 89, hours: "24/7", amenities: ["soap", "paper_towels", "wheelchair_accessible", "vending"], bathrooms: ["🚹", "🚺", "♿"] },
-
-            // Kentucky
-            { id: 30, name: "I-65 Rest Area", type: "rest_area", address: "I-65 Mile Marker 91, Elizabethtown, KY", lat: 37.6956, lng: -85.8591, rating: 6.9, reviews: 56, hours: "24/7", amenities: ["soap", "paper_towels", "wheelchair_accessible", "vending"], bathrooms: ["🚹", "🚺", "♿"] },
-
-            // Indiana
-            { id: 31, name: "I-70 Rest Area", type: "rest_area", address: "I-70 Mile Marker 123, Indianapolis, IN", lat: 39.7684, lng: -86.1581, rating: 7.0, reviews: 67, hours: "24/7", amenities: ["soap", "paper_towels", "wheelchair_accessible", "vending"], bathrooms: ["🚹", "🚺", "♿"] },
-
-            // Michigan
-            { id: 32, name: "I-94 Rest Area", type: "rest_area", address: "I-94 Mile Marker 85, Kalamazoo, MI", lat: 42.2917, lng: -85.5872, rating: 7.1, reviews: 45, hours: "24/7", amenities: ["soap", "paper_towels", "wheelchair_accessible", "vending"], bathrooms: ["🚹", "🚺", "♿"] },
-
-            // Wisconsin
-            { id: 33, name: "I-94 Rest Area", type: "rest_area", address: "I-94 Mile Marker 267, Milwaukee, WI", lat: 43.0389, lng: -87.9065, rating: 7.2, reviews: 78, hours: "24/7", amenities: ["soap", "paper_towels", "wheelchair_accessible", "vending"], bathrooms: ["🚹", "🚺", "♿"] },
-
-            // Minnesota
-            { id: 34, name: "I-35 Rest Area", type: "rest_area", address: "I-35 Mile Marker 127, Minneapolis, MN", lat: 44.9778, lng: -93.2650, rating: 7.3, reviews: 89, hours: "24/7", amenities: ["soap", "paper_towels", "wheelchair_accessible", "vending"], bathrooms: ["🚹", "🚺", "♿"] },
-
-            // Iowa
-            { id: 35, name: "I-80 Rest Area", type: "rest_area", address: "I-80 Mile Marker 143, Des Moines, IA", lat: 41.5868, lng: -93.6250, rating: 7.0, reviews: 56, hours: "24/7", amenities: ["soap", "paper_towels", "wheelchair_accessible", "vending"], bathrooms: ["🚹", "🚺", "♿"] },
-
-            // Missouri
-            { id: 36, name: "I-70 Rest Area", type: "rest_area", address: "I-70 Mile Marker 234, Kansas City, MO", lat: 39.0997, lng: -94.5786, rating: 6.8, reviews: 67, hours: "24/7", amenities: ["soap", "paper_towels", "wheelchair_accessible", "vending"], bathrooms: ["🚹", "🚺", "♿"] },
-
-            // Kansas
-            { id: 37, name: "I-70 Rest Area", type: "rest_area", address: "I-70 Mile Marker 224, Topeka, KS", lat: 39.0473, lng: -95.6890, rating: 6.9, reviews: 45, hours: "24/7", amenities: ["soap", "paper_towels", "wheelchair_accessible", "vending"], bathrooms: ["🚹", "🚺", "♿"] },
-
-            // Oklahoma
-            { id: 38, name: "I-35 Rest Area", type: "rest_area", address: "I-35 Mile Marker 157, Oklahoma City, OK", lat: 35.4676, lng: -97.5164, rating: 7.1, reviews: 78, hours: "24/7", amenities: ["soap", "paper_towels", "wheelchair_accessible", "vending"], bathrooms: ["🚹", "🚺", "♿"] },
-
-            // Arkansas
-            { id: 39, name: "I-40 Rest Area", type: "rest_area", address: "I-40 Mile Marker 159, Little Rock, AR", lat: 34.7465, lng: -92.2896, rating: 6.7, reviews: 56, hours: "24/7", amenities: ["soap", "paper_towels", "wheelchair_accessible", "vending"], bathrooms: ["🚹", "🚺", "♿"] },
-
-            // Louisiana
-            { id: 40, name: "I-10 Rest Area", type: "rest_area", address: "I-10 Mile Marker 234, Baton Rouge, LA", lat: 30.4515, lng: -91.1871, rating: 6.8, reviews: 67, hours: "24/7", amenities: ["soap", "paper_towels", "wheelchair_accessible", "vending"], bathrooms: ["🚹", "🚺", "♿"] },
-
-            // Mississippi
-            { id: 41, name: "I-55 Rest Area", type: "rest_area", address: "I-55 Mile Marker 124, Jackson, MS", lat: 32.2988, lng: -90.1848, rating: 6.6, reviews: 45, hours: "24/7", amenities: ["soap", "paper_towels", "wheelchair_accessible", "vending"], bathrooms: ["🚹", "🚺", "♿"] },
-
-            // Alabama
-            { id: 42, name: "I-65 Rest Area", type: "rest_area", address: "I-65 Mile Marker 167, Birmingham, AL", lat: 33.5186, lng: -86.8104, rating: 6.9, reviews: 56, hours: "24/7", amenities: ["soap", "paper_towels", "wheelchair_accessible", "vending"], bathrooms: ["🚹", "🚺", "♿"] },
-
-            // South Carolina
-            { id: 43, name: "I-95 Rest Area", type: "rest_area", address: "I-95 Mile Marker 98, Columbia, SC", lat: 34.0007, lng: -81.0348, rating: 7.0, reviews: 67, hours: "24/7", amenities: ["soap", "paper_towels", "wheelchair_accessible", "vending"], bathrooms: ["🚹", "🚺", "♿"] },
-
-            // West Virginia
-            { id: 44, name: "I-77 Rest Area", type: "rest_area", address: "I-77 Mile Marker 45, Charleston, WV", lat: 38.3498, lng: -81.6326, rating: 6.8, reviews: 45, hours: "24/7", amenities: ["soap", "paper_towels", "wheelchair_accessible", "vending"], bathrooms: ["🚹", "🚺", "♿"] },
-
-            // Maryland
-            { id: 45, name: "I-95 Rest Area", type: "rest_area", address: "I-95 Mile Marker 67, Baltimore, MD", lat: 39.2904, lng: -76.6122, rating: 7.1, reviews: 78, hours: "24/7", amenities: ["soap", "paper_towels", "wheelchair_accessible", "vending"], bathrooms: ["🚹", "🚺", "♿"] },
-
-            // Delaware
-            { id: 46, name: "I-95 Rest Area", type: "rest_area", address: "I-95 Mile Marker 23, Wilmington, DE", lat: 39.7391, lng: -75.5398, rating: 7.0, reviews: 56, hours: "24/7", amenities: ["soap", "paper_towels", "wheelchair_accessible", "vending"], bathrooms: ["🚹", "🚺", "♿"] },
-
-            // New Jersey
-            { id: 47, name: "I-95 Rest Area", type: "rest_area", address: "I-95 Mile Marker 45, Trenton, NJ", lat: 40.2206, lng: -74.7565, rating: 6.9, reviews: 67, hours: "24/7", amenities: ["soap", "paper_towels", "wheelchair_accessible", "vending"], bathrooms: ["🚹", "🚺", "♿"] },
-
-            // Connecticut
-            { id: 48, name: "I-95 Rest Area", type: "rest_area", address: "I-95 Mile Marker 67, New Haven, CT", lat: 41.3083, lng: -72.9279, rating: 7.2, reviews: 45, hours: "24/7", amenities: ["soap", "paper_towels", "wheelchair_accessible", "vending"], bathrooms: ["🚹", "🚺", "♿"] },
-
-            // Rhode Island
-            { id: 49, name: "I-95 Rest Area", type: "rest_area", address: "I-95 Mile Marker 23, Providence, RI", lat: 41.8240, lng: -71.4128, rating: 7.1, reviews: 34, hours: "24/7", amenities: ["soap", "paper_towels", "wheelchair_accessible", "vending"], bathrooms: ["🚹", "🚺", "♿"] },
-
-            // Massachusetts
-            { id: 50, name: "I-90 Rest Area", type: "rest_area", address: "I-90 Mile Marker 78, Boston, MA", lat: 42.3601, lng: -71.0589, rating: 7.3, reviews: 89, hours: "24/7", amenities: ["soap", "paper_towels", "wheelchair_accessible", "vending"], bathrooms: ["🚹", "🚺", "♿"] }
-        ];
+        let isLoggedIn = false;
+        let isAdmin = false;
+        let currentUser = null;
 
         // Initialize the application
         document.addEventListener('DOMContentLoaded', function() {
@@ -1311,15 +1366,118 @@
             };
         }
 
-        // Load initial businesses
-        function loadInitialBusinesses() {
-            currentBusinesses = businessDatabase.slice(0, 20); // Show first 20 businesses
+        // Load initial businesses using OpenStreetMap Overpass API
+        async function loadInitialBusinesses() {
+            try {
+                document.getElementById('loadingIndicator').textContent = '🔍 Loading businesses from OpenStreetMap...';
+                
+                // Query OpenStreetMap Overpass API for businesses with restrooms
+                const overpassQuery = `
+                    [out:json][timeout:25];
+                    (
+                        node["amenity"~"^(fuel|restaurant|cafe|fast_food|pub|bar)$"]["toilets"="yes"](bbox:25,-125,49,-66);
+                        node["shop"~"^(supermarket|convenience|department_store)$"]["toilets"="yes"](bbox:25,-125,49,-66);
+                        node["tourism"~"^(hotel|motel)$"](bbox:25,-125,49,-66);
+                        node["highway"="rest_area"](bbox:25,-125,49,-66);
+                    );
+                    out geom;
+                `;
+                
+                const response = await fetch('https://overpass-api.de/api/interpreter', {
+                    method: 'POST',
+                    body: overpassQuery,
+                    headers: {
+                        'Content-Type': 'text/plain'
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to fetch from OpenStreetMap');
+                }
+                
+                const data = await response.json();
+                console.log('✅ Loaded', data.elements.length, 'businesses from OpenStreetMap');
+                
+                // Convert OSM data to our format
+                currentBusinesses = data.elements.slice(0, 100).map((element, index) => {
+                    const tags = element.tags || {};
+                    return {
+                        id: element.id || index,
+                        name: tags.name || tags.brand || `${tags.amenity || tags.shop || tags.highway} Business`,
+                        type: tags.amenity || tags.shop || tags.highway || 'business',
+                        address: formatAddress(tags),
+                        lat: element.lat,
+                        lng: element.lon,
+                        rating: Math.round((Math.random() * 3 + 7) * 10) / 10, // Random rating 7-10
+                        reviews: Math.floor(Math.random() * 200) + 10,
+                        hours: tags.opening_hours || "Hours vary",
+                        amenities: getAmenities(tags),
+                        bathrooms: getBathroomSymbols(tags),
+                        phone: tags.phone || '',
+                        website: tags.website || ''
+                    };
+                });
+                
+                displayBusinesses(currentBusinesses);
+                updateMapMarkers(currentBusinesses);
+                
+            } catch (error) {
+                console.error('❌ Failed to load from OpenStreetMap:', error);
+                // Fallback to sample data
+                loadSampleBusinesses();
+            }
+        }
+
+        // Fallback sample businesses
+        function loadSampleBusinesses() {
+            currentBusinesses = [
+                { id: 1, name: "Shell Gas Station", type: "fuel", address: "1234 Main St, Denver, CO 80202", lat: 39.7392, lng: -104.9903, rating: 8.5, reviews: 127, hours: "24/7", amenities: ["soap", "paper_towels", "hand_dryer", "wheelchair_accessible"], bathrooms: ["🚹", "🚺", "🚻", "♿"] },
+                { id: 2, name: "McDonald's", type: "restaurant", address: "5678 Broadway, Boulder, CO 80301", lat: 40.0150, lng: -105.2705, rating: 7.8, reviews: 89, hours: "6:00 AM - 11:00 PM", amenities: ["soap", "paper_towels", "changing_table"], bathrooms: ["🚹", "🚺", "🚻"] },
+                { id: 3, name: "I-80 Rest Area East", type: "rest_area", address: "I-80 Mile Marker 126, Omaha, NE", lat: 41.2565, lng: -95.9345, rating: 7.1, reviews: 89, hours: "24/7", amenities: ["soap", "paper_towels", "wheelchair_accessible", "vending", "picnic_area"], bathrooms: ["🚹", "🚺", "♿"] },
+                { id: 4, name: "Pilot Travel Center", type: "fuel", address: "Highway 80, Grand Island, NE", lat: 40.9264, lng: -98.3420, rating: 8.2, reviews: 156, hours: "24/7", amenities: ["soap", "paper_towels", "hand_dryer", "wheelchair_accessible", "showers"], bathrooms: ["🚹", "🚺", "♿"] }
+            ];
+            
             displayBusinesses(currentBusinesses);
             updateMapMarkers(currentBusinesses);
         }
 
-        // Perform search with enhanced partial matching
-        function performSearch() {
+        // Format address from OSM tags
+        function formatAddress(tags) {
+            const parts = [];
+            if (tags['addr:housenumber']) parts.push(tags['addr:housenumber']);
+            if (tags['addr:street']) parts.push(tags['addr:street']);
+            if (tags['addr:city']) parts.push(tags['addr:city']);
+            if (tags['addr:state']) parts.push(tags['addr:state']);
+            if (tags['addr:postcode']) parts.push(tags['addr:postcode']);
+            
+            return parts.length > 0 ? parts.join(' ') : 'Address not available';
+        }
+
+        // Get amenities from OSM tags
+        function getAmenities(tags) {
+            const amenities = [];
+            if (tags.toilets === 'yes') amenities.push('restroom');
+            if (tags['toilets:wheelchair'] === 'yes') amenities.push('wheelchair_accessible');
+            if (tags.wifi === 'yes') amenities.push('wifi');
+            if (tags.parking === 'yes') amenities.push('parking');
+            if (tags['fuel:diesel'] === 'yes') amenities.push('diesel');
+            return amenities;
+        }
+
+        // Get bathroom symbols from OSM tags
+        function getBathroomSymbols(tags) {
+            const symbols = [];
+            if (tags['toilets:wheelchair'] === 'yes') symbols.push('♿');
+            if (tags.unisex === 'yes') {
+                symbols.push('🚻');
+            } else {
+                symbols.push('🚹', '🚺');
+            }
+            return symbols;
+        }
+
+        // Perform search with OpenStreetMap integration
+        async function performSearch() {
             const query = document.getElementById('searchInput').value.toLowerCase().trim();
             
             if (!query) {
@@ -1327,52 +1485,116 @@
                 return;
             }
 
-            console.log('🔍 Searching for:', query);
+            console.log('🔍 Searching OpenStreetMap for:', query);
+            document.getElementById('loadingIndicator').textContent = '🔍 Searching OpenStreetMap...';
             
-            // Enhanced search with partial matching
-            const results = businessDatabase.filter(business => {
+            try {
+                // Determine search type and build query
+                let overpassQuery;
+                
+                if (query.match(/^\d{5}$/)) {
+                    // ZIP code search
+                    overpassQuery = `
+                        [out:json][timeout:25];
+                        (
+                            node["amenity"~"^(fuel|restaurant|cafe|fast_food)$"]["toilets"="yes"]["addr:postcode"="${query}"];
+                            node["highway"="rest_area"]["addr:postcode"="${query}"];
+                        );
+                        out geom;
+                    `;
+                } else if (query.includes(',') || query.includes(' ')) {
+                    // City/state search
+                    const parts = query.split(/[,\s]+/);
+                    const city = parts[0];
+                    const state = parts[1] || '';
+                    
+                    overpassQuery = `
+                        [out:json][timeout:25];
+                        (
+                            node["amenity"~"^(fuel|restaurant|cafe|fast_food)$"]["toilets"="yes"]["addr:city"~"${city}",i];
+                            node["highway"="rest_area"]["addr:city"~"${city}",i];
+                        );
+                        out geom;
+                    `;
+                } else {
+                    // Business name or general search
+                    overpassQuery = `
+                        [out:json][timeout:25];
+                        (
+                            node["amenity"~"^(fuel|restaurant|cafe|fast_food)$"]["toilets"="yes"]["name"~"${query}",i];
+                            node["amenity"~"^(fuel|restaurant|cafe|fast_food)$"]["toilets"="yes"]["brand"~"${query}",i];
+                            node["highway"="rest_area"];
+                        );
+                        out geom;
+                    `;
+                }
+                
+                const response = await fetch('https://overpass-api.de/api/interpreter', {
+                    method: 'POST',
+                    body: overpassQuery,
+                    headers: {
+                        'Content-Type': 'text/plain'
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Search failed');
+                }
+                
+                const data = await response.json();
+                console.log(`✅ Found ${data.elements.length} results for "${query}"`);
+                
+                // Convert results
+                const results = data.elements.map((element, index) => {
+                    const tags = element.tags || {};
+                    return {
+                        id: element.id || index,
+                        name: tags.name || tags.brand || `${tags.amenity || tags.highway} Business`,
+                        type: tags.amenity || tags.highway || 'business',
+                        address: formatAddress(tags),
+                        lat: element.lat,
+                        lng: element.lon,
+                        rating: Math.round((Math.random() * 3 + 7) * 10) / 10,
+                        reviews: Math.floor(Math.random() * 200) + 10,
+                        hours: tags.opening_hours || "Hours vary",
+                        amenities: getAmenities(tags),
+                        bathrooms: getBathroomSymbols(tags)
+                    };
+                });
+                
+                currentBusinesses = results;
+                displayBusinesses(results);
+                updateMapMarkers(results);
+                
+                // Center map on first result if available
+                if (results.length > 0 && map) {
+                    map.setView([results[0].lat, results[0].lng], 12);
+                }
+                
+            } catch (error) {
+                console.error('❌ Search failed:', error);
+                // Fallback to local search
+                performLocalSearch(query);
+            }
+        }
+
+        // Fallback local search
+        function performLocalSearch(query) {
+            const results = currentBusinesses.filter(business => {
                 const searchTerms = [
                     business.name.toLowerCase(),
                     business.address.toLowerCase(),
-                    business.type.toLowerCase(),
-                    // Extract city, state, zip from address
-                    ...business.address.toLowerCase().split(/[,\s]+/)
+                    business.type.toLowerCase()
                 ];
                 
-                // Check for partial matches
                 return searchTerms.some(term => 
                     term.includes(query) || 
                     query.split(' ').every(word => term.includes(word))
                 );
             });
-
-            // Sort by relevance (exact matches first, then partial matches)
-            results.sort((a, b) => {
-                const aExact = a.name.toLowerCase().includes(query) || a.address.toLowerCase().includes(query);
-                const bExact = b.name.toLowerCase().includes(query) || b.address.toLowerCase().includes(query);
-                
-                if (aExact && !bExact) return -1;
-                if (!aExact && bExact) return 1;
-                
-                // If user location is available, sort by distance
-                if (userLocation) {
-                    const aDist = calculateDistance(userLocation.lat, userLocation.lng, a.lat, a.lng);
-                    const bDist = calculateDistance(userLocation.lat, userLocation.lng, b.lat, b.lng);
-                    return aDist - bDist;
-                }
-                
-                return b.rating - a.rating; // Sort by rating if no location
-            });
-
-            console.log(`✅ Found ${results.length} results for "${query}"`);
-            currentBusinesses = results;
+            
             displayBusinesses(results);
             updateMapMarkers(results);
-
-            // Center map on first result if available
-            if (results.length > 0 && map) {
-                map.setView([results[0].lat, results[0].lng], 12);
-            }
         }
 
         // Enable location services
@@ -1427,21 +1649,80 @@
         }
 
         // Search for nearby businesses
-        function searchNearbyBusinesses() {
+        async function searchNearbyBusinesses() {
             if (!userLocation) return;
             
-            // Calculate distances and sort by proximity
-            const businessesWithDistance = businessDatabase.map(business => ({
-                ...business,
-                distance: calculateDistance(userLocation.lat, userLocation.lng, business.lat, business.lng)
-            })).sort((a, b) => a.distance - b.distance);
+            try {
+                // Search within 50km radius
+                const bbox = calculateBoundingBox(userLocation.lat, userLocation.lng, 50);
+                
+                const overpassQuery = `
+                    [out:json][timeout:25];
+                    (
+                        node["amenity"~"^(fuel|restaurant|cafe|fast_food)$"]["toilets"="yes"](bbox:${bbox.south},${bbox.west},${bbox.north},${bbox.east});
+                        node["highway"="rest_area"](bbox:${bbox.south},${bbox.west},${bbox.north},${bbox.east});
+                    );
+                    out geom;
+                `;
+                
+                const response = await fetch('https://overpass-api.de/api/interpreter', {
+                    method: 'POST',
+                    body: overpassQuery,
+                    headers: {
+                        'Content-Type': 'text/plain'
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Nearby search failed');
+                }
+                
+                const data = await response.json();
+                
+                // Convert and calculate distances
+                const businessesWithDistance = data.elements.map((element, index) => {
+                    const tags = element.tags || {};
+                    const business = {
+                        id: element.id || index,
+                        name: tags.name || tags.brand || `${tags.amenity || tags.highway} Business`,
+                        type: tags.amenity || tags.highway || 'business',
+                        address: formatAddress(tags),
+                        lat: element.lat,
+                        lng: element.lon,
+                        rating: Math.round((Math.random() * 3 + 7) * 10) / 10,
+                        reviews: Math.floor(Math.random() * 200) + 10,
+                        hours: tags.opening_hours || "Hours vary",
+                        amenities: getAmenities(tags),
+                        bathrooms: getBathroomSymbols(tags),
+                        distance: calculateDistance(userLocation.lat, userLocation.lng, element.lat, element.lon)
+                    };
+                    return business;
+                }).sort((a, b) => a.distance - b.distance);
+                
+                currentBusinesses = businessesWithDistance.slice(0, 50);
+                displayBusinesses(currentBusinesses);
+                updateMapMarkers(currentBusinesses);
+                
+                console.log('✅ Found nearby businesses:', currentBusinesses.length);
+                
+            } catch (error) {
+                console.error('❌ Nearby search failed:', error);
+                // Fallback to sample nearby data
+                loadSampleBusinesses();
+            }
+        }
+
+        // Calculate bounding box for radius search
+        function calculateBoundingBox(lat, lng, radiusKm) {
+            const latDelta = radiusKm / 111.32; // 1 degree lat ≈ 111.32 km
+            const lngDelta = radiusKm / (111.32 * Math.cos(lat * Math.PI / 180));
             
-            // Show nearest 20 businesses
-            currentBusinesses = businessesWithDistance.slice(0, 20);
-            displayBusinesses(currentBusinesses);
-            updateMapMarkers(currentBusinesses);
-            
-            console.log('✅ Found nearby businesses:', currentBusinesses.length);
+            return {
+                north: lat + latDelta,
+                south: lat - latDelta,
+                east: lng + lngDelta,
+                west: lng - lngDelta
+            };
         }
 
         // Calculate distance between two points (Haversine formula)
@@ -1471,9 +1752,9 @@
             }
             
             resultsList.innerHTML = businesses.map(business => {
-                const distance = userLocation ? 
+                const distance = business.distance || (userLocation ? 
                     calculateDistance(userLocation.lat, userLocation.lng, business.lat, business.lng) : 
-                    null;
+                    null);
 
                 return `
                     <div class="business-card" onclick="selectBusiness(${business.id})">
@@ -1547,7 +1828,11 @@
                 'baby_station': 'Baby Station',
                 'vending': 'Vending Machines',
                 'picnic_area': 'Picnic Area',
-                'pet_area': 'Pet Area'
+                'pet_area': 'Pet Area',
+                'restroom': 'Restroom Available',
+                'wifi': 'WiFi',
+                'parking': 'Parking',
+                'diesel': 'Diesel Fuel'
             };
             return amenityMap[amenity] || amenity;
         }
@@ -1604,8 +1889,8 @@
             const sortFilter = document.getElementById('sortFilter').value;
             
             let filteredBusinesses = typeFilter ? 
-                businessDatabase.filter(business => business.type === typeFilter) : 
-                businessDatabase;
+                currentBusinesses.filter(business => business.type === typeFilter) : 
+                currentBusinesses;
             
             // Sort businesses
             switch (sortFilter) {
@@ -1613,7 +1898,7 @@
                     if (userLocation) {
                         filteredBusinesses = filteredBusinesses.map(business => ({
                             ...business,
-                            distance: calculateDistance(userLocation.lat, userLocation.lng, business.lat, business.lng)
+                            distance: business.distance || calculateDistance(userLocation.lat, userLocation.lng, business.lat, business.lng)
                         })).sort((a, b) => a.distance - b.distance);
                     }
                     break;
@@ -1625,14 +1910,13 @@
                     break;
             }
             
-            currentBusinesses = filteredBusinesses.slice(0, 50); // Limit to 50 results
-            displayBusinesses(currentBusinesses);
-            updateMapMarkers(currentBusinesses);
+            displayBusinesses(filteredBusinesses);
+            updateMapMarkers(filteredBusinesses);
         }
 
         // Select business (focus on map)
         function selectBusiness(businessId) {
-            const business = businessDatabase.find(b => b.id === businessId);
+            const business = currentBusinesses.find(b => b.id === businessId);
             if (business && map) {
                 map.setView([business.lat, business.lng], 15);
                 
@@ -1649,11 +1933,48 @@
 
         // Open rate modal
         function openRateModal(businessId) {
-            const business = businessDatabase.find(b => b.id === businessId);
+            const business = currentBusinesses.find(b => b.id === businessId);
             if (business) {
                 document.getElementById('rateModal').querySelector('h3').textContent = `Rate ${business.name}`;
                 openModal('rateModal');
             }
+        }
+
+        // Admin Panel Functions
+        function openAdminPanel() {
+            if (!isAdmin) {
+                alert('Admin access required. Please login as admin first.');
+                return;
+            }
+            document.getElementById('adminPanel').style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeAdminPanel() {
+            document.getElementById('adminPanel').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        function showAdminSection(sectionId) {
+            // Update nav buttons
+            document.querySelectorAll('.admin-nav button').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Show section
+            document.querySelectorAll('.admin-section').forEach(section => section.classList.remove('active'));
+            document.getElementById(sectionId).classList.add('active');
+        }
+
+        // Email verification simulation
+        function sendVerificationEmail(email) {
+            console.log(`📧 Sending verification email to: ${email}`);
+            
+            // Simulate email sending
+            setTimeout(() => {
+                alert(`Verification email sent to ${email}! Please check your inbox and click the verification link.`);
+            }, 1000);
+            
+            return true;
         }
 
         // Modal functions
@@ -1776,10 +2097,15 @@
             
             // Simulate login
             if (username === 'admin' && password === 'gtgotg2025!') {
+                isLoggedIn = true;
+                isAdmin = true;
+                currentUser = { username: 'admin', role: 'admin' };
+                document.getElementById('adminBtn').style.display = 'block';
                 alert('Welcome back, Admin!');
                 closeModal('loginModal');
-                // Show admin features
             } else if (username === 'johndoe' && password === 'password123') {
+                isLoggedIn = true;
+                currentUser = { username: 'johndoe', role: 'user' };
                 alert('Welcome back, John!');
                 closeModal('loginModal');
             } else {
@@ -1792,8 +2118,22 @@
             const username = document.getElementById('signupUsername').value;
             const email = document.getElementById('signupEmail').value;
             
-            alert(`Welcome to GTGOTG, ${username}! Your account has been created.`);
-            closeModal('signupModal');
+            // Send verification email
+            sendVerificationEmail(email);
+            
+            // Show verification notice
+            const modal = document.getElementById('signupModal');
+            modal.querySelector('.modal-content').innerHTML = `
+                <div class="modal-header">
+                    <h3>Email Verification Required</h3>
+                    <button class="close-btn" onclick="closeModal('signupModal')">&times;</button>
+                </div>
+                <div class="verification-notice">
+                    <h4>📧 Check Your Email</h4>
+                    <p>We've sent a verification link to <strong>${email}</strong></p>
+                    <p>Please click the link in your email to activate your account.</p>
+                </div>
+            `;
         }
 
         function handleRating(event) {
@@ -1820,36 +2160,14 @@
             event.preventDefault();
             const businessName = document.getElementById('businessName').value;
             const ownerName = document.getElementById('ownerName').value;
+            const businessEmail = document.getElementById('businessEmail').value;
             
-            alert(`Thank you, ${ownerName}! Your business registration for ${businessName} has been submitted for verification.`);
+            // Send verification email
+            sendVerificationEmail(businessEmail);
+            
+            alert(`Thank you, ${ownerName}! Your business registration for ${businessName} has been submitted for verification. Please check your email to verify your business account.`);
             closeModal('businessOwnerModal');
         }
-
-        // Initialize search suggestions
-        function initializeSearchSuggestions() {
-            const searchInput = document.getElementById('searchInput');
-            const suggestions = [
-                'McDonald\'s', 'Starbucks', 'Shell', 'Chevron', 'Walmart', 'Target',
-                'Rest Area', 'Gas Station', 'Coffee Shop', 'Restaurant',
-                'Denver, CO', 'Omaha, NE', 'Chicago, IL', 'New York, NY',
-                '80202', '68132', '60601', '10001'
-            ];
-            
-            searchInput.setAttribute('list', 'searchSuggestions');
-            
-            const datalist = document.createElement('datalist');
-            datalist.id = 'searchSuggestions';
-            suggestions.forEach(suggestion => {
-                const option = document.createElement('option');
-                option.value = suggestion;
-                datalist.appendChild(option);
-            });
-            
-            document.body.appendChild(datalist);
-        }
-
-        // Call initialization
-        initializeSearchSuggestions();
     </script>
 </body>
 </html>
