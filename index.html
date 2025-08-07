@@ -2096,8 +2096,11 @@
             const password = document.getElementById('loginPassword').value;
             
             // Simulate login
-            if (username === 'admin' && password === 'gtgotg2025!') {
-                isLoggedIn = true;
+            // Admin credentials
+const ADMIN_CREDENTIALS = {
+    username: 'adminjess',
+    password: 'Alainajade1!'
+};
                 isAdmin = true;
                 currentUser = { username: 'admin', role: 'admin' };
                 document.getElementById('adminBtn').style.display = 'block';
