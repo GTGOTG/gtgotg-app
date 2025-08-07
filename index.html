@@ -369,6 +369,11 @@
             color: #1e40af;
         }
 
+        .business-tag.truck-stop {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
         .business-actions {
             display: flex;
             gap: 0.75rem;
@@ -636,12 +641,12 @@
         <section class="search-section">
             <div class="search-header">
                 <h1 class="search-title">Find Clean, Safe Restrooms</h1>
-                <p class="search-subtitle">Search by business name, city, state, or ZIP code</p>
+                <p class="search-subtitle">Search by business name, city, state, or ZIP code - Now with comprehensive truck stop coverage!</p>
             </div>
             
             <div class="search-controls">
                 <input type="text" class="search-input" id="searchInput" 
-                       placeholder="Search McDonald's, Denver CO, 80202, or any location...">
+                       placeholder="Search McDonald's, Denver CO, Colorado, 80202, or any location...">
                 <button class="location-btn" id="locationBtn" onclick="enableLocation()">
                     📍 Enable Location
                 </button>
@@ -651,13 +656,14 @@
                 <button class="category-btn active" onclick="filterByCategory('')">All</button>
                 <button class="category-btn" onclick="filterByCategory('fuel')">Gas Stations</button>
                 <button class="category-btn" onclick="filterByCategory('truck_stop')">Truck Stops</button>
+                <button class="category-btn" onclick="filterByCategory('highway_services')">Highway Services</button>
+                <button class="category-btn" onclick="filterByCategory('rest_area')">Rest Areas</button>
                 <button class="category-btn" onclick="filterByCategory('fast_food')">Fast Food</button>
                 <button class="category-btn" onclick="filterByCategory('restaurant')">Restaurants</button>
                 <button class="category-btn" onclick="filterByCategory('cafe')">Coffee Shops</button>
                 <button class="category-btn" onclick="filterByCategory('convenience')">Convenience</button>
                 <button class="category-btn" onclick="filterByCategory('supermarket')">Supermarkets</button>
                 <button class="category-btn" onclick="filterByCategory('hotel')">Hotels</button>
-                <button class="category-btn" onclick="filterByCategory('rest_area')">Rest Areas</button>
             </div>
         </section>
 
@@ -759,12 +765,65 @@
             password: 'Alainajade1!'
         };
 
+        // US State bounding boxes for comprehensive searches
+        const US_STATE_BOUNDS = {
+            'colorado': [36.9929, -109.0452, 41.0023, -102.0415],
+            'california': [32.5343, -124.4096, 42.0095, -114.1312],
+            'texas': [25.8371, -106.6456, 36.5007, -93.5083],
+            'florida': [24.3963, -87.6349, 31.0009, -79.9743],
+            'new york': [40.4774, -79.7624, 45.0153, -71.7774],
+            'illinois': [36.9703, -91.5130, 42.5083, -87.0199],
+            'pennsylvania': [39.7198, -80.5190, 42.2694, -74.6895],
+            'ohio': [38.4031, -84.8203, 41.9773, -80.5190],
+            'georgia': [30.3557, -85.6051, 35.0008, -80.8414],
+            'north carolina': [33.7514, -84.3218, 36.5881, -75.4001],
+            'michigan': [41.6960, -90.4181, 48.2388, -82.1220],
+            'new jersey': [38.9284, -75.5594, 41.3574, -73.8937],
+            'virginia': [36.5407, -83.6753, 39.4660, -75.2420],
+            'washington': [45.5435, -124.8489, 49.0024, -116.9155],
+            'arizona': [31.3322, -114.8165, 37.0043, -109.0452],
+            'massachusetts': [41.2376, -73.5081, 42.8868, -69.9286],
+            'tennessee': [34.9829, -90.3103, 36.6782, -81.6469],
+            'indiana': [37.7554, -88.0157, 41.7606, -84.7845],
+            'missouri': [35.9957, -95.7742, 40.6136, -89.0993],
+            'maryland': [37.9118, -79.4877, 39.7238, -75.0490],
+            'wisconsin': [42.4919, -92.8892, 47.0803, -86.2490],
+            'minnesota': [43.4993, -97.2394, 49.3844, -89.4836],
+            'louisiana': [28.9285, -94.0431, 33.0197, -88.8175],
+            'alabama': [30.2226, -88.4731, 35.0081, -84.8890],
+            'kentucky': [36.4970, -89.5715, 39.1472, -81.9649],
+            'oregon': [41.9918, -124.7035, 46.2991, -116.4635],
+            'oklahoma': [33.6160, -103.0025, 37.0020, -94.4312],
+            'connecticut': [40.9509, -73.7277, 42.0508, -71.7869],
+            'utah': [36.9979, -114.0524, 42.0013, -109.0452],
+            'iowa': [40.3756, -96.6397, 43.5012, -90.1401],
+            'nevada': [35.0018, -120.0064, 42.0022, -114.0396],
+            'arkansas': [33.0041, -94.6178, 36.4996, -89.6444],
+            'mississippi': [30.1734, -91.6550, 34.9961, -88.0977],
+            'kansas': [36.9930, -102.0517, 40.0030, -94.5882],
+            'new mexico': [31.3323, -109.0501, 37.0002, -103.0020],
+            'nebraska': [39.9999, -104.0537, 43.0017, -95.3080],
+            'west virginia': [37.2014, -82.6447, 40.6381, -77.7190],
+            'idaho': [41.9880, -117.2430, 49.0011, -111.0435],
+            'hawaii': [18.9117, -178.4348, 28.4025, -154.8056],
+            'new hampshire': [42.6970, -72.5570, 45.3058, -70.6104],
+            'maine': [43.0642, -71.0840, 47.4598, -66.9851],
+            'montana': [44.3583, -116.0489, 49.0011, -104.0395],
+            'rhode island': [41.1460, -71.8620, 42.0188, -71.1208],
+            'delaware': [38.4511, -75.7890, 39.8394, -75.0490],
+            'south dakota': [42.4798, -104.0578, 45.9454, -96.4364],
+            'north dakota': [45.9350, -104.0489, 49.0011, -96.5544],
+            'alaska': [51.2097, -179.1506, 71.4410, -129.9795],
+            'vermont': [42.7269, -73.4544, 45.0167, -71.4653],
+            'wyoming': [40.9979, -111.0567, 45.0018, -104.0522]
+        };
+
         // Initialize the application
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('🚽 GTGOTG - "Got To Go On The Go" - Initializing...');
+            console.log('🚽 GTGOTG - "Got To Go On The Go" - Enhanced Truck Stop Search Initializing...');
             initializeMap();
             setupEventListeners();
-            console.log('✅ GTGOTG - Application initialized successfully!');
+            console.log('✅ GTGOTG - Enhanced application initialized successfully!');
         });
 
         // Initialize the map
@@ -826,10 +885,10 @@
 
         // Parse search query to separate business name from location
         function parseSearchQuery(query) {
-            if (!query) return { businessName: '', location: '' };
+            if (!query) return { businessName: '', location: '', original: '' };
 
             // Common patterns to identify business names vs locations
-            const businessKeywords = ['mcdonalds', 'mcdonald', 'shell', 'exxon', 'bp', 'starbucks', 'subway', 'walmart', 'target', 'chevron', 'mobil', 'texaco', 'burger king', 'taco bell', 'kfc', 'pizza hut', 'dominos', 'papa johns'];
+            const businessKeywords = ['mcdonalds', 'mcdonald', 'shell', 'exxon', 'bp', 'starbucks', 'subway', 'walmart', 'target', 'chevron', 'mobil', 'texaco', 'burger king', 'taco bell', 'kfc', 'pizza hut', 'dominos', 'papa johns', 'pilot', 'flying j', 'loves', 'ta', 'petro'];
             const locationKeywords = ['co', 'colorado', 'ca', 'california', 'tx', 'texas', 'ny', 'new york', 'fl', 'florida', 'denver', 'los angeles', 'houston', 'chicago', 'phoenix'];
 
             const words = query.toLowerCase().split(/[\s,]+/);
@@ -876,67 +935,223 @@
             };
         }
 
-        // Enhanced search function with improved query logic
+        // Enhanced search function with comprehensive truck stop coverage
         async function searchBusinesses(parsedQuery, userLat = null, userLng = null, category = '') {
             try {
-                console.log('🔍 Searching for businesses:', parsedQuery, 'Category:', category, 'Location:', userLat, userLng);
+                console.log('🔍 Enhanced search for businesses:', parsedQuery, 'Category:', category, 'Location:', userLat, userLng);
                 
                 // Show loading state
-                document.getElementById('businessGrid').innerHTML = '<div class="loading">🔍 Searching for businesses...</div>';
+                document.getElementById('businessGrid').innerHTML = '<div class="loading">🔍 Searching for businesses nationwide...</div>';
                 document.getElementById('resultsCount').textContent = 'Searching...';
 
+                let searchBounds = null;
                 let searchCenter = null;
-                let searchRadius = 25000; // 25km default
 
-                // Determine search center and area
+                // Determine search area
                 if (userLat && userLng) {
                     searchCenter = { lat: userLat, lng: userLng };
-                    searchRadius = 15000; // Smaller radius for user location
+                    searchBounds = calculateBounds(userLat, userLng, 50000); // 50km radius
                 } else if (parsedQuery.location) {
-                    // Try to geocode the location
-                    searchCenter = await geocodeLocation(parsedQuery.location);
-                    if (searchCenter) {
-                        map.setView([searchCenter.lat, searchCenter.lng], 12);
+                    // Try to get state bounds first, then geocode
+                    searchBounds = getStateBounds(parsedQuery.location);
+                    if (!searchBounds) {
+                        searchCenter = await geocodeLocation(parsedQuery.location);
+                        if (searchCenter) {
+                            searchBounds = calculateBounds(searchCenter.lat, searchCenter.lng, 100000); // 100km radius
+                            map.setView([searchCenter.lat, searchCenter.lng], 8);
+                        }
+                    } else {
+                        // Center map on state
+                        const centerLat = (searchBounds[0] + searchBounds[2]) / 2;
+                        const centerLng = (searchBounds[1] + searchBounds[3]) / 2;
+                        map.setView([centerLat, centerLng], 7);
                     }
                 }
 
-                // Try multiple search strategies
+                // Try multiple comprehensive search strategies
                 let results = [];
                 searchAttempts = 0;
 
-                // Strategy 1: Specific business name + location
-                if (parsedQuery.businessName && searchCenter) {
-                    results = await trySearch(() => buildNameLocationQuery(parsedQuery.businessName, searchCenter, searchRadius));
+                // Strategy 1: Comprehensive highway facilities search
+                if (searchBounds) {
+                    results = await trySearch(() => buildComprehensiveHighwayQuery(searchBounds, category, parsedQuery.businessName));
                 }
 
-                // Strategy 2: General location search with category filter
-                if (results.length === 0 && searchCenter) {
-                    results = await trySearch(() => buildLocationCategoryQuery(searchCenter, searchRadius, category || 'all'));
+                // Strategy 2: Truck-specific search if looking for truck stops
+                if (results.length < 10 && (category === 'truck_stop' || category === 'highway_services' || !category)) {
+                    results = results.concat(await trySearch(() => buildTruckSpecificQuery(searchBounds, parsedQuery.businessName)));
                 }
 
-                // Strategy 3: Broader area search
-                if (results.length === 0 && searchCenter) {
-                    searchRadius = 50000; // Expand to 50km
-                    results = await trySearch(() => buildLocationCategoryQuery(searchCenter, searchRadius, 'all'));
+                // Strategy 3: State-wide search for major chains
+                if (results.length < 5 && parsedQuery.businessName && searchBounds) {
+                    results = results.concat(await trySearch(() => buildChainSearchQuery(searchBounds, parsedQuery.businessName)));
                 }
 
-                // Strategy 4: Fallback to sample data if all else fails
+                // Strategy 4: Fallback to sample data if needed
                 if (results.length === 0) {
-                    console.log('🔄 Using fallback sample data');
-                    results = generateSampleBusinesses(searchCenter);
+                    console.log('🔄 Using enhanced sample data with truck stops');
+                    results = generateEnhancedSampleBusinesses(searchCenter, parsedQuery.location);
                 }
 
-                businesses = results;
+                // Remove duplicates and limit results
+                const uniqueResults = removeDuplicateBusinesses(results);
+                businesses = uniqueResults.slice(0, 200); // Increased limit for better coverage
+                
                 renderBusinesses();
                 addMarkersToMap();
                 updateResultsCount();
 
-                console.log(`✅ Found ${results.length} businesses`);
+                console.log(`✅ Found ${businesses.length} businesses (${uniqueResults.length} unique from ${results.length} total)`);
 
             } catch (error) {
                 console.error('❌ Error searching businesses:', error);
                 handleSearchError(error);
             }
+        }
+
+        // Get state bounding box
+        function getStateBounds(location) {
+            const locationLower = location.toLowerCase();
+            
+            // Check for state names or abbreviations
+            for (const [state, bounds] of Object.entries(US_STATE_BOUNDS)) {
+                if (locationLower.includes(state) || 
+                    locationLower.includes(state.replace(' ', '')) ||
+                    (state === 'colorado' && locationLower.includes('co')) ||
+                    (state === 'california' && locationLower.includes('ca')) ||
+                    (state === 'texas' && locationLower.includes('tx')) ||
+                    (state === 'florida' && locationLower.includes('fl')) ||
+                    (state === 'new york' && locationLower.includes('ny'))) {
+                    return bounds;
+                }
+            }
+            return null;
+        }
+
+        // Calculate bounding box from center point and radius
+        function calculateBounds(lat, lng, radiusMeters) {
+            const latDelta = radiusMeters / 111000; // Approximate meters per degree latitude
+            const lngDelta = radiusMeters / (111000 * Math.cos(lat * Math.PI / 180));
+            
+            return [
+                lat - latDelta,  // south
+                lng - lngDelta,  // west
+                lat + latDelta,  // north
+                lng + lngDelta   // east
+            ];
+        }
+
+        // Build comprehensive highway facilities query
+        function buildComprehensiveHighwayQuery(bounds, category, businessName) {
+            const bbox = `(bbox:${bounds[0]},${bounds[1]},${bounds[2]},${bounds[3]})`;
+            
+            let queries = [];
+            
+            if (category === 'truck_stop' || category === 'highway_services' || !category) {
+                // Highway service areas (travel plazas, truck stops)
+                queries.push(`nwr["highway"="services"]${bbox};`);
+                
+                // Truck-accessible fuel stations
+                queries.push(`nwr["amenity"="fuel"]["hgv"="yes"]${bbox};`);
+                queries.push(`nwr["amenity"="fuel"]["truck"="yes"]${bbox};`);
+                
+                // Large fuel stations with truck capacity
+                queries.push(`nwr["amenity"="fuel"]["capacity:hgv"]${bbox};`);
+            }
+            
+            if (category === 'rest_area' || !category) {
+                // Rest areas
+                queries.push(`nwr["highway"="rest_area"]${bbox};`);
+            }
+            
+            if (category === 'fuel' || !category) {
+                // All fuel stations
+                queries.push(`nwr["amenity"="fuel"]${bbox};`);
+            }
+            
+            if (!category || ['fast_food', 'restaurant', 'cafe', 'convenience', 'supermarket', 'hotel'].includes(category)) {
+                // Other business types
+                const categoryMap = {
+                    'fast_food': 'nwr["amenity"="fast_food"]',
+                    'restaurant': 'nwr["amenity"="restaurant"]',
+                    'cafe': 'nwr["amenity"="cafe"]',
+                    'convenience': 'nwr["shop"="convenience"]',
+                    'supermarket': 'nwr["shop"="supermarket"]',
+                    'hotel': 'nwr["tourism"="hotel"]'
+                };
+                
+                if (category && categoryMap[category]) {
+                    queries.push(`${categoryMap[category]}${bbox};`);
+                } else if (!category) {
+                    // Include all major categories
+                    queries.push(`nwr["amenity"~"^(restaurant|fast_food|cafe)$"]${bbox};`);
+                    queries.push(`nwr["shop"~"^(convenience|supermarket)$"]${bbox};`);
+                    queries.push(`nwr["tourism"="hotel"]${bbox};`);
+                }
+            }
+            
+            // Add business name filter if specified
+            if (businessName) {
+                const escapedName = businessName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                queries = queries.map(query => query.replace(bbox, `["name"~"${escapedName}",i]${bbox}`));
+            }
+            
+            return `
+                [out:json][timeout:20];
+                (
+                  ${queries.join('\n  ')}
+                );
+                out center meta 300;
+            `;
+        }
+
+        // Build truck-specific query
+        function buildTruckSpecificQuery(bounds, businessName) {
+            const bbox = bounds ? `(bbox:${bounds[0]},${bounds[1]},${bounds[2]},${bounds[3]})` : '';
+            const nameFilter = businessName ? `["name"~"${businessName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}",i]` : '';
+            
+            return `
+                [out:json][timeout:20];
+                (
+                  // Major truck stop chains
+                  nwr["amenity"="fuel"]["brand"~"Pilot|Flying.J|Love.s|TA|Petro|Speedway",i]${nameFilter}${bbox};
+                  
+                  // Highway services with truck facilities
+                  nwr["highway"="services"]["hgv"="yes"]${nameFilter}${bbox};
+                  
+                  // Fuel stations with truck access
+                  nwr["amenity"="fuel"]["hgv"="yes"]${nameFilter}${bbox};
+                  nwr["amenity"="fuel"]["truck"="yes"]${nameFilter}${bbox};
+                  
+                  // Large capacity fuel stations
+                  nwr["amenity"="fuel"]["capacity:hgv"]${nameFilter}${bbox};
+                  
+                  // Commercial areas near highways (may contain truck stops)
+                  nwr["landuse"="commercial"]["highway"]${bbox};
+                );
+                out center meta 200;
+            `;
+        }
+
+        // Build chain search query
+        function buildChainSearchQuery(bounds, businessName) {
+            const bbox = bounds ? `(bbox:${bounds[0]},${bounds[1]},${bounds[2]},${bounds[3]})` : '';
+            const escapedName = businessName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            
+            return `
+                [out:json][timeout:20];
+                (
+                  // Search by name across all amenity types
+                  nwr["name"~"${escapedName}",i]${bbox};
+                  
+                  // Search by brand
+                  nwr["brand"~"${escapedName}",i]${bbox};
+                  
+                  // Search by operator
+                  nwr["operator"~"${escapedName}",i]${bbox};
+                );
+                out center meta 150;
+            `;
         }
 
         // Try a search with error handling and retries
@@ -945,10 +1160,10 @@
                 try {
                     searchAttempts++;
                     const query = queryBuilder();
-                    console.log(`📡 Search attempt ${searchAttempts}, query:`, query);
+                    console.log(`📡 Enhanced search attempt ${searchAttempts}:`, query.substring(0, 200) + '...');
 
                     const controller = new AbortController();
-                    const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
+                    const timeoutId = setTimeout(() => controller.abort(), 20000); // 20 second timeout
 
                     const response = await fetch('https://overpass-api.de/api/interpreter', {
                         method: 'POST',
@@ -966,9 +1181,9 @@
                     const data = await response.json();
                     const processedResults = processOverpassResults(data.elements, null, null);
                     
-                    if (processedResults.length > 0) {
-                        return processedResults;
-                    }
+                    console.log(`📊 Search attempt ${searchAttempts} returned ${processedResults.length} results`);
+                    return processedResults;
+                    
                 } catch (error) {
                     console.warn(`⚠️ Search attempt ${attempt + 1} failed:`, error.message);
                     if (attempt === maxRetries - 1) {
@@ -981,94 +1196,246 @@
             return [];
         }
 
-        // Build name + location query
-        function buildNameLocationQuery(businessName, center, radius) {
-            const around = `(around:${radius},${center.lat},${center.lng})`;
-            const escapedName = businessName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-            
-            return `
-                [out:json][timeout:15];
-                (
-                  nwr["amenity"~"^(fuel|restaurant|fast_food|cafe)$"]["name"~"${escapedName}",i]${around};
-                  nwr["shop"~"^(convenience|supermarket)$"]["name"~"${escapedName}",i]${around};
-                );
-                out center meta 50;
-            `;
-        }
-
-        // Build location + category query
-        function buildLocationCategoryQuery(center, radius, category) {
-            const around = `(around:${radius},${center.lat},${center.lng})`;
-            
-            if (category === 'all' || !category) {
-                return `
-                    [out:json][timeout:15];
-                    (
-                      nwr["amenity"~"^(fuel|restaurant|fast_food|cafe)$"]${around};
-                      nwr["shop"~"^(convenience|supermarket)$"]${around};
-                      nwr["tourism"="hotel"]${around};
-                      nwr["highway"="rest_area"]${around};
-                    );
-                    out center meta 100;
-                `;
-            } else {
-                const categoryMap = {
-                    'fuel': 'nwr["amenity"="fuel"]',
-                    'truck_stop': 'nwr["amenity"="fuel"]["truck"="yes"]',
-                    'fast_food': 'nwr["amenity"="fast_food"]',
-                    'restaurant': 'nwr["amenity"="restaurant"]',
-                    'cafe': 'nwr["amenity"="cafe"]',
-                    'convenience': 'nwr["shop"="convenience"]',
-                    'supermarket': 'nwr["shop"="supermarket"]',
-                    'hotel': 'nwr["tourism"="hotel"]',
-                    'rest_area': 'nwr["highway"="rest_area"]'
-                };
-
-                const osmQuery = categoryMap[category] || 'nwr["amenity"~"^(fuel|restaurant|fast_food|cafe)$"]';
-
-                return `
-                    [out:json][timeout:15];
-                    (
-                      ${osmQuery}${around};
-                    );
-                    out center meta 100;
-                `;
-            }
-        }
-
-        // Generate sample businesses as fallback
-        function generateSampleBusinesses(searchCenter) {
+        // Generate enhanced sample businesses with truck stops
+        function generateEnhancedSampleBusinesses(searchCenter, location) {
             const sampleBusinesses = [
+                // Truck stops and highway services
+                { name: 'Pilot Travel Center', category: 'truck_stop', brand: 'Pilot', isTruckStop: true },
+                { name: 'Flying J Travel Plaza', category: 'truck_stop', brand: 'Flying J', isTruckStop: true },
+                { name: 'Love\'s Travel Stop', category: 'truck_stop', brand: 'Love\'s', isTruckStop: true },
+                { name: 'TA Travel Center', category: 'truck_stop', brand: 'TA', isTruckStop: true },
+                { name: 'Petro Stopping Center', category: 'truck_stop', brand: 'Petro', isTruckStop: true },
+                { name: 'Speedway Travel Plaza', category: 'truck_stop', brand: 'Speedway', isTruckStop: true },
+                
+                // Highway rest areas
+                { name: 'Interstate Rest Area - Mile 45', category: 'rest_area', brand: '', isRestArea: true },
+                { name: 'Highway Welcome Center', category: 'rest_area', brand: '', isRestArea: true },
+                { name: 'State Line Rest Stop', category: 'rest_area', brand: '', isRestArea: true },
+                
+                // Gas stations
                 { name: 'Shell Gas Station', category: 'fuel', brand: 'Shell' },
-                { name: 'McDonald\'s', category: 'fast_food', brand: 'McDonald\'s' },
-                { name: 'Starbucks', category: 'cafe', brand: 'Starbucks' },
-                { name: 'Walmart Supercenter', category: 'supermarket', brand: 'Walmart' },
-                { name: 'Target', category: 'supermarket', brand: 'Target' },
                 { name: 'Chevron', category: 'fuel', brand: 'Chevron' },
+                { name: 'Exxon Mobil', category: 'fuel', brand: 'Exxon' },
+                { name: 'BP Gas Station', category: 'fuel', brand: 'BP' },
+                
+                // Fast food
+                { name: 'McDonald\'s', category: 'fast_food', brand: 'McDonald\'s' },
                 { name: 'Subway', category: 'fast_food', brand: 'Subway' },
                 { name: 'Burger King', category: 'fast_food', brand: 'Burger King' },
+                { name: 'Taco Bell', category: 'fast_food', brand: 'Taco Bell' },
+                
+                // Coffee and convenience
+                { name: 'Starbucks', category: 'cafe', brand: 'Starbucks' },
                 { name: '7-Eleven', category: 'convenience', brand: '7-Eleven' },
-                { name: 'Holiday Inn', category: 'hotel', brand: 'Holiday Inn' }
+                { name: 'Circle K', category: 'convenience', brand: 'Circle K' },
+                
+                // Supermarkets and hotels
+                { name: 'Walmart Supercenter', category: 'supermarket', brand: 'Walmart' },
+                { name: 'Target', category: 'supermarket', brand: 'Target' },
+                { name: 'Holiday Inn Express', category: 'hotel', brand: 'Holiday Inn' },
+                { name: 'Hampton Inn', category: 'hotel', brand: 'Hampton Inn' }
             ];
 
             const baseLat = searchCenter ? searchCenter.lat : 39.7392;
             const baseLng = searchCenter ? searchCenter.lng : -104.9903;
+            const locationName = location || 'Denver, CO';
 
             return sampleBusinesses.map((business, index) => ({
                 id: `sample_${index}`,
                 name: business.name,
-                address: `${1000 + index * 100} Main St, Denver, CO 80202`,
-                lat: baseLat + (Math.random() - 0.5) * 0.1,
-                lng: baseLng + (Math.random() - 0.5) * 0.1,
+                address: `${1000 + index * 100} Highway Blvd, ${locationName}`,
+                lat: baseLat + (Math.random() - 0.5) * 2, // Spread over larger area
+                lng: baseLng + (Math.random() - 0.5) * 2,
                 category: business.category,
                 brand: business.brand,
-                phone: `(303) ${Math.floor(Math.random() * 900) + 100}-${Math.floor(Math.random() * 9000) + 1000}`,
-                website: `https://www.${business.brand.toLowerCase().replace(/[^a-z]/g, '')}.com`,
-                opening_hours: '24/7',
-                distance: searchCenter ? Math.random() * 10 + 1 : null,
+                phone: `(555) ${Math.floor(Math.random() * 900) + 100}-${Math.floor(Math.random() * 9000) + 1000}`,
+                website: business.brand ? `https://www.${business.brand.toLowerCase().replace(/[^a-z]/g, '')}.com` : '',
+                opening_hours: business.isTruckStop ? '24/7' : business.isRestArea ? 'Always Open' : 'Mon-Sun 6:00-22:00',
+                distance: searchCenter ? Math.random() * 50 + 1 : null,
                 rating: generateRandomRating(),
-                amenities: generateAmenities({ amenity: business.category })
+                amenities: generateEnhancedAmenities(business),
+                isTruckStop: business.isTruckStop || false,
+                isRestArea: business.isRestArea || false
             }));
+        }
+
+        // Generate enhanced amenities based on business type
+        function generateEnhancedAmenities(business) {
+            const amenities = [];
+            
+            // Common amenities
+            if (Math.random() > 0.3) amenities.push('🚻 Family Restroom');
+            if (Math.random() > 0.4) amenities.push('♿ ADA Accessible');
+            if (Math.random() > 0.5) amenities.push('🧻 Paper Towels');
+            if (Math.random() > 0.6) amenities.push('🧼 Soap Dispenser');
+            
+            // Truck stop specific amenities
+            if (business.isTruckStop) {
+                amenities.push('🚛 Truck Parking');
+                amenities.push('⛽ Diesel Fuel');
+                if (Math.random() > 0.3) amenities.push('🚿 Shower Facilities');
+                if (Math.random() > 0.4) amenities.push('🍔 Food Court');
+                if (Math.random() > 0.5) amenities.push('🛒 Convenience Store');
+                if (Math.random() > 0.6) amenities.push('🔧 Truck Repair');
+                if (Math.random() > 0.7) amenities.push('📺 Driver Lounge');
+                if (Math.random() > 0.8) amenities.push('🧺 Laundry');
+            }
+            
+            // Rest area amenities
+            if (business.isRestArea) {
+                amenities.push('🅿️ Free Parking');
+                amenities.push('🗑️ Waste Disposal');
+                if (Math.random() > 0.4) amenities.push('🏓 Picnic Tables');
+                if (Math.random() > 0.5) amenities.push('🐕 Pet Area');
+                if (Math.random() > 0.6) amenities.push('💧 Water Fountain');
+                if (Math.random() > 0.7) amenities.push('📍 Tourist Information');
+            }
+            
+            // Gas station amenities
+            if (business.category === 'fuel') {
+                if (Math.random() > 0.4) amenities.push('🚗 Car Wash');
+                if (Math.random() > 0.6) amenities.push('🛒 Convenience Store');
+                if (Math.random() > 0.7) amenities.push('☕ Coffee');
+            }
+            
+            return amenities;
+        }
+
+        // Remove duplicate businesses
+        function removeDuplicateBusinesses(businesses) {
+            const seen = new Set();
+            return businesses.filter(business => {
+                const key = `${business.name}_${business.lat.toFixed(3)}_${business.lng.toFixed(3)}`;
+                if (seen.has(key)) {
+                    return false;
+                }
+                seen.add(key);
+                return true;
+            });
+        }
+
+        // Process Overpass API results with enhanced categorization
+        function processOverpassResults(elements, userLat, userLng) {
+            const processedBusinesses = [];
+            const seenBusinesses = new Set();
+
+            elements.forEach((element) => {
+                if (!element.tags) return;
+
+                // Allow businesses without names for highway services and rest areas
+                const name = element.tags.name || generateDefaultName(element.tags);
+                if (!name) return;
+
+                let lat, lng;
+                if (element.type === 'node') {
+                    lat = element.lat;
+                    lng = element.lon;
+                } else if (element.center) {
+                    lat = element.center.lat;
+                    lng = element.center.lon;
+                } else {
+                    return;
+                }
+
+                const uniqueId = `${name}_${lat.toFixed(4)}_${lng.toFixed(4)}`;
+                if (seenBusinesses.has(uniqueId)) return;
+                seenBusinesses.add(uniqueId);
+
+                let category = determineEnhancedBusinessCategory(element.tags);
+                let address = buildAddress(element.tags);
+                let distance = null;
+                if (userLat && userLng) {
+                    distance = calculateDistance(userLat, userLng, lat, lng);
+                }
+
+                const business = {
+                    id: `osm_${element.type}_${element.id}`,
+                    name: name,
+                    address: address,
+                    lat: lat,
+                    lng: lng,
+                    category: category,
+                    brand: element.tags.brand || element.tags.operator || '',
+                    phone: element.tags.phone || '',
+                    website: element.tags.website || '',
+                    opening_hours: element.tags.opening_hours || 'Hours not available',
+                    distance: distance,
+                    rating: generateRandomRating(),
+                    amenities: generateEnhancedAmenities({
+                        category: category,
+                        isTruckStop: isEnhancedTruckStop(element.tags),
+                        isRestArea: element.tags.highway === 'rest_area'
+                    }),
+                    isTruckStop: isEnhancedTruckStop(element.tags),
+                    isRestArea: element.tags.highway === 'rest_area'
+                };
+
+                processedBusinesses.push(business);
+            });
+
+            // Sort by distance if available, otherwise by name
+            if (userLat && userLng) {
+                processedBusinesses.sort((a, b) => (a.distance || 999) - (b.distance || 999));
+            } else {
+                processedBusinesses.sort((a, b) => a.name.localeCompare(b.name));
+            }
+
+            return processedBusinesses;
+        }
+
+        // Generate default name for unnamed facilities
+        function generateDefaultName(tags) {
+            if (tags.highway === 'services') {
+                return tags.operator ? `${tags.operator} Travel Center` : 'Highway Service Area';
+            } else if (tags.highway === 'rest_area') {
+                return 'Highway Rest Area';
+            } else if (tags.amenity === 'fuel' && (tags.hgv === 'yes' || tags.truck === 'yes')) {
+                return tags.brand ? `${tags.brand} Truck Stop` : 'Truck Stop';
+            }
+            return null;
+        }
+
+        // Enhanced business category determination
+        function determineEnhancedBusinessCategory(tags) {
+            // Highway facilities
+            if (tags.highway === 'services') {
+                return 'highway_services';
+            } else if (tags.highway === 'rest_area') {
+                return 'rest_area';
+            }
+            
+            // Truck stops
+            if (tags.amenity === 'fuel' && (tags.hgv === 'yes' || tags.truck === 'yes' || tags['capacity:hgv'])) {
+                return 'truck_stop';
+            }
+            
+            // Regular categories
+            if (tags.amenity === 'fuel') {
+                return 'fuel';
+            } else if (tags.amenity === 'fast_food') {
+                return 'fast_food';
+            } else if (tags.amenity === 'restaurant') {
+                return 'restaurant';
+            } else if (tags.amenity === 'cafe') {
+                return 'cafe';
+            } else if (tags.shop === 'convenience') {
+                return 'convenience';
+            } else if (tags.shop === 'supermarket') {
+                return 'supermarket';
+            } else if (tags.tourism === 'hotel') {
+                return 'hotel';
+            } else if (tags.leisure === 'park') {
+                return 'park';
+            }
+            return 'other';
+        }
+
+        // Check if facility is a truck stop
+        function isEnhancedTruckStop(tags) {
+            return tags.highway === 'services' ||
+                   (tags.amenity === 'fuel' && (tags.hgv === 'yes' || tags.truck === 'yes' || tags['capacity:hgv'])) ||
+                   (tags.brand && ['pilot', 'flying j', 'loves', 'ta', 'petro', 'speedway'].some(brand => 
+                       tags.brand.toLowerCase().includes(brand)));
         }
 
         // Geocode location using Nominatim
@@ -1089,105 +1456,6 @@
                 console.error('❌ Geocoding error:', error);
                 return null;
             }
-        }
-
-        // Process Overpass API results
-        function processOverpassResults(elements, userLat, userLng) {
-            const processedBusinesses = [];
-            const seenBusinesses = new Set();
-
-            elements.forEach((element) => {
-                if (!element.tags || !element.tags.name) return;
-
-                let lat, lng;
-                if (element.type === 'node') {
-                    lat = element.lat;
-                    lng = element.lon;
-                } else if (element.center) {
-                    lat = element.center.lat;
-                    lng = element.center.lon;
-                } else {
-                    return;
-                }
-
-                const uniqueId = `${element.tags.name}_${lat.toFixed(4)}_${lng.toFixed(4)}`;
-                if (seenBusinesses.has(uniqueId)) return;
-                seenBusinesses.add(uniqueId);
-
-                let category = determineBusinessCategory(element.tags);
-                let address = buildAddress(element.tags);
-                let distance = null;
-                if (userLat && userLng) {
-                    distance = calculateDistance(userLat, userLng, lat, lng);
-                }
-
-                const business = {
-                    id: `osm_${element.type}_${element.id}`,
-                    name: element.tags.name,
-                    address: address,
-                    lat: lat,
-                    lng: lng,
-                    category: category,
-                    brand: element.tags.brand || '',
-                    phone: element.tags.phone || '',
-                    website: element.tags.website || '',
-                    opening_hours: element.tags.opening_hours || 'Hours not available',
-                    distance: distance,
-                    rating: generateRandomRating(),
-                    amenities: generateAmenities(element.tags)
-                };
-
-                processedBusinesses.push(business);
-            });
-
-            // Sort by distance if available, otherwise by name
-            if (userLat && userLng) {
-                processedBusinesses.sort((a, b) => (a.distance || 999) - (b.distance || 999));
-            } else {
-                processedBusinesses.sort((a, b) => a.name.localeCompare(b.name));
-            }
-
-            return processedBusinesses.slice(0, 100);
-        }
-
-        // Handle search errors
-        function handleSearchError(error) {
-            let errorMessage = 'Unable to search businesses. ';
-            
-            if (error.name === 'AbortError') {
-                errorMessage += 'Search timed out. Please try a more specific search term.';
-            } else if (error.message.includes('Failed to fetch')) {
-                errorMessage += 'Network connection issue. Please check your internet connection.';
-            } else {
-                errorMessage += 'Please try again or use a different search term.';
-            }
-
-            document.getElementById('businessGrid').innerHTML = `<div class="error">${errorMessage}</div>`;
-            document.getElementById('resultsCount').textContent = 'Search failed';
-        }
-
-        // Determine business category from OSM tags
-        function determineBusinessCategory(tags) {
-            if (tags.amenity === 'fuel') {
-                return tags.truck === 'yes' ? 'truck_stop' : 'fuel';
-            } else if (tags.amenity === 'fast_food') {
-                return 'fast_food';
-            } else if (tags.amenity === 'restaurant') {
-                return 'restaurant';
-            } else if (tags.amenity === 'cafe') {
-                return 'cafe';
-            } else if (tags.shop === 'convenience') {
-                return 'convenience';
-            } else if (tags.shop === 'supermarket') {
-                return 'supermarket';
-            } else if (tags.tourism === 'hotel') {
-                return 'hotel';
-            } else if (tags.highway === 'rest_area') {
-                return 'rest_area';
-            } else if (tags.leisure === 'park') {
-                return 'park';
-            }
-            return 'other';
         }
 
         // Build address from OSM tags
@@ -1218,23 +1486,6 @@
                 accessibility: Math.floor(Math.random() * 4) + 6,
                 reviewCount: Math.floor(Math.random() * 50) + 5
             };
-        }
-
-        // Generate amenities based on business type
-        function generateAmenities(tags) {
-            const amenities = [];
-            
-            if (Math.random() > 0.3) amenities.push('🚻 Family Restroom');
-            if (Math.random() > 0.4) amenities.push('♿ ADA Accessible');
-            if (Math.random() > 0.5) amenities.push('🧻 Paper Towels');
-            if (Math.random() > 0.6) amenities.push('🧼 Soap Dispenser');
-            
-            if (tags.amenity === 'fuel') {
-                if (Math.random() > 0.4) amenities.push('🚿 Shower Facilities');
-                if (Math.random() > 0.7) amenities.push('🍔 Food Court');
-            }
-            
-            return amenities;
         }
 
         // Calculate distance between two points
@@ -1273,13 +1524,25 @@
                     </div>
                     
                     <div class="business-tags">
-                        <span class="business-tag">${formatCategory(business.category)}</span>
+                        <span class="business-tag ${business.isTruckStop ? 'truck-stop' : ''}">${formatEnhancedCategory(business.category)}</span>
                         ${business.brand ? `<span class="business-tag brand">${business.brand}</span>` : ''}
+                        ${business.isTruckStop ? '<span class="business-tag truck-stop">🚛 Truck Stop</span>' : ''}
+                        ${business.isRestArea ? '<span class="business-tag">🛣️ Rest Area</span>' : ''}
                     </div>
                     
                     <div style="color: #6b7280; font-size: 0.9rem; margin-bottom: 1rem;">
                         ${business.opening_hours}
                     </div>
+                    
+                    ${business.amenities.length > 0 ? `
+                    <div style="margin-bottom: 1rem;">
+                        <div style="font-size: 0.85rem; color: #6b7280; margin-bottom: 0.5rem;">Amenities:</div>
+                        <div style="display: flex; flex-wrap: wrap; gap: 0.25rem; font-size: 0.75rem;">
+                            ${business.amenities.slice(0, 6).map(amenity => `<span style="background: #f3f4f6; padding: 0.25rem 0.5rem; border-radius: 4px;">${amenity}</span>`).join('')}
+                            ${business.amenities.length > 6 ? `<span style="color: #6b7280;">+${business.amenities.length - 6} more</span>` : ''}
+                        </div>
+                    </div>
+                    ` : ''}
                     
                     <div class="business-actions">
                         <button class="action-btn rate-btn" onclick="event.stopPropagation(); openRatingModal('${business.id}')">
@@ -1298,18 +1561,19 @@
             `).join('');
         }
 
-        // Format category names
-        function formatCategory(category) {
+        // Format enhanced category names
+        function formatEnhancedCategory(category) {
             const categoryMap = {
                 'fuel': 'Gas Station',
                 'truck_stop': 'Truck Stop',
+                'highway_services': 'Highway Services',
+                'rest_area': 'Rest Area',
                 'fast_food': 'Fast Food',
                 'restaurant': 'Restaurant',
                 'cafe': 'Coffee Shop',
                 'convenience': 'Convenience Store',
                 'supermarket': 'Supermarket',
                 'hotel': 'Hotel',
-                'rest_area': 'Rest Area',
                 'park': 'Park',
                 'other': 'Business'
             };
@@ -1324,13 +1588,30 @@
             if (businesses.length === 0) return;
 
             businesses.forEach(business => {
+                // Use different icons for different business types
+                let iconColor = '#3b82f6';
+                let iconSymbol = '📍';
+                
+                if (business.isTruckStop) {
+                    iconColor = '#d97706';
+                    iconSymbol = '🚛';
+                } else if (business.isRestArea) {
+                    iconColor = '#059669';
+                    iconSymbol = '🛣️';
+                } else if (business.category === 'fuel') {
+                    iconColor = '#dc2626';
+                    iconSymbol = '⛽';
+                }
+
                 const marker = L.marker([business.lat, business.lng])
                     .addTo(map)
                     .bindPopup(`
                         <div style="text-align: center;">
                             <h3>${business.name}</h3>
                             <p>${business.address}</p>
-                            <p><strong>${formatCategory(business.category)}</strong></p>
+                            <p><strong>${formatEnhancedCategory(business.category)}</strong></p>
+                            ${business.isTruckStop ? '<p style="color: #d97706;">🚛 Truck Stop</p>' : ''}
+                            ${business.isRestArea ? '<p style="color: #059669;">🛣️ Rest Area</p>' : ''}
                             <p>⭐ ${business.rating.overall}/10 (${business.rating.reviewCount} reviews)</p>
                             <button onclick="getDirections(${business.lat}, ${business.lng})" style="background: #3b82f6; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; margin-top: 0.5rem;">Get Directions</button>
                         </div>
@@ -1348,10 +1629,37 @@
         // Update results count
         function updateResultsCount() {
             const count = businesses.length;
-            const countText = count === 0 ? 'No results found' : 
-                             count === 1 ? '1 business found' : 
-                             `${count} businesses found`;
+            const truckStops = businesses.filter(b => b.isTruckStop).length;
+            const restAreas = businesses.filter(b => b.isRestArea).length;
+            
+            let countText = count === 0 ? 'No results found' : 
+                           count === 1 ? '1 business found' : 
+                           `${count} businesses found`;
+            
+            if (truckStops > 0 || restAreas > 0) {
+                const details = [];
+                if (truckStops > 0) details.push(`${truckStops} truck stops`);
+                if (restAreas > 0) details.push(`${restAreas} rest areas`);
+                countText += ` (${details.join(', ')})`;
+            }
+            
             document.getElementById('resultsCount').textContent = countText;
+        }
+
+        // Handle search errors
+        function handleSearchError(error) {
+            let errorMessage = 'Unable to search businesses. ';
+            
+            if (error.name === 'AbortError') {
+                errorMessage += 'Search timed out. Please try a more specific search term.';
+            } else if (error.message.includes('Failed to fetch')) {
+                errorMessage += 'Network connection issue. Please check your internet connection.';
+            } else {
+                errorMessage += 'Please try again or use a different search term.';
+            }
+
+            document.getElementById('businessGrid').innerHTML = `<div class="error">${errorMessage}</div>`;
+            document.getElementById('resultsCount').textContent = 'Search failed';
         }
 
         // Enable location
@@ -1517,6 +1825,8 @@
                         <h3>Business Management</h3>
                         <div style="background: #f9fafb; padding: 1rem; border-radius: 8px;">
                             <p><strong>Total Businesses:</strong> ${businesses.length}</p>
+                            <p><strong>Truck Stops:</strong> ${businesses.filter(b => b.isTruckStop).length}</p>
+                            <p><strong>Rest Areas:</strong> ${businesses.filter(b => b.isRestArea).length}</p>
                             <p><strong>Verified:</strong> ${Math.floor(businesses.length * 0.75)}</p>
                             <p><strong>Pending Verification:</strong> ${Math.floor(businesses.length * 0.25)}</p>
                         </div>
