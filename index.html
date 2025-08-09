@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GTGOTG - Got To Go On The Go</title>
-    <meta name="description" content="Find clean, safe restrooms at any business nationwide. Rate and review restrooms to help others find the best facilities.">
+    <meta name="description" content="Find clean, safe restrooms at any business nationwide. Every restroom, everywhere. When you got to go on the go.">
     
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -23,13 +23,13 @@
         }
 
         .header {
-            background: rgba(255, 255, 255, 0.95);
+            background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
             padding: 1rem 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         .logo-section {
@@ -46,31 +46,36 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            font-size: 2rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .logo img {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+        }
+
+        .brand-text {
             color: white;
-            font-size: 24px;
-            font-weight: bold;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
         }
 
         .brand-text h1 {
             font-size: 2rem;
-            font-weight: 700;
-            color: #2d3748;
-            margin: 0;
-        }
-
-        .taglines {
-            font-size: 0.9rem;
-            color: #718096;
+            font-weight: bold;
+            margin-bottom: 0.25rem;
         }
 
         .tagline-primary {
-            font-weight: 600;
+            font-size: 1rem;
+            opacity: 0.9;
+            margin-bottom: 0.125rem;
         }
 
         .tagline-secondary {
+            font-size: 0.875rem;
             font-style: italic;
-            font-size: 0.8rem;
+            opacity: 0.8;
         }
 
         .auth-buttons {
@@ -91,29 +96,25 @@
         }
 
         .btn-login {
-            background: transparent;
-            color: #667eea;
-            border: 2px solid #667eea;
-        }
-
-        .btn-login:hover {
-            background: #667eea;
+            background: rgba(255, 255, 255, 0.2);
             color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
 
         .btn-signup {
-            background: #48bb78;
+            background: #4CAF50;
             color: white;
         }
 
-        .btn-signup:hover {
-            background: #38a169;
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         }
 
-        .main-content {
-            padding: 2rem;
+        .main-container {
             max-width: 1200px;
-            margin: 0 auto;
+            margin: 2rem auto;
+            padding: 0 1rem;
         }
 
         .search-section {
@@ -122,40 +123,35 @@
             border-radius: 20px;
             padding: 2rem;
             margin-bottom: 2rem;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
         }
 
         .search-title {
             text-align: center;
-            margin-bottom: 1rem;
+            margin-bottom: 2rem;
         }
 
         .search-title h2 {
             font-size: 2.5rem;
-            font-weight: 700;
-            color: #2d3748;
+            color: #333;
             margin-bottom: 0.5rem;
         }
 
-        .search-subtitle {
-            color: #718096;
+        .search-title p {
+            color: #666;
             font-size: 1.1rem;
         }
 
         .search-form {
-            display: flex;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
             gap: 1rem;
-            margin: 2rem 0;
-            flex-wrap: wrap;
-            align-items: center;
-            justify-content: center;
+            margin-bottom: 1.5rem;
         }
 
         .search-input {
-            flex: 1;
-            min-width: 300px;
             padding: 1rem;
-            border: 2px solid #e2e8f0;
+            border: 2px solid #e0e0e0;
             border-radius: 12px;
             font-size: 1rem;
             transition: border-color 0.3s ease;
@@ -164,12 +160,11 @@
         .search-input:focus {
             outline: none;
             border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
         .search-select {
             padding: 1rem;
-            border: 2px solid #e2e8f0;
+            border: 2px solid #e0e0e0;
             border-radius: 12px;
             font-size: 1rem;
             background: white;
@@ -179,32 +174,28 @@
         .search-buttons {
             display: flex;
             gap: 1rem;
-            margin: 1rem 0;
-            flex-wrap: wrap;
             justify-content: center;
+            margin-bottom: 1rem;
         }
 
         .btn-search {
-            background: #48bb78;
+            background: #4CAF50;
             color: white;
             padding: 1rem 2rem;
             font-size: 1.1rem;
-            font-weight: 600;
         }
 
         .btn-location {
-            background: #4299e1;
+            background: #2196F3;
             color: white;
             padding: 1rem 2rem;
             font-size: 1.1rem;
-            font-weight: 600;
         }
 
         .view-controls {
             display: flex;
             gap: 0.5rem;
             justify-content: center;
-            flex-wrap: wrap;
         }
 
         .btn-view {
@@ -215,37 +206,35 @@
         }
 
         .btn-view.active {
-            background: #553c9a;
+            background: #764ba2;
         }
 
-        .results-section {
-            display: flex;
+        .content-area {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
             gap: 2rem;
-            min-height: 600px;
+            min-height: 500px;
         }
 
         .map-container {
-            flex: 1;
             background: rgba(255, 255, 255, 0.95);
-            border-radius: 15px;
+            border-radius: 20px;
             overflow: hidden;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
         }
 
         #map {
             width: 100%;
-            height: 600px;
-            border-radius: 15px;
+            height: 500px;
         }
 
         .results-container {
-            flex: 1;
             background: rgba(255, 255, 255, 0.95);
-            border-radius: 15px;
-            padding: 1.5rem;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
             overflow-y: auto;
-            max-height: 600px;
+            max-height: 500px;
         }
 
         .results-header {
@@ -254,13 +243,13 @@
             align-items: center;
             margin-bottom: 1.5rem;
             padding-bottom: 1rem;
-            border-bottom: 2px solid #e2e8f0;
+            border-bottom: 2px solid #f0f0f0;
         }
 
         .results-count {
             font-size: 1.2rem;
             font-weight: 600;
-            color: #2d3748;
+            color: #333;
         }
 
         .load-more-btn {
@@ -275,17 +264,15 @@
 
         .business-card {
             background: white;
-            border-radius: 12px;
+            border-radius: 15px;
             padding: 1.5rem;
             margin-bottom: 1.5rem;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            border: 1px solid #e2e8f0;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            transition: transform 0.3s ease;
         }
 
         .business-card:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
         }
 
         .business-header {
@@ -295,11 +282,15 @@
             margin-bottom: 1rem;
         }
 
-        .business-name {
+        .business-info h3 {
             font-size: 1.3rem;
-            font-weight: 700;
-            color: #2d3748;
-            margin-bottom: 0.25rem;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .business-address {
+            color: #666;
+            margin-bottom: 0.5rem;
         }
 
         .business-category {
@@ -311,40 +302,25 @@
             font-weight: 600;
         }
 
-        .business-address {
-            color: #718096;
-            margin-bottom: 1rem;
-            font-size: 0.95rem;
-        }
-
         .rating-section {
             display: flex;
             align-items: center;
-            gap: 1rem;
+            gap: 0.5rem;
             margin-bottom: 1rem;
         }
 
         .stars {
-            display: flex;
-            gap: 2px;
-        }
-
-        .star {
             color: #ffd700;
             font-size: 1.2rem;
         }
 
-        .star.empty {
-            color: #e2e8f0;
-        }
-
         .rating-text {
             font-weight: 600;
-            color: #2d3748;
+            color: #333;
         }
 
         .review-count {
-            color: #718096;
+            color: #666;
             font-size: 0.9rem;
         }
 
@@ -352,71 +328,63 @@
             display: flex;
             gap: 0.5rem;
             margin-bottom: 1rem;
-            flex-wrap: wrap;
         }
 
         .badge {
             padding: 0.25rem 0.75rem;
             border-radius: 20px;
-            font-size: 0.75rem;
+            font-size: 0.8rem;
             font-weight: 600;
         }
 
         .badge-spotless {
-            background: #c6f6d5;
-            color: #22543d;
+            background: #4CAF50;
+            color: white;
         }
 
         .badge-clean {
-            background: #bee3f8;
-            color: #2a4365;
+            background: #8BC34A;
+            color: white;
         }
 
         .badge-accessible {
-            background: #e9d8fd;
-            color: #553c9a;
+            background: #2196F3;
+            color: white;
         }
 
         .business-actions {
             display: flex;
-            gap: 0.75rem;
-            flex-wrap: wrap;
+            gap: 0.5rem;
         }
 
         .btn-rate {
-            background: #48bb78;
+            background: #4CAF50;
             color: white;
-            padding: 0.75rem 1.25rem;
-            font-size: 0.9rem;
-            font-weight: 600;
+            flex: 1;
         }
 
         .btn-directions {
-            background: #4299e1;
+            background: #2196F3;
             color: white;
-            padding: 0.75rem 1.25rem;
-            font-size: 0.9rem;
-            font-weight: 600;
+            flex: 1;
         }
 
         .btn-claim {
-            background: #ed8936;
+            background: #FF9800;
             color: white;
-            padding: 0.75rem 1.25rem;
-            font-size: 0.9rem;
-            font-weight: 600;
+            flex: 1;
         }
 
         .welcome-message {
             text-align: center;
-            padding: 3rem 2rem;
-            color: #718096;
+            color: #666;
+            padding: 3rem;
         }
 
         .welcome-message h3 {
             font-size: 2rem;
-            color: #2d3748;
             margin-bottom: 1rem;
+            color: #333;
         }
 
         .welcome-message p {
@@ -441,39 +409,69 @@
             background-color: white;
             margin: 5% auto;
             padding: 2rem;
-            border-radius: 15px;
+            border-radius: 20px;
             width: 90%;
-            max-width: 500px;
+            max-width: 600px;
             max-height: 80vh;
             overflow-y: auto;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
         }
 
         .modal-header {
-            text-align: center;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #f0f0f0;
         }
 
-        .modal-header h3 {
+        .modal-title {
             font-size: 1.5rem;
-            color: #2d3748;
-            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #333;
         }
 
-        .business-name-modal {
-            color: #667eea;
-            font-weight: 600;
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 2rem;
+            cursor: pointer;
+            color: #999;
+            padding: 0;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .close-btn:hover {
+            background: #f0f0f0;
+            color: #333;
         }
 
         .restroom-types {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1rem;
             margin-bottom: 2rem;
         }
 
-        .restroom-type {
-            border: 2px solid #e2e8f0;
+        .restroom-types h4 {
+            margin-bottom: 1rem;
+            color: #333;
+            font-size: 1.1rem;
+        }
+
+        .restroom-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .restroom-option {
+            border: 2px solid #e0e0e0;
             border-radius: 12px;
             padding: 1rem;
             text-align: center;
@@ -482,97 +480,111 @@
             background: white;
         }
 
-        .restroom-type:hover {
+        .restroom-option:hover {
             border-color: #667eea;
-            background: #f7fafc;
+            background: #f8f9ff;
         }
 
-        .restroom-type.selected {
+        .restroom-option.selected {
             border-color: #667eea;
-            background: #edf2f7;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            background: #667eea;
+            color: white;
         }
 
-        .restroom-icon {
+        .restroom-option .icon {
             font-size: 2rem;
             margin-bottom: 0.5rem;
             display: block;
         }
 
-        .restroom-label {
-            font-size: 0.9rem;
+        .restroom-option .label {
             font-weight: 600;
-            color: #2d3748;
+            font-size: 0.9rem;
         }
 
         .accessibility-option {
-            margin: 1.5rem 0;
-            padding: 1rem;
-            border: 2px solid #e2e8f0;
+            border: 2px solid #e0e0e0;
             border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
             cursor: pointer;
             transition: all 0.3s ease;
-            text-align: center;
+            background: white;
+            margin-top: 1rem;
         }
 
         .accessibility-option:hover {
-            border-color: #4299e1;
-            background: #f7fafc;
+            border-color: #2196F3;
+            background: #f0f8ff;
         }
 
         .accessibility-option.selected {
-            border-color: #4299e1;
-            background: #ebf8ff;
-            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+            border-color: #2196F3;
+            background: #2196F3;
+            color: white;
         }
 
-        .accessibility-icon {
+        .accessibility-option .icon {
             font-size: 2rem;
-            color: #4299e1;
             margin-bottom: 0.5rem;
+            display: block;
+            color: #2196F3;
+        }
+
+        .accessibility-option.selected .icon {
+            color: white;
         }
 
         .rating-stars {
+            margin-bottom: 2rem;
+        }
+
+        .rating-stars h4 {
+            margin-bottom: 1rem;
+            color: #333;
+            font-size: 1.1rem;
+        }
+
+        .stars-container {
             display: flex;
-            justify-content: center;
             gap: 0.5rem;
-            margin: 2rem 0;
+            justify-content: center;
+            margin-bottom: 1rem;
         }
 
-        .rating-star {
+        .star {
             font-size: 2rem;
-            color: #e2e8f0;
             cursor: pointer;
-            transition: color 0.2s ease;
+            transition: all 0.3s ease;
+            color: #ddd;
         }
 
-        .rating-star:hover,
-        .rating-star.selected {
+        .star:hover,
+        .star.active {
             color: #ffd700;
+            transform: scale(1.1);
         }
 
         .rating-display {
             text-align: center;
-            margin: 1rem 0;
             font-size: 1.2rem;
             font-weight: 600;
-            color: #2d3748;
+            color: #333;
         }
 
         .amenities-section {
-            margin: 2rem 0;
+            margin-bottom: 2rem;
         }
 
-        .amenities-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: #2d3748;
+        .amenities-section h4 {
             margin-bottom: 1rem;
+            color: #333;
+            font-size: 1.1rem;
         }
 
         .amenities-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 0.75rem;
         }
 
@@ -581,21 +593,28 @@
             align-items: center;
             gap: 0.75rem;
             padding: 0.75rem;
-            border: 1px solid #e2e8f0;
+            border: 2px solid #e0e0e0;
             border-radius: 8px;
             cursor: pointer;
             transition: all 0.3s ease;
+            background: white;
         }
 
         .amenity-item:hover {
-            background: #f7fafc;
-            border-color: #cbd5e0;
+            border-color: #4CAF50;
+            background: #f8fff8;
+        }
+
+        .amenity-item.selected {
+            border-color: #4CAF50;
+            background: #4CAF50;
+            color: white;
         }
 
         .amenity-checkbox {
             width: 20px;
             height: 20px;
-            border: 2px solid #cbd5e0;
+            border: 2px solid #ddd;
             border-radius: 4px;
             display: flex;
             align-items: center;
@@ -604,74 +623,55 @@
         }
 
         .amenity-item.selected .amenity-checkbox {
-            background: #48bb78;
-            border-color: #48bb78;
-            color: white;
+            background: white;
+            border-color: white;
+            color: #4CAF50;
+        }
+
+        .amenity-emoji {
+            font-size: 1.2rem;
         }
 
         .amenity-label {
-            font-size: 0.9rem;
-            color: #2d3748;
+            font-weight: 500;
         }
 
-        .review-section {
-            margin: 2rem 0;
-        }
-
-        .review-notice {
-            background: #fef5e7;
-            border: 1px solid #f6e05e;
-            border-radius: 8px;
-            padding: 1rem;
-            margin-bottom: 1rem;
+        .submit-section {
             text-align: center;
-            color: #744210;
-        }
-
-        .review-textarea {
-            width: 100%;
-            min-height: 100px;
-            padding: 1rem;
-            border: 2px solid #e2e8f0;
-            border-radius: 8px;
-            font-family: inherit;
-            font-size: 0.9rem;
-            resize: vertical;
-        }
-
-        .review-textarea:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        .modal-actions {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 2px solid #f0f0f0;
         }
 
         .btn-submit {
-            background: #48bb78;
+            background: #4CAF50;
             color: white;
-            padding: 1rem 2rem;
-            font-size: 1rem;
+            padding: 1rem 3rem;
+            font-size: 1.1rem;
             font-weight: 600;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
         }
 
-        .btn-cancel {
-            background: #e2e8f0;
-            color: #2d3748;
-            padding: 1rem 2rem;
-            font-size: 1rem;
-            font-weight: 600;
+        .btn-submit:hover {
+            background: #45a049;
+            transform: translateY(-2px);
         }
 
+        .btn-submit:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Footer */
         .footer {
-            background: rgba(255, 255, 255, 0.95);
+            background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
             margin-top: 4rem;
             padding: 3rem 2rem 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         .footer-content {
@@ -683,37 +683,29 @@
         }
 
         .footer-section h4 {
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: #2d3748;
+            color: white;
+            font-size: 1.2rem;
             margin-bottom: 1rem;
         }
 
-        .footer-section ul {
-            list-style: none;
-        }
-
-        .footer-section ul li {
-            margin-bottom: 0.5rem;
-        }
-
-        .footer-section ul li a {
-            color: #718096;
+        .footer-section a {
+            color: rgba(255, 255, 255, 0.8);
             text-decoration: none;
+            display: block;
+            margin-bottom: 0.5rem;
             transition: color 0.3s ease;
         }
 
-        .footer-section ul li a:hover {
-            color: #667eea;
+        .footer-section a:hover {
+            color: white;
         }
 
         .footer-bottom {
             text-align: center;
             margin-top: 2rem;
             padding-top: 2rem;
-            border-top: 1px solid #e2e8f0;
-            color: #718096;
-            font-size: 0.9rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            color: rgba(255, 255, 255, 0.8);
         }
 
         /* Responsive Design */
@@ -724,63 +716,68 @@
                 gap: 1rem;
             }
 
-            .brand-text h1 {
-                font-size: 1.5rem;
-            }
-
             .search-form {
-                flex-direction: column;
-                align-items: stretch;
+                grid-template-columns: 1fr;
             }
 
-            .search-input {
-                min-width: auto;
-            }
-
-            .results-section {
+            .search-buttons {
                 flex-direction: column;
             }
 
-            .restroom-types {
+            .content-area {
+                grid-template-columns: 1fr;
+            }
+
+            .business-actions {
+                flex-direction: column;
+            }
+
+            .restroom-options {
                 grid-template-columns: 1fr;
             }
 
             .amenities-grid {
                 grid-template-columns: 1fr;
             }
-
-            .modal-actions {
-                flex-direction: column;
-            }
         }
 
+        /* Loading Animation */
         .loading {
             text-align: center;
             padding: 2rem;
-            color: #718096;
+            color: #666;
         }
 
-        .error {
-            text-align: center;
-            padding: 2rem;
-            color: #e53e3e;
-            background: #fed7d7;
-            border-radius: 8px;
-            margin: 1rem 0;
+        .loading::after {
+            content: '';
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
 <body>
+    <!-- Header -->
     <header class="header">
         <div class="logo-section">
-            <img src="assets/gtgotg_logo_primary-BE-ZRW_Y.png" alt="GTGOTG Logo" class="logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-            <div class="logo" style="display: none;">🚽</div>
+            <div class="logo">
+                <img src="assets/gtgotg_logo_primary-BE-ZRW_Y.png" alt="GTGOTG Logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                <span style="display: none;">🚽</span>
+            </div>
             <div class="brand-text">
                 <h1>GTGOTG</h1>
-                <div class="taglines">
-                    <div class="tagline-primary">"Every Restroom, Everywhere"</div>
-                    <div class="tagline-secondary">"When you got to go on the go"</div>
-                </div>
+                <div class="tagline-primary">"Every Restroom, Everywhere"</div>
+                <div class="tagline-secondary">"When you got to go on the go"</div>
             </div>
         </div>
         <div class="auth-buttons">
@@ -789,15 +786,18 @@
         </div>
     </header>
 
-    <main class="main-content">
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Search Section -->
         <section class="search-section">
             <div class="search-title">
                 <h2>Find Clean, Safe Restrooms</h2>
-                <p class="search-subtitle">Search ANY business nationwide by name, city, state, or ZIP code</p>
+                <p>Search ANY business nationwide by name, city, state, or ZIP code</p>
             </div>
             
             <div class="search-form">
-                <input type="text" class="search-input" id="searchInput" placeholder="Enter business name, city, state, or ZIP code (e.g., 'McDonald's', 'Denver CO', '80104')">
+                <input type="text" class="search-input" id="searchInput" 
+                       placeholder="Enter business name, city, state, or ZIP code (e.g., 'McDonald's', 'Denver CO', '80104')">
                 <select class="search-select" id="categoryFilter">
                     <option value="">All Businesses</option>
                     <option value="restaurant">Restaurants</option>
@@ -822,12 +822,12 @@
                     <option value="100">100 results</option>
                 </select>
             </div>
-
+            
             <div class="search-buttons">
                 <button class="btn btn-search" id="searchBtn">🔍 Search</button>
                 <button class="btn btn-location" id="locationBtn">📍 Enable Location</button>
             </div>
-
+            
             <div class="view-controls">
                 <button class="btn btn-view active" id="mapListBtn">Map + List</button>
                 <button class="btn btn-view" id="mapOnlyBtn">Map Only</button>
@@ -835,153 +835,172 @@
             </div>
         </section>
 
-        <section class="results-section" id="resultsSection">
+        <!-- Content Area -->
+        <div class="content-area" id="contentArea">
+            <!-- Map Container -->
             <div class="map-container" id="mapContainer">
                 <div id="map"></div>
             </div>
+            
+            <!-- Results Container -->
             <div class="results-container" id="resultsContainer">
                 <div class="welcome-message">
                     <h3>Welcome to GTGOTG!</h3>
-                    <p>Search for any business to find and rate their restrooms.<br>Help others find clean, safe restrooms nationwide!</p>
+                    <p>Search for any business to find and rate their restrooms.<br>
+                    Help others find clean, safe restrooms nationwide!</p>
                 </div>
             </div>
-        </section>
-    </main>
+        </div>
+    </div>
 
     <!-- Rating Modal -->
     <div id="ratingModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>Rate this restroom (1-10 stars)</h3>
-                <div class="business-name-modal" id="modalBusinessName"></div>
+                <h3 class="modal-title">Rate this restroom (1-10 stars)</h3>
+                <button class="close-btn" onclick="closeRatingModal()">&times;</button>
             </div>
-
-            <div class="restroom-types">
-                <div class="restroom-type" data-type="mens">
-                    <span class="restroom-icon">🚹</span>
-                    <div class="restroom-label">Men's</div>
-                </div>
-                <div class="restroom-type" data-type="womens">
-                    <span class="restroom-icon">🚺</span>
-                    <div class="restroom-label">Women's</div>
-                </div>
-                <div class="restroom-type" data-type="unisex">
-                    <span class="restroom-icon">🚻</span>
-                    <div class="restroom-label">Unisex/Family</div>
-                </div>
-            </div>
-
-            <div class="accessibility-option" id="accessibilityOption">
-                <div class="accessibility-icon">♿</div>
-                <div class="restroom-label">ADA Accessible Stall</div>
-                <div style="font-size: 0.8rem; color: #718096; margin-top: 0.25rem;">Click if you used an accessible stall</div>
-            </div>
-
-            <div class="rating-stars" id="ratingStars">
-                <span class="rating-star" data-rating="1">★</span>
-                <span class="rating-star" data-rating="2">★</span>
-                <span class="rating-star" data-rating="3">★</span>
-                <span class="rating-star" data-rating="4">★</span>
-                <span class="rating-star" data-rating="5">★</span>
-                <span class="rating-star" data-rating="6">★</span>
-                <span class="rating-star" data-rating="7">★</span>
-                <span class="rating-star" data-rating="8">★</span>
-                <span class="rating-star" data-rating="9">★</span>
-                <span class="rating-star" data-rating="10">★</span>
-            </div>
-
-            <div class="rating-display" id="ratingDisplay">Select a rating</div>
-
-            <div class="amenities-section">
-                <div class="amenities-title">Restroom amenities available:</div>
-                <div class="amenities-grid">
-                    <div class="amenity-item" data-amenity="toilet_paper">
-                        <div class="amenity-checkbox">✓</div>
-                        <div class="amenity-label">Toilet Paper</div>
+            
+            <div class="modal-body">
+                <p id="modalBusinessName" style="text-align: center; font-size: 1.1rem; color: #667eea; margin-bottom: 2rem;"></p>
+                
+                <!-- Restroom Type Selection -->
+                <div class="restroom-types">
+                    <h4>Which restroom did you use?</h4>
+                    <div class="restroom-options">
+                        <div class="restroom-option" data-type="mens">
+                            <span class="icon">🚹</span>
+                            <span class="label">Men's</span>
+                        </div>
+                        <div class="restroom-option" data-type="womens">
+                            <span class="icon">🚺</span>
+                            <span class="label">Women's</span>
+                        </div>
+                        <div class="restroom-option" data-type="unisex">
+                            <span class="icon">🚻</span>
+                            <span class="label">Unisex/Family</span>
+                        </div>
                     </div>
-                    <div class="amenity-item" data-amenity="soap">
-                        <div class="amenity-checkbox">✓</div>
-                        <div class="amenity-label">Soap Available</div>
-                    </div>
-                    <div class="amenity-item" data-amenity="paper_towels">
-                        <div class="amenity-checkbox">✓</div>
-                        <div class="amenity-label">Paper Towels</div>
-                    </div>
-                    <div class="amenity-item" data-amenity="hand_dryer">
-                        <div class="amenity-checkbox">✓</div>
-                        <div class="amenity-label">Hand Dryer</div>
-                    </div>
-                    <div class="amenity-item" data-amenity="clean">
-                        <div class="amenity-checkbox">✓</div>
-                        <div class="amenity-label">Clean & Tidy</div>
-                    </div>
-                    <div class="amenity-item" data-amenity="running_water">
-                        <div class="amenity-checkbox">✓</div>
-                        <div class="amenity-label">Running Water</div>
-                    </div>
-                    <div class="amenity-item" data-amenity="trash_emptied">
-                        <div class="amenity-checkbox">✓</div>
-                        <div class="amenity-label">Trash Emptied</div>
-                    </div>
-                    <div class="amenity-item" data-amenity="well_lit">
-                        <div class="amenity-checkbox">✓</div>
-                        <div class="amenity-label">Well Lit</div>
+                    
+                    <!-- ADA Accessibility Option -->
+                    <div class="accessibility-option" data-type="accessible">
+                        <span class="icon">♿</span>
+                        <span class="label">ADA Accessible Stall</span>
+                        <small style="display: block; margin-top: 0.5rem; opacity: 0.8;">Click if you used an accessible stall (can combine with gender above)</small>
                     </div>
                 </div>
-            </div>
-
-            <div class="review-section">
-                <div class="amenities-title">Add a review (optional)</div>
-                <div class="review-notice">
-                    Login required to write reviews and upload photos
+                
+                <!-- Star Rating -->
+                <div class="rating-stars">
+                    <h4>Rate this restroom (1-10 stars)</h4>
+                    <div class="stars-container">
+                        <span class="star" data-rating="1">★</span>
+                        <span class="star" data-rating="2">★</span>
+                        <span class="star" data-rating="3">★</span>
+                        <span class="star" data-rating="4">★</span>
+                        <span class="star" data-rating="5">★</span>
+                        <span class="star" data-rating="6">★</span>
+                        <span class="star" data-rating="7">★</span>
+                        <span class="star" data-rating="8">★</span>
+                        <span class="star" data-rating="9">★</span>
+                        <span class="star" data-rating="10">★</span>
+                    </div>
+                    <div class="rating-display" id="ratingDisplay">Select a rating</div>
                 </div>
-                <textarea class="review-textarea" placeholder="Share your experience... (login required)" disabled></textarea>
-            </div>
-
-            <div class="modal-actions">
-                <button class="btn btn-submit" id="submitRating">Submit Rating</button>
-                <button class="btn btn-cancel" id="cancelRating">Cancel</button>
+                
+                <!-- Amenities Available -->
+                <div class="amenities-section">
+                    <h4>Restroom amenities available (check what was available):</h4>
+                    <div class="amenities-grid">
+                        <div class="amenity-item" data-amenity="toilet_paper">
+                            <div class="amenity-checkbox">✓</div>
+                            <span class="amenity-emoji">🧻</span>
+                            <span class="amenity-label">Toilet Paper</span>
+                        </div>
+                        <div class="amenity-item" data-amenity="soap">
+                            <div class="amenity-checkbox">✓</div>
+                            <span class="amenity-emoji">🧼</span>
+                            <span class="amenity-label">Soap Available</span>
+                        </div>
+                        <div class="amenity-item" data-amenity="paper_towels">
+                            <div class="amenity-checkbox">✓</div>
+                            <span class="amenity-emoji">🧻</span>
+                            <span class="amenity-label">Paper Towels</span>
+                        </div>
+                        <div class="amenity-item" data-amenity="hand_dryer">
+                            <div class="amenity-checkbox">✓</div>
+                            <span class="amenity-emoji">💨</span>
+                            <span class="amenity-label">Hand Dryer</span>
+                        </div>
+                        <div class="amenity-item" data-amenity="clean_tidy">
+                            <div class="amenity-checkbox">✓</div>
+                            <span class="amenity-emoji">✨</span>
+                            <span class="amenity-label">Clean & Tidy</span>
+                        </div>
+                        <div class="amenity-item" data-amenity="running_water">
+                            <div class="amenity-checkbox">✓</div>
+                            <span class="amenity-emoji">🚰</span>
+                            <span class="amenity-label">Running Water</span>
+                        </div>
+                        <div class="amenity-item" data-amenity="trash_emptied">
+                            <div class="amenity-checkbox">✓</div>
+                            <span class="amenity-emoji">🗑️</span>
+                            <span class="amenity-label">Trash Emptied</span>
+                        </div>
+                        <div class="amenity-item" data-amenity="well_lit">
+                            <div class="amenity-checkbox">✓</div>
+                            <span class="amenity-emoji">💡</span>
+                            <span class="amenity-label">Well Lit</span>
+                        </div>
+                        <div class="amenity-item" data-amenity="baby_changing">
+                            <div class="amenity-checkbox">✓</div>
+                            <span class="amenity-emoji">👶</span>
+                            <span class="amenity-label">Baby Changing Station</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Submit Section -->
+                <div class="submit-section">
+                    <button class="btn-submit" id="submitRating" disabled>Submit Rating</button>
+                    <p style="margin-top: 1rem; color: #666; font-size: 0.9rem;">
+                        Anonymous ratings allowed. <a href="#" style="color: #667eea;">Login required</a> to write reviews and upload photos.
+                    </p>
+                </div>
             </div>
         </div>
     </div>
 
+    <!-- Footer -->
     <footer class="footer">
         <div class="footer-content">
             <div class="footer-section">
                 <h4>GTGOTG</h4>
-                <ul>
-                    <li><a href="#about">About Us</a></li>
-                    <li><a href="#how-it-works">How It Works</a></li>
-                    <li><a href="#safety">Safety First</a></li>
-                    <li><a href="#accessibility">Accessibility</a></li>
-                </ul>
+                <a href="#about">About Us</a>
+                <a href="#how-it-works">How It Works</a>
+                <a href="#safety">Safety First</a>
+                <a href="#accessibility">Accessibility</a>
             </div>
             <div class="footer-section">
                 <h4>For Business Owners</h4>
-                <ul>
-                    <li><a href="#claim">Claim Your Listing</a></li>
-                    <li><a href="#dashboard">Business Dashboard</a></li>
-                    <li><a href="#verify">Get Verified</a></li>
-                    <li><a href="#respond">Respond to Reviews</a></li>
-                </ul>
+                <a href="#claim">Claim Your Listing</a>
+                <a href="#dashboard">Business Dashboard</a>
+                <a href="#verify">Get Verified</a>
+                <a href="#respond">Respond to Reviews</a>
             </div>
             <div class="footer-section">
                 <h4>Support</h4>
-                <ul>
-                    <li><a href="#help">Help Center</a></li>
-                    <li><a href="#contact">Contact Us</a></li>
-                    <li><a href="#report">Report Content</a></li>
-                    <li><a href="#feedback">Send Feedback</a></li>
-                </ul>
+                <a href="#help">Help Center</a>
+                <a href="#contact">Contact Us</a>
+                <a href="#report">Report Content</a>
+                <a href="#feedback">Send Feedback</a>
             </div>
             <div class="footer-section">
                 <h4>Legal</h4>
-                <ul>
-                    <li><a href="#privacy">Privacy Policy</a></li>
-                    <li><a href="#terms">Terms of Service</a></li>
-                    <li><a href="#guidelines">Community Guidelines</a></li>
-                    <li><a href="#cookies">Cookie Policy</a></li>
-                </ul>
+                <a href="#privacy">Privacy Policy</a>
+                <a href="#terms">Terms of Service</a>
+                <a href="#guidelines">Community Guidelines</a>
+                <a href="#cookies">Cookie Policy</a>
             </div>
         </div>
         <div class="footer-bottom">
@@ -993,43 +1012,41 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     
     <script>
-        console.log('🚽 GTGOTG - Got To Go On The Go - Initializing...');
-        
         // Global variables
         let map;
-        let markers = [];
         let currentBusinesses = [];
-        let currentRating = 0;
-        let selectedRestroomType = '';
-        let selectedAccessibility = false;
-        let selectedAmenities = new Set();
         let currentBusiness = null;
+        let selectedRating = 0;
+        let selectedRestroomTypes = [];
+        let selectedAmenities = [];
+        let currentOffset = 0;
+        let totalResults = 0;
 
         // Initialize the application
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚽 GTGOTG - Got To Go On The Go - Initializing...');
             initializeMap();
-            setupEventListeners();
-            console.log('🚽 GTGOTG - Got To Go On The Go - Initialized successfully!');
+            initializeEventListeners();
+            initializeRatingModal();
         });
 
-        // Initialize the map
+        // Initialize map
         function initializeMap() {
             try {
                 map = L.map('map').setView([39.7392, -104.9903], 10); // Denver, CO
                 
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    attribution: '© OpenStreetMap contributors',
-                    maxZoom: 19
+                    attribution: '© OpenStreetMap contributors'
                 }).addTo(map);
                 
-                console.log('📍 Map initialized successfully');
+                console.log('✅ Map initialized successfully');
             } catch (error) {
-                console.error('Map initialization error:', error);
+                console.error('❌ Map initialization failed:', error);
             }
         }
 
-        // Setup event listeners
-        function setupEventListeners() {
+        // Initialize event listeners
+        function initializeEventListeners() {
             // Search functionality
             document.getElementById('searchBtn').addEventListener('click', performSearch);
             document.getElementById('searchInput').addEventListener('keypress', function(e) {
@@ -1045,338 +1062,449 @@
             document.getElementById('mapListBtn').addEventListener('click', () => setViewMode('mapList'));
             document.getElementById('mapOnlyBtn').addEventListener('click', () => setViewMode('mapOnly'));
             document.getElementById('listOnlyBtn').addEventListener('click', () => setViewMode('listOnly'));
+        }
 
-            // Rating modal
-            setupRatingModal();
+        // Initialize rating modal
+        function initializeRatingModal() {
+            // Restroom type selection (gender)
+            document.querySelectorAll('.restroom-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    const type = this.dataset.type;
+                    
+                    // Remove selection from other gender options
+                    document.querySelectorAll('.restroom-option').forEach(opt => {
+                        opt.classList.remove('selected');
+                    });
+                    
+                    // Select this option
+                    this.classList.add('selected');
+                    
+                    // Update selected types (keep accessibility if selected)
+                    selectedRestroomTypes = selectedRestroomTypes.filter(t => t === 'accessible');
+                    selectedRestroomTypes.push(type);
+                    
+                    updateSubmitButton();
+                });
+            });
+
+            // Accessibility option (can be combined with gender)
+            document.querySelector('.accessibility-option').addEventListener('click', function() {
+                this.classList.toggle('selected');
+                const isSelected = this.classList.contains('selected');
+                
+                if (isSelected) {
+                    if (!selectedRestroomTypes.includes('accessible')) {
+                        selectedRestroomTypes.push('accessible');
+                    }
+                } else {
+                    selectedRestroomTypes = selectedRestroomTypes.filter(type => type !== 'accessible');
+                }
+                
+                updateSubmitButton();
+            });
+
+            // Star rating
+            document.querySelectorAll('.star').forEach(star => {
+                star.addEventListener('click', function() {
+                    selectedRating = parseInt(this.dataset.rating);
+                    updateStarDisplay();
+                    updateSubmitButton();
+                });
+
+                star.addEventListener('mouseenter', function() {
+                    const rating = parseInt(this.dataset.rating);
+                    highlightStars(rating);
+                });
+            });
+
+            document.querySelector('.stars-container').addEventListener('mouseleave', function() {
+                updateStarDisplay();
+            });
+
+            // Amenities selection (start unselected)
+            document.querySelectorAll('.amenity-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const amenity = this.dataset.amenity;
+                    this.classList.toggle('selected');
+                    
+                    if (this.classList.contains('selected')) {
+                        if (!selectedAmenities.includes(amenity)) {
+                            selectedAmenities.push(amenity);
+                        }
+                    } else {
+                        selectedAmenities = selectedAmenities.filter(a => a !== amenity);
+                    }
+                });
+            });
+
+            // Submit rating
+            document.getElementById('submitRating').addEventListener('click', submitRating);
+        }
+
+        // Update star display
+        function updateStarDisplay() {
+            const stars = document.querySelectorAll('.star');
+            stars.forEach((star, index) => {
+                if (index < selectedRating) {
+                    star.classList.add('active');
+                } else {
+                    star.classList.remove('active');
+                }
+            });
+
+            const display = document.getElementById('ratingDisplay');
+            if (selectedRating > 0) {
+                display.textContent = `${selectedRating}/10 stars`;
+            } else {
+                display.textContent = 'Select a rating';
+            }
+        }
+
+        // Highlight stars on hover
+        function highlightStars(rating) {
+            const stars = document.querySelectorAll('.star');
+            stars.forEach((star, index) => {
+                if (index < rating) {
+                    star.classList.add('active');
+                } else {
+                    star.classList.remove('active');
+                }
+            });
+        }
+
+        // Update submit button state
+        function updateSubmitButton() {
+            const submitBtn = document.getElementById('submitRating');
+            const hasGender = selectedRestroomTypes.some(type => ['mens', 'womens', 'unisex'].includes(type));
+            const hasRating = selectedRating > 0;
+            
+            if (hasGender && hasRating) {
+                submitBtn.disabled = false;
+            } else {
+                submitBtn.disabled = true;
+            }
         }
 
         // Perform search
         function performSearch() {
-            const searchTerm = document.getElementById('searchInput').value.trim();
+            const query = document.getElementById('searchInput').value.trim();
             const category = document.getElementById('categoryFilter').value;
             const limit = parseInt(document.getElementById('resultsLimit').value);
 
-            if (!searchTerm) {
+            if (!query) {
                 alert('Please enter a search term');
                 return;
             }
 
-            console.log(`🔍 Searching for: "${searchTerm}" in category: "${category}" with limit: ${limit}`);
+            console.log(`🔍 Searching for: "${query}" in category: "${category || 'all'}" with limit: ${limit}`);
             
+            // Show loading
             showLoading();
-            searchBusinesses(searchTerm, category, limit);
-        }
-
-        // Search businesses using OpenStreetMap
-        async function searchBusinesses(searchTerm, category, limit) {
-            try {
-                console.log(`🔍 Searching OpenStreetMap for: "${searchTerm}"`);
-                
-                // First, try to geocode the search term to get coordinates
-                const geocodeUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchTerm)}&limit=1&countrycodes=us`;
-                
-                const geocodeResponse = await fetch(geocodeUrl);
-                const geocodeData = await geocodeResponse.json();
-                
-                let businesses = [];
-                
-                if (geocodeData.length > 0) {
-                    const location = geocodeData[0];
-                    const lat = parseFloat(location.lat);
-                    const lon = parseFloat(location.lon);
-                    
-                    console.log(`📍 Found location: ${lat}, ${lon}`);
-                    
-                    // Search for businesses around this location using Overpass API
-                    const overpassQuery = buildOverpassQuery(lat, lon, category, limit);
-                    const overpassUrl = 'https://overpass-api.de/api/interpreter';
-                    
-                    const overpassResponse = await fetch(overpassUrl, {
-                        method: 'POST',
-                        body: overpassQuery,
-                        headers: {
-                            'Content-Type': 'text/plain'
-                        }
-                    });
-                    
-                    const overpassData = await overpassResponse.json();
-                    businesses = processOverpassResults(overpassData);
-                    
-                    // Center map on search location
-                    map.setView([lat, lon], 12);
-                }
-                
-                // If no businesses found or search failed, show sample data
-                if (businesses.length === 0) {
-                    console.log('📍 No businesses found via API, showing sample data');
-                    businesses = generateSampleBusinesses(searchTerm, limit);
-                }
-                
-                displayResults(businesses);
-                
-            } catch (error) {
-                console.error('Search error:', error);
-                // Fallback to sample data
-                const businesses = generateSampleBusinesses(searchTerm, limit);
-                displayResults(businesses);
-            }
-        }
-
-        // Build Overpass API query
-        function buildOverpassQuery(lat, lon, category, limit) {
-            const radius = 5000; // 5km radius
             
-            let amenityFilter = '';
-            if (category) {
-                switch (category) {
-                    case 'restaurant':
-                        amenityFilter = '[amenity~"^(restaurant|bar|pub)$"]';
-                        break;
-                    case 'fast_food':
-                        amenityFilter = '[amenity="fast_food"]';
-                        break;
-                    case 'cafe':
-                        amenityFilter = '[amenity~"^(cafe|coffee)$"]';
-                        break;
-                    case 'fuel':
-                        amenityFilter = '[amenity="fuel"]';
-                        break;
-                    case 'convenience':
-                        amenityFilter = '[shop="convenience"]';
-                        break;
-                    case 'supermarket':
-                        amenityFilter = '[shop~"^(supermarket|department_store)$"]';
-                        break;
-                    case 'hotel':
-                        amenityFilter = '[tourism~"^(hotel|motel)$"]';
-                        break;
-                    case 'hospital':
-                        amenityFilter = '[amenity~"^(hospital|clinic)$"]';
-                        break;
-                    default:
-                        amenityFilter = '[amenity][name]';
-                }
-            } else {
-                amenityFilter = '[amenity][name]';
-            }
+            // Reset pagination
+            currentOffset = 0;
             
-            return `
-                [out:json][timeout:25];
-                (
-                  node${amenityFilter}(around:${radius},${lat},${lon});
-                  way${amenityFilter}(around:${radius},${lat},${lon});
-                  relation${amenityFilter}(around:${radius},${lat},${lon});
-                );
-                out center meta;
-            `;
+            // Perform search
+            searchBusinesses(query, category, limit);
         }
 
-        // Process Overpass API results
-        function processOverpassResults(data) {
-            const businesses = [];
-            
-            if (data.elements) {
-                data.elements.forEach(element => {
-                    if (element.tags && element.tags.name) {
-                        let lat, lon;
-                        
-                        if (element.lat && element.lon) {
-                            lat = element.lat;
-                            lon = element.lon;
-                        } else if (element.center) {
-                            lat = element.center.lat;
-                            lon = element.center.lon;
-                        } else {
-                            return; // Skip if no coordinates
-                        }
-                        
-                        const business = {
-                            id: element.id,
-                            name: element.tags.name,
-                            address: formatAddress(element.tags),
-                            category: determineCategory(element.tags),
-                            lat: lat,
-                            lon: lon,
-                            rating: (Math.random() * 4 + 6).toFixed(1), // Random rating 6-10
-                            reviewCount: Math.floor(Math.random() * 200) + 20,
-                            badges: generateRandomBadges()
-                        };
-                        
-                        businesses.push(business);
-                    }
-                });
-            }
-            
-            return businesses.slice(0, 25); // Limit results
-        }
-
-        // Format address from OSM tags
-        function formatAddress(tags) {
-            const parts = [];
-            if (tags['addr:housenumber']) parts.push(tags['addr:housenumber']);
-            if (tags['addr:street']) parts.push(tags['addr:street']);
-            if (tags['addr:city']) parts.push(tags['addr:city']);
-            if (tags['addr:state']) parts.push(tags['addr:state']);
-            if (tags['addr:postcode']) parts.push(tags['addr:postcode']);
-            
-            return parts.length > 0 ? parts.join(', ') : 'Address not available';
-        }
-
-        // Determine business category from OSM tags
-        function determineCategory(tags) {
-            if (tags.amenity) {
-                switch (tags.amenity) {
-                    case 'restaurant': return 'Restaurant';
-                    case 'fast_food': return 'Fast Food';
-                    case 'cafe': return 'Coffee Shop';
-                    case 'fuel': return 'Gas Station';
-                    case 'hospital': return 'Hospital';
-                    case 'bank': return 'Bank';
-                    default: return 'Business';
-                }
-            }
-            if (tags.shop) {
-                switch (tags.shop) {
-                    case 'convenience': return 'Convenience Store';
-                    case 'supermarket': return 'Supermarket';
-                    default: return 'Shop';
-                }
-            }
-            if (tags.tourism) {
-                switch (tags.tourism) {
-                    case 'hotel': return 'Hotel';
-                    case 'motel': return 'Motel';
-                    default: return 'Tourism';
-                }
-            }
-            return 'Business';
-        }
-
-        // Generate sample businesses for fallback
-        function generateSampleBusinesses(searchTerm, limit) {
+        // Search businesses with proper category filtering
+        function searchBusinesses(query, category, limit) {
+            // Enhanced sample data with proper categorization
             const sampleBusinesses = [
+                // Fast Food
                 {
                     id: 1,
                     name: "McDonald's",
                     address: "1234 Main Street, Denver, CO, 80202",
-                    category: "Fast Food",
+                    category: "fast_food",
+                    rating: 7.3,
+                    reviews: 158,
                     lat: 39.7392,
-                    lon: -104.9903,
-                    rating: "7.3",
-                    reviewCount: 158,
-                    badges: ["CLEAN", "ACCESSIBLE"]
+                    lng: -104.9903,
+                    badges: ['clean', 'accessible']
                 },
+                {
+                    id: 6,
+                    name: "Burger King",
+                    address: "2468 Broadway, Denver, CO, 80203",
+                    category: "fast_food",
+                    rating: 6.8,
+                    reviews: 124,
+                    lat: 39.7292,
+                    lng: -104.9703,
+                    badges: ['clean']
+                },
+                // Coffee Shops
                 {
                     id: 2,
                     name: "Starbucks",
                     address: "5678 Broadway, Denver, CO, 80203",
-                    category: "Coffee Shop",
+                    category: "cafe",
+                    rating: 8.7,
+                    reviews: 203,
                     lat: 39.7292,
-                    lon: -104.9803,
-                    rating: "8.7",
-                    reviewCount: 203,
-                    badges: ["SPOTLESS", "ACCESSIBLE"]
+                    lng: -104.9803,
+                    badges: ['spotless', 'accessible']
                 },
+                {
+                    id: 7,
+                    name: "Dunkin'",
+                    address: "1357 Colfax Ave, Denver, CO, 80204",
+                    category: "cafe",
+                    rating: 7.5,
+                    reviews: 167,
+                    lat: 39.7392,
+                    lng: -104.9603,
+                    badges: ['clean', 'accessible']
+                },
+                // Gas Stations
                 {
                     id: 3,
                     name: "Shell Gas Station",
-                    address: "9012 Federal Blvd, Denver, CO, 80204",
-                    category: "Gas Station",
+                    address: "9012 Colfax Ave, Denver, CO, 80204",
+                    category: "fuel",
+                    rating: 6.5,
+                    reviews: 89,
                     lat: 39.7492,
-                    lon: -105.0003,
-                    rating: "6.8",
-                    reviewCount: 89,
-                    badges: ["CLEAN"]
+                    lng: -105.0003,
+                    badges: ['clean']
                 },
+                {
+                    id: 8,
+                    name: "Exxon",
+                    address: "2468 Federal Blvd, Denver, CO, 80211",
+                    category: "fuel",
+                    rating: 6.2,
+                    reviews: 76,
+                    lat: 39.7692,
+                    lng: -105.0103,
+                    badges: ['clean']
+                },
+                // Supermarkets
                 {
                     id: 4,
                     name: "Walmart Supercenter",
-                    address: "3456 Colorado Blvd, Denver, CO, 80205",
-                    category: "Supermarket",
-                    lat: 39.7192,
-                    lon: -104.9703,
-                    rating: "7.9",
-                    reviewCount: 312,
-                    badges: ["ACCESSIBLE", "CLEAN"]
+                    address: "3456 Federal Blvd, Denver, CO, 80211",
+                    category: "supermarket",
+                    rating: 8.1,
+                    reviews: 342,
+                    lat: 39.7592,
+                    lng: -105.0203,
+                    badges: ['clean', 'accessible']
                 },
                 {
                     id: 5,
                     name: "Target",
-                    address: "7890 Colfax Ave, Denver, CO, 80206",
-                    category: "Shopping",
-                    lat: 39.7592,
-                    lon: -104.9603,
-                    rating: "8.2",
-                    reviewCount: 176,
-                    badges: ["SPOTLESS", "ACCESSIBLE"]
+                    address: "7890 Colorado Blvd, Denver, CO, 80220",
+                    category: "supermarket",
+                    rating: 7.8,
+                    reviews: 267,
+                    lat: 39.7192,
+                    lng: -104.9403,
+                    badges: ['clean', 'accessible']
+                },
+                // Rest Areas (highway stops)
+                {
+                    id: 9,
+                    name: "I-70 East Rest Area",
+                    address: "Mile Marker 295, I-70 East, CO",
+                    category: "rest_area",
+                    rating: 7.2,
+                    reviews: 89,
+                    lat: 39.7692,
+                    lng: -104.8203,
+                    badges: ['clean', 'accessible']
+                },
+                {
+                    id: 10,
+                    name: "I-25 South Rest Stop",
+                    address: "Mile Marker 185, I-25 South, CO",
+                    category: "rest_area",
+                    rating: 6.9,
+                    reviews: 67,
+                    lat: 39.6892,
+                    lng: -104.9603,
+                    badges: ['accessible']
+                },
+                // Truck Stops
+                {
+                    id: 11,
+                    name: "Flying J Travel Center",
+                    address: "8901 I-76 Frontage Rd, Commerce City, CO",
+                    category: "truck_stop",
+                    rating: 8.3,
+                    reviews: 234,
+                    lat: 39.8092,
+                    lng: -104.9103,
+                    badges: ['clean', 'accessible']
+                },
+                {
+                    id: 12,
+                    name: "Pilot Travel Center",
+                    address: "5432 I-25 Frontage Rd, Thornton, CO",
+                    category: "truck_stop",
+                    rating: 7.9,
+                    reviews: 198,
+                    lat: 39.8692,
+                    lng: -104.9803,
+                    badges: ['clean', 'accessible']
                 }
             ];
+
+            // Filter by category if specified
+            let filteredBusinesses = sampleBusinesses;
+            if (category) {
+                filteredBusinesses = sampleBusinesses.filter(business => {
+                    return business.category === category;
+                });
+            }
+
+            // Filter by search query
+            if (query) {
+                const searchLower = query.toLowerCase();
+                filteredBusinesses = filteredBusinesses.filter(business => 
+                    business.name.toLowerCase().includes(searchLower) ||
+                    business.address.toLowerCase().includes(searchLower)
+                );
+            }
+
+            // Apply limit
+            const results = filteredBusinesses.slice(0, limit);
             
-            return sampleBusinesses.slice(0, Math.min(limit, sampleBusinesses.length));
+            currentBusinesses = results;
+            totalResults = results.length;
+            
+            // Display results
+            displayResults(results);
+            displayMapMarkers(results);
+            
+            console.log(`✅ Found ${results.length} businesses`);
         }
 
-        // Generate random quality badges
-        function generateRandomBadges() {
-            const allBadges = ["SPOTLESS", "CLEAN", "ACCESSIBLE"];
-            const numBadges = Math.floor(Math.random() * 3) + 1;
-            const shuffled = allBadges.sort(() => 0.5 - Math.random());
-            return shuffled.slice(0, numBadges);
+        // Show loading state
+        function showLoading() {
+            const resultsContainer = document.getElementById('resultsContainer');
+            resultsContainer.innerHTML = '<div class="loading">Searching...<br>Finding businesses near you...</div>';
         }
 
         // Display search results
         function displayResults(businesses) {
-            currentBusinesses = businesses;
-            
-            // Clear existing markers
-            markers.forEach(marker => map.removeLayer(marker));
-            markers = [];
-            
-            // Update results container
             const resultsContainer = document.getElementById('resultsContainer');
             
             if (businesses.length === 0) {
                 resultsContainer.innerHTML = `
-                    <div class="error">
+                    <div class="welcome-message">
                         <h3>No businesses found</h3>
-                        <p>Try a different search term or location.</p>
-                        <p><strong>Available ZIP codes:</strong> 80104, 80202, 90210, 10001</p>
+                        <p>Try a different search term or category filter.</p>
+                        <p style="margin-top: 1rem; font-size: 0.9rem;">
+                            Try searching: "McDonald's", "Starbucks", "Shell", "Rest Area", "Truck Stop"
+                        </p>
                     </div>
                 `;
                 return;
             }
-            
-            // Create results header
-            const resultsHeader = `
+
+            let html = `
                 <div class="results-header">
-                    <div class="results-count">Showing 1-${businesses.length} of ${businesses.length} businesses</div>
-                    ${businesses.length >= 25 ? '<button class="load-more-btn">Load 25 More</button>' : ''}
+                    <div class="results-count">
+                        ${businesses.length} businesses found
+                        <div style="font-size: 0.9rem; color: #666; margin-top: 0.25rem;">
+                            Showing 1-${businesses.length} of ${totalResults}
+                        </div>
+                    </div>
                 </div>
             `;
-            
-            // Create business cards
-            const businessCards = businesses.map(business => createBusinessCard(business)).join('');
-            
-            resultsContainer.innerHTML = resultsHeader + businessCards;
-            
-            // Add markers to map
+
             businesses.forEach(business => {
-                const marker = L.marker([business.lat, business.lon])
-                    .addTo(map)
-                    .bindPopup(`
-                        <div style="text-align: center; min-width: 200px;">
-                            <h4 style="margin: 0 0 0.5rem 0; color: #2d3748;">${business.name}</h4>
-                            <p style="margin: 0 0 0.5rem 0; color: #718096; font-size: 0.9rem;">${business.category}</p>
-                            <p style="margin: 0 0 1rem 0; color: #718096; font-size: 0.8rem;">${business.address}</p>
-                            <div style="display: flex; gap: 0.5rem; justify-content: center;">
-                                <button onclick="openRatingModal(${business.id})" style="background: #48bb78; color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-size: 0.8rem;">Rate Restroom</button>
-                                <button onclick="getDirections(${business.lat}, ${business.lon})" style="background: #4299e1; color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-size: 0.8rem;">Directions</button>
+                const categoryLabels = {
+                    'fast_food': 'Fast Food',
+                    'cafe': 'Coffee Shop',
+                    'fuel': 'Gas Station',
+                    'supermarket': 'Supermarket',
+                    'restaurant': 'Restaurant',
+                    'hotel': 'Hotel',
+                    'rest_area': 'Rest Area',
+                    'truck_stop': 'Truck Stop'
+                };
+
+                const badgeHtml = business.badges.map(badge => {
+                    const badgeLabels = {
+                        'spotless': 'SPOTLESS',
+                        'clean': 'CLEAN',
+                        'accessible': 'ACCESSIBLE'
+                    };
+                    return `<span class="badge badge-${badge}">${badgeLabels[badge]}</span>`;
+                }).join('');
+
+                const stars = '★'.repeat(Math.floor(business.rating)) + '☆'.repeat(10 - Math.floor(business.rating));
+
+                html += `
+                    <div class="business-card">
+                        <div class="business-header">
+                            <div class="business-info">
+                                <h3>${business.name}</h3>
+                                <div class="business-address">${business.address}</div>
                             </div>
+                            <div class="business-category">${categoryLabels[business.category] || 'Business'}</div>
                         </div>
-                    `);
+                        
+                        <div class="rating-section">
+                            <div class="stars">${stars.substring(0, Math.floor(business.rating))}</div>
+                            <div class="rating-text">${business.rating}/10</div>
+                            <div class="review-count">(${business.reviews} reviews)</div>
+                        </div>
+                        
+                        <div class="quality-badges">
+                            ${badgeHtml}
+                        </div>
+                        
+                        <div class="business-actions">
+                            <button class="btn btn-rate" onclick="openRatingModal(${business.id})">Rate Restroom</button>
+                            <button class="btn btn-directions" onclick="getDirections(${business.lat}, ${business.lng})">Directions</button>
+                            <button class="btn btn-claim" onclick="claimListing(${business.id})">Claim Listing</button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            resultsContainer.innerHTML = html;
+        }
+
+        // Display map markers
+        function displayMapMarkers(businesses) {
+            // Clear existing markers
+            map.eachLayer(layer => {
+                if (layer instanceof L.Marker) {
+                    map.removeLayer(layer);
+                }
+            });
+
+            if (businesses.length === 0) return;
+
+            const markers = [];
+            
+            businesses.forEach(business => {
+                const marker = L.marker([business.lat, business.lng]).addTo(map);
                 
+                const popupContent = `
+                    <div style="text-align: center; min-width: 200px;">
+                        <h4 style="margin-bottom: 0.5rem;">${business.name}</h4>
+                        <p style="margin-bottom: 0.5rem; font-size: 0.9rem;">${business.address}</p>
+                        <div style="margin-bottom: 1rem;">
+                            <span style="color: #ffd700;">★</span> ${business.rating}/10 (${business.reviews} reviews)
+                        </div>
+                        <div style="display: flex; gap: 0.5rem; justify-content: center;">
+                            <button onclick="openRatingModal(${business.id})" style="background: #4CAF50; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer;">Rate Restroom</button>
+                            <button onclick="getDirections(${business.lat}, ${business.lng})" style="background: #2196F3; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer;">Directions</button>
+                        </div>
+                    </div>
+                `;
+                
+                marker.bindPopup(popupContent);
                 markers.push(marker);
             });
-            
+
             // Fit map to show all markers
             if (markers.length > 0) {
                 const group = new L.featureGroup(markers);
@@ -1384,82 +1512,24 @@
             }
         }
 
-        // Create business card HTML
-        function createBusinessCard(business) {
-            const stars = generateStarsHTML(parseFloat(business.rating));
-            const badges = business.badges.map(badge => 
-                `<span class="badge badge-${badge.toLowerCase()}">${badge}</span>`
-            ).join('');
-            
-            return `
-                <div class="business-card">
-                    <div class="business-header">
-                        <div>
-                            <div class="business-name">${business.name}</div>
-                            <div class="business-address">${business.address}</div>
-                        </div>
-                        <div class="business-category">${business.category}</div>
-                    </div>
-                    
-                    <div class="rating-section">
-                        <div class="stars">${stars}</div>
-                        <div class="rating-text">${business.rating}/10</div>
-                        <div class="review-count">(${business.reviewCount} reviews)</div>
-                    </div>
-                    
-                    <div class="quality-badges">${badges}</div>
-                    
-                    <div class="business-actions">
-                        <button class="btn btn-rate" onclick="openRatingModal(${business.id})">Rate Restroom</button>
-                        <button class="btn btn-directions" onclick="getDirections(${business.lat}, ${business.lon})">Directions</button>
-                        <button class="btn btn-claim">Claim Listing</button>
-                    </div>
-                </div>
-            `;
-        }
-
-        // Generate stars HTML
-        function generateStarsHTML(rating) {
-            let starsHTML = '';
-            const fullStars = Math.floor(rating);
-            
-            for (let i = 1; i <= 10; i++) {
-                if (i <= fullStars) {
-                    starsHTML += '<span class="star">★</span>';
-                } else {
-                    starsHTML += '<span class="star empty">★</span>';
-                }
-            }
-            
-            return starsHTML;
-        }
-
-        // Show loading state
-        function showLoading() {
-            document.getElementById('resultsContainer').innerHTML = `
-                <div class="loading">
-                    <h3>Searching...</h3>
-                    <p>Finding businesses near you...</p>
-                </div>
-            `;
-        }
-
         // Enable location
         function enableLocation() {
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
-                    function(position) {
+                    position => {
                         const lat = position.coords.latitude;
-                        const lon = position.coords.longitude;
+                        const lng = position.coords.longitude;
+                        map.setView([lat, lng], 13);
                         
-                        map.setView([lat, lon], 13);
+                        L.marker([lat, lng]).addTo(map)
+                            .bindPopup('Your location')
+                            .openPopup();
                         
-                        // Search for businesses near current location
-                        searchBusinesses(`${lat},${lon}`, '', 25);
+                        console.log(`📍 Location enabled: ${lat}, ${lng}`);
                     },
-                    function(error) {
-                        alert('Unable to get your location. Please search manually.');
-                        console.error('Geolocation error:', error);
+                    error => {
+                        console.error('❌ Location access denied:', error);
+                        alert('Location access denied. Please enable location services.');
                     }
                 );
             } else {
@@ -1471,106 +1541,38 @@
         function setViewMode(mode) {
             const mapContainer = document.getElementById('mapContainer');
             const resultsContainer = document.getElementById('resultsContainer');
-            const buttons = document.querySelectorAll('.btn-view');
+            const contentArea = document.getElementById('contentArea');
             
             // Remove active class from all buttons
-            buttons.forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.btn-view').forEach(btn => btn.classList.remove('active'));
             
             switch (mode) {
                 case 'mapList':
+                    document.getElementById('mapListBtn').classList.add('active');
+                    contentArea.style.gridTemplateColumns = '1fr 1fr';
                     mapContainer.style.display = 'block';
                     resultsContainer.style.display = 'block';
-                    document.getElementById('mapListBtn').classList.add('active');
                     break;
                 case 'mapOnly':
+                    document.getElementById('mapOnlyBtn').classList.add('active');
+                    contentArea.style.gridTemplateColumns = '1fr';
                     mapContainer.style.display = 'block';
                     resultsContainer.style.display = 'none';
-                    document.getElementById('mapOnlyBtn').classList.add('active');
                     break;
                 case 'listOnly':
+                    document.getElementById('listOnlyBtn').classList.add('active');
+                    contentArea.style.gridTemplateColumns = '1fr';
                     mapContainer.style.display = 'none';
                     resultsContainer.style.display = 'block';
-                    document.getElementById('listOnlyBtn').classList.add('active');
                     break;
             }
             
-            // Resize map after view change
+            // Resize map after layout change
             setTimeout(() => {
                 if (map) {
                     map.invalidateSize();
                 }
             }, 100);
-        }
-
-        // Get directions
-        function getDirections(lat, lon) {
-            const url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}`;
-            window.open(url, '_blank');
-        }
-
-        // Setup rating modal
-        function setupRatingModal() {
-            const modal = document.getElementById('ratingModal');
-            const cancelBtn = document.getElementById('cancelRating');
-            const submitBtn = document.getElementById('submitRating');
-            
-            // Close modal when clicking cancel or outside
-            cancelBtn.addEventListener('click', closeRatingModal);
-            window.addEventListener('click', function(event) {
-                if (event.target === modal) {
-                    closeRatingModal();
-                }
-            });
-            
-            // Restroom type selection
-            document.querySelectorAll('.restroom-type').forEach(type => {
-                type.addEventListener('click', function() {
-                    document.querySelectorAll('.restroom-type').forEach(t => t.classList.remove('selected'));
-                    this.classList.add('selected');
-                    selectedRestroomType = this.dataset.type;
-                });
-            });
-            
-            // Accessibility option
-            document.getElementById('accessibilityOption').addEventListener('click', function() {
-                this.classList.toggle('selected');
-                selectedAccessibility = this.classList.contains('selected');
-            });
-            
-            // Rating stars
-            document.querySelectorAll('.rating-star').forEach(star => {
-                star.addEventListener('click', function() {
-                    currentRating = parseInt(this.dataset.rating);
-                    updateStarDisplay();
-                    updateRatingDisplay();
-                });
-                
-                star.addEventListener('mouseenter', function() {
-                    const rating = parseInt(this.dataset.rating);
-                    highlightStars(rating);
-                });
-            });
-            
-            document.getElementById('ratingStars').addEventListener('mouseleave', function() {
-                updateStarDisplay();
-            });
-            
-            // Amenities
-            document.querySelectorAll('.amenity-item').forEach(item => {
-                item.addEventListener('click', function() {
-                    const amenity = this.dataset.amenity;
-                    if (selectedAmenities.has(amenity)) {
-                        selectedAmenities.delete(amenity);
-                        this.classList.remove('selected');
-                    } else {
-                        selectedAmenities.add(amenity);
-                        this.classList.add('selected');
-                    }
-                });
-            });
-            
-            // Submit rating
-            submitBtn.addEventListener('click', submitRating);
         }
 
         // Open rating modal
@@ -1593,96 +1595,87 @@
 
         // Reset rating form
         function resetRatingForm() {
-            currentRating = 0;
-            selectedRestroomType = '';
-            selectedAccessibility = false;
-            selectedAmenities.clear();
+            selectedRating = 0;
+            selectedRestroomTypes = [];
+            selectedAmenities = [];
             
-            document.querySelectorAll('.restroom-type').forEach(t => t.classList.remove('selected'));
-            document.getElementById('accessibilityOption').classList.remove('selected');
-            document.querySelectorAll('.amenity-item').forEach(item => item.classList.remove('selected'));
+            // Reset restroom type selection
+            document.querySelectorAll('.restroom-option, .accessibility-option').forEach(option => {
+                option.classList.remove('selected');
+            });
             
+            // Reset star rating
             updateStarDisplay();
-            updateRatingDisplay();
-        }
-
-        // Update star display
-        function updateStarDisplay() {
-            document.querySelectorAll('.rating-star').forEach((star, index) => {
-                if (index < currentRating) {
-                    star.classList.add('selected');
-                } else {
-                    star.classList.remove('selected');
-                }
+            
+            // Reset amenities (start unselected)
+            document.querySelectorAll('.amenity-item').forEach(item => {
+                item.classList.remove('selected');
             });
-        }
-
-        // Highlight stars on hover
-        function highlightStars(rating) {
-            document.querySelectorAll('.rating-star').forEach((star, index) => {
-                if (index < rating) {
-                    star.classList.add('selected');
-                } else {
-                    star.classList.remove('selected');
-                }
-            });
-        }
-
-        // Update rating display
-        function updateRatingDisplay() {
-            const display = document.getElementById('ratingDisplay');
-            if (currentRating > 0) {
-                display.textContent = `${currentRating}/10 stars`;
-            } else {
-                display.textContent = 'Select a rating';
-            }
+            
+            updateSubmitButton();
         }
 
         // Submit rating
         function submitRating() {
-            if (!selectedRestroomType) {
-                alert('Please select which restroom you used');
+            if (selectedRating === 0 || selectedRestroomTypes.length === 0) {
+                alert('Please select a restroom type and rating');
                 return;
             }
-            
-            if (currentRating === 0) {
-                alert('Please select a rating');
-                return;
-            }
-            
-            // Create rating object
-            const rating = {
+
+            const ratingData = {
                 businessId: currentBusiness.id,
-                businessName: currentBusiness.name,
-                restroomType: selectedRestroomType,
-                accessibility: selectedAccessibility,
-                rating: currentRating,
-                amenities: Array.from(selectedAmenities),
+                rating: selectedRating,
+                restroomTypes: selectedRestroomTypes,
+                amenities: selectedAmenities,
                 timestamp: new Date().toISOString()
             };
+
+            console.log('📝 Submitting rating:', ratingData);
+
+            // Create display text for restroom types
+            const genderTypes = selectedRestroomTypes.filter(t => ['mens', 'womens', 'unisex'].includes(t));
+            const hasAccessible = selectedRestroomTypes.includes('accessible');
             
-            console.log('Rating submitted:', rating);
-            
-            // Show success message
-            let restroomTypeText = '';
-            switch (selectedRestroomType) {
-                case 'mens': restroomTypeText = "Men's"; break;
-                case 'womens': restroomTypeText = "Women's"; break;
-                case 'unisex': restroomTypeText = "Unisex/Family"; break;
+            let restroomDisplay = '';
+            if (genderTypes.length > 0) {
+                const genderLabels = {
+                    'mens': "Men's",
+                    'womens': "Women's", 
+                    'unisex': "Unisex/Family"
+                };
+                restroomDisplay = genderLabels[genderTypes[0]];
+                if (hasAccessible) {
+                    restroomDisplay += ' + Accessible ♿';
+                }
             }
-            
-            if (selectedAccessibility) {
-                restroomTypeText += " + Accessible";
-            }
-            
-            alert(`Thank you! Your ${currentRating}/10 star rating for the ${restroomTypeText} restroom at ${currentBusiness.name} has been submitted.`);
-            
-            closeRatingModal();
+
+            // Simulate API call
+            setTimeout(() => {
+                alert(`Thank you for rating ${currentBusiness.name}!\n\nRating: ${selectedRating}/10 stars\nRestroom: ${restroomDisplay}\nAmenities: ${selectedAmenities.length} selected`);
+                closeRatingModal();
+            }, 500);
         }
 
-        // Make functions globally available
-        window.openRatingModal = openRatingModal;
-        window.getDirections = getDirections;
+        // Get directions
+        function getDirections(lat, lng) {
+            const url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+            window.open(url, '_blank');
+        }
+
+        // Claim listing
+        function claimListing(businessId) {
+            alert('Business verification feature coming soon! Contact support@gtgotg.com to claim your listing.');
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('ratingModal');
+            if (event.target === modal) {
+                closeRatingModal();
+            }
+        }
+
+        console.log('✅ GTGOTG application initialized successfully');
     </script>
 </body>
 </html>
