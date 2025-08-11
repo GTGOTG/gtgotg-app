@@ -3,1507 +3,561 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GTGOTG - Got To Go On The Go</title>
-    <meta name="description" content="Find clean, safe restrooms at businesses nationwide. Every restroom, everywhere. When you got to go on the go.">
+    <title>GTGOTG - Got To Go On The Go | Every Restroom, Everywhere</title>
+    <meta name="description" content="Find clean, safe, and accessible restrooms wherever you are. Rate and review restrooms to help others in the community.">
     
-    <!-- Leaflet CSS -->
+    <!-- Favicon and App Icons -->
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/gtgotg-favicon-32.png">
+    <link rel="apple-touch-icon" sizes="192x192" href="assets/gtgotg-app-icon-192.png">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="assets/styles.css">
+    <link rel="stylesheet" href="assets/GTGOTG_ENHANCED_REVIEW_CSS.css">
+    
+    <!-- OpenStreetMap Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-        }
-
-        .header {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            padding: 1rem 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .logo-section {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .logo {
-            width: 80px;
-            height: 80px;
-            border-radius: 12px;
-            object-fit: cover;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-        }
-
-        .logo-fallback {
-            width: 80px;
-            height: 80px;
-            background: rgba(255, 255, 255, 0.9);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2rem;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-        }
-
-        .brand-text h1 {
-            color: white;
-            font-size: 2rem;
-            font-weight: 700;
-            margin-bottom: 0.25rem;
-        }
-
-        .taglines {
-            color: rgba(255, 255, 255, 0.9);
-        }
-
-        .tagline-primary {
-            font-size: 1rem;
-            font-weight: 500;
-        }
-
-        .tagline-secondary {
-            font-size: 0.9rem;
-            font-style: italic;
-            opacity: 0.8;
-        }
-
-        .auth-buttons {
-            display: flex;
-            gap: 1rem;
-        }
-
-        .btn {
-            padding: 0.75rem 1.5rem;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            display: inline-block;
-            text-align: center;
-        }
-
-        .btn-login {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-        }
-
-        .btn-signup {
-            background: #4CAF50;
-            color: white;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-        }
-
-        .main-container {
-            max-width: 1200px;
-            margin: 2rem auto;
-            padding: 0 1rem;
-        }
-
-        .search-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 2rem;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            margin-bottom: 2rem;
-        }
-
-        .search-title {
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-
-        .search-title h2 {
-            font-size: 2.5rem;
-            color: #333;
-            margin-bottom: 0.5rem;
-        }
-
-        .search-subtitle {
-            color: #666;
-            font-size: 1.1rem;
-        }
-
-        .search-form {
-            display: grid;
-            grid-template-columns: 1fr auto auto;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .search-input {
-            padding: 1rem;
-            border: 2px solid #e0e0e0;
-            border-radius: 12px;
-            font-size: 1rem;
-            outline: none;
-            transition: border-color 0.3s ease;
-        }
-
-        .search-input:focus {
-            border-color: #667eea;
-        }
-
-        .dropdown {
-            padding: 1rem;
-            border: 2px solid #e0e0e0;
-            border-radius: 12px;
-            font-size: 1rem;
-            background: white;
-            cursor: pointer;
-            min-width: 150px;
-        }
-
-        .search-buttons {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-            margin-bottom: 1.5rem;
-        }
-
-        .btn-search {
-            background: #4CAF50;
-            color: white;
-            padding: 1rem 2rem;
-            font-size: 1.1rem;
-        }
-
-        .btn-location {
-            background: #2196F3;
-            color: white;
-            padding: 1rem 2rem;
-            font-size: 1.1rem;
-        }
-
-        .view-controls {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-        }
-
-        .btn-view {
-            background: #667eea;
-            color: white;
-            padding: 0.75rem 1.5rem;
-        }
-
-        .btn-view.active {
-            background: #764ba2;
-        }
-
-        .results-container {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-        }
-
-        .map-container {
-            height: 400px;
-            position: relative;
-        }
-
-        #map {
-            height: 100%;
-            width: 100%;
-        }
-
-        .results-list {
-            padding: 2rem;
-        }
-
-        .results-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-            padding-bottom: 1rem;
-            border-bottom: 2px solid #f0f0f0;
-        }
-
-        .results-count {
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: #333;
-        }
-
-        .load-more-btn {
-            background: #667eea;
-            color: white;
-            padding: 0.75rem 1.5rem;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-        }
-
-        .business-card {
-            background: white;
-            border-radius: 15px;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            border: 1px solid #f0f0f0;
-        }
-
-        .business-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 1rem;
-        }
-
-        .business-info h3 {
-            font-size: 1.3rem;
-            color: #333;
-            margin-bottom: 0.5rem;
-        }
-
-        .business-category {
-            background: #667eea;
-            color: white;
-            padding: 0.25rem 0.75rem;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 600;
-        }
-
-        .business-address {
-            color: #666;
-            margin-bottom: 1rem;
-        }
-
-        .rating-section {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            margin-bottom: 1rem;
-        }
-
-        .stars {
-            color: #ffc107;
-        }
-
-        .rating-text {
-            color: #666;
-            font-size: 0.9rem;
-        }
-
-        .quality-badges {
-            display: flex;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
-        }
-
-        .badge {
-            padding: 0.25rem 0.75rem;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 600;
-        }
-
-        .badge-clean {
-            background: #e8f5e8;
-            color: #2e7d32;
-        }
-
-        .badge-accessible {
-            background: #e3f2fd;
-            color: #1976d2;
-        }
-
-        .business-actions {
-            display: flex;
-            gap: 1rem;
-        }
-
-        .btn-rate {
-            background: #4CAF50;
-            color: white;
-            flex: 1;
-        }
-
-        .btn-directions {
-            background: #2196F3;
-            color: white;
-            flex: 1;
-        }
-
-        .btn-claim {
-            background: #ff9800;
-            color: white;
-            flex: 1;
-        }
-
-        .loading {
-            text-align: center;
-            padding: 2rem;
-            color: #666;
-        }
-
-        .no-results {
-            text-align: center;
-            padding: 3rem;
-            color: #666;
-        }
-
-        .no-results h3 {
-            margin-bottom: 1rem;
-            color: #333;
-        }
-
-        /* Rating Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-        }
-
-        .modal-content {
-            background-color: white;
-            margin: 5% auto;
-            padding: 2rem;
-            border-radius: 15px;
-            width: 90%;
-            max-width: 500px;
-            max-height: 80vh;
-            overflow-y: auto;
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-            padding-bottom: 1rem;
-            border-bottom: 2px solid #f0f0f0;
-        }
-
-        .close {
-            color: #aaa;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .close:hover {
-            color: #000;
-        }
-
-        .rating-stars {
-            display: flex;
-            gap: 0.5rem;
-            margin: 1rem 0;
-            justify-content: center;
-        }
-
-        .star {
-            font-size: 2rem;
-            color: #ddd;
-            cursor: pointer;
-            transition: color 0.2s ease;
-        }
-
-        .star.active {
-            color: #ffc107;
-        }
-
-        .star:hover {
-            color: #ffc107;
-        }
-
-        .restroom-types {
-            display: flex;
-            gap: 1rem;
-            margin: 1.5rem 0;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        .restroom-type {
-            padding: 1rem;
-            border: 2px solid #e0e0e0;
-            border-radius: 12px;
-            cursor: pointer;
-            text-align: center;
-            transition: all 0.3s ease;
-            min-width: 80px;
-        }
-
-        .restroom-type.selected {
-            border-color: #667eea;
-            background: rgba(102, 126, 234, 0.1);
-        }
-
-        .restroom-type .icon {
-            font-size: 1.5rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .amenities-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-            margin: 1.5rem 0;
-        }
-
-        .amenity-item {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.75rem;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .amenity-item.checked {
-            border-color: #4CAF50;
-            background: rgba(76, 175, 80, 0.1);
-        }
-
-        .amenity-item .emoji {
-            font-size: 1.2rem;
-        }
-
-        .submit-rating {
-            background: #4CAF50;
-            color: white;
-            width: 100%;
-            padding: 1rem;
-            font-size: 1.1rem;
-            margin-top: 1.5rem;
-        }
-
-        /* Footer */
-        .footer {
-            background: rgba(0, 0, 0, 0.8);
-            color: white;
-            padding: 3rem 0 1rem;
-            margin-top: 4rem;
-        }
-
-        .footer-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 2rem;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 2rem;
-        }
-
-        .footer-section h3 {
-            margin-bottom: 1rem;
-            color: #667eea;
-        }
-
-        .footer-section a {
-            color: rgba(255, 255, 255, 0.8);
-            text-decoration: none;
-            display: block;
-            margin-bottom: 0.5rem;
-            transition: color 0.3s ease;
-        }
-
-        .footer-section a:hover {
-            color: white;
-        }
-
-        .footer-bottom {
-            text-align: center;
-            padding-top: 2rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.2);
-            color: rgba(255, 255, 255, 0.6);
-        }
-
-        /* Mobile Responsive */
-        @media (max-width: 768px) {
-            .header {
-                padding: 1rem;
-                flex-direction: column;
-                gap: 1rem;
-            }
-
-            .search-form {
-                grid-template-columns: 1fr;
-            }
-
-            .search-buttons {
-                flex-direction: column;
-            }
-
-            .view-controls {
-                flex-wrap: wrap;
-            }
-
-            .business-actions {
-                flex-direction: column;
-            }
-
-            .amenities-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .restroom-types {
-                flex-wrap: wrap;
-            }
-        }
-    </style>
+    <!-- Theme Color for Mobile Browsers -->
+    <meta name="theme-color" content="#8B5CF6">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="GTGOTG">
 </head>
 <body>
     <!-- Header -->
     <header class="header">
-        <div class="logo-section">
-            <img src="assets/gtgotg_logo_primary-BE-ZRW_Y.png" alt="GTGOTG Logo" class="logo" 
-                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-            <div class="logo-fallback" style="display: none;">🚽</div>
-            <div class="brand-text">
-                <h1>GTGOTG</h1>
-                <div class="taglines">
-                    <div class="tagline-primary">"Every Restroom, Everywhere"</div>
-                    <div class="tagline-secondary">"When you got to go on the go"</div>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo-section">
+                    <img src="assets/gtgotg_logo_primary-BE-ZRW_Y.png" alt="GTGOTG Logo" class="logo-image">
+                    <div class="logo-text">
+                        <h1 class="logo">GTGOTG</h1>
+                        <p class="tagline">Got To Go On The Go</p>
+                    </div>
                 </div>
+                <nav class="nav">
+                    <button class="btn btn-secondary" onclick="showModal('loginModal')">Login</button>
+                    <button class="btn btn-primary" onclick="showModal('registerModal')">Sign Up</button>
+                    <button class="btn btn-admin" onclick="showModal('adminModal')" style="display: none;" id="adminBtn">Admin</button>
+                </nav>
             </div>
-        </div>
-        <div class="auth-buttons">
-            <button class="btn btn-login" onclick="showLogin()">Login</button>
-            <button class="btn btn-signup" onclick="showSignup()">Sign Up</button>
         </div>
     </header>
 
-    <!-- Main Container -->
-    <div class="main-container">
-        <!-- Search Card -->
-        <div class="search-card">
-            <div class="search-title">
-                <h2>Find Clean, Safe Restrooms</h2>
-                <p class="search-subtitle">Search ANY business nationwide by name, city, state, or ZIP code</p>
-            </div>
-
-            <div class="search-form">
-                <input type="text" id="searchInput" class="search-input" 
-                       placeholder="Enter business name, city, state, or ZIP code (e.g., 'McDonald's', 'Denver CO', '80104')">
-                <select id="categoryFilter" class="dropdown">
-                    <option value="">All Businesses</option>
-                    <option value="restaurant">Restaurants</option>
-                    <option value="fast_food">Fast Food</option>
-                    <option value="cafe">Coffee Shops</option>
-                    <option value="fuel">Gas Stations</option>
-                    <option value="convenience">Convenience Stores</option>
-                    <option value="supermarket">Supermarkets</option>
-                    <option value="shopping_mall">Shopping Centers</option>
-                    <option value="hotel">Hotels</option>
-                    <option value="entertainment">Entertainment</option>
-                    <option value="hospital">Healthcare</option>
-                    <option value="bank">Services</option>
-                    <option value="truck_stop">Truck Stops</option>
-                    <option value="rest_area">Rest Areas</option>
-                    <option value="park">Recreation</option>
-                </select>
-                <select id="resultsLimit" class="dropdown">
-                    <option value="25">25 results</option>
-                    <option value="50">50 results</option>
-                    <option value="75">75 results</option>
-                    <option value="100">100 results</option>
-                </select>
-            </div>
-
-            <div class="search-buttons">
-                <button class="btn btn-search" onclick="performSearch()">🔍 Search</button>
-                <button class="btn btn-location" onclick="enableLocation()">📍 Enable Location</button>
-            </div>
-
-            <div class="view-controls">
-                <button class="btn btn-view active" onclick="setViewMode('both')">Map + List</button>
-                <button class="btn btn-view" onclick="setViewMode('map')">Map Only</button>
-                <button class="btn btn-view" onclick="setViewMode('list')">List Only</button>
+    <!-- User Status Bar -->
+    <div class="user-status" id="userStatus" style="display: none;">
+        <div class="container">
+            <div class="user-welcome">
+                <span>Welcome back, <strong id="userName"></strong>!</span>
+                <span class="user-badge" id="userBadge">Reviewer</span>
+                <button class="btn btn-small btn-secondary" onclick="logout()">Logout</button>
             </div>
         </div>
+    </div>
 
-        <!-- Results Container -->
-        <div class="results-container">
-            <div class="map-container" id="mapContainer">
-                <div id="map"></div>
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h2 class="hero-title">Every Restroom, Everywhere</h2>
+                <p class="hero-subtitle">Find clean, safe, and accessible restrooms wherever you are</p>
+                
+                <!-- Enhanced Search Container -->
+                <div class="enhanced-search-container">
+                    <div class="search-main">
+                        <div class="search-input-container">
+                            <input type="text" id="searchInput" class="search-input" 
+                                   placeholder="Search by business name, address, or location..." 
+                                   autocomplete="off">
+                            <div class="search-suggestions" id="searchSuggestions"></div>
+                        </div>
+                        <button class="btn location-btn" onclick="getCurrentLocation()">📍 Use My Location</button>
+                        <button class="btn search-btn" onclick="performSearch()">🔍</button>
+                    </div>
+                    
+                    <div class="search-tips">
+                        <div class="search-tip">
+                            <span class="tip-icon">💡</span>
+                            <span class="tip-text">Try searching for "coffee shops near me" or "gas stations downtown"</span>
+                        </div>
+                    </div>
+                </div>
             </div>
-            
-            <div class="results-list" id="resultsList">
-                <div class="no-results">
-                    <h3>Ready to Search</h3>
-                    <p>Enter a business name, city, state, or ZIP code above to find restrooms nationwide.</p>
-                    <p><strong>Try searching:</strong> "McDonald's", "Denver Colorado", "90210", "Rest Area"</p>
+        </div>
+    </section>
+
+    <!-- Filter Section -->
+    <section class="filter-section">
+        <div class="container">
+            <div class="filter-controls">
+                <div class="filter-row">
+                    <div class="filter-group">
+                        <label class="filter-label">Category:</label>
+                        <select id="categoryFilter" class="filter-select" onchange="applyFilters()">
+                            <option value="">All Categories</option>
+                            <option value="gas-station">Gas Stations</option>
+                            <option value="restaurant">Restaurants</option>
+                            <option value="coffee-shop">Coffee Shops</option>
+                            <option value="retail">Retail Stores</option>
+                            <option value="hotel">Hotels</option>
+                            <option value="park">Parks</option>
+                            <option value="hospital">Hospitals</option>
+                            <option value="library">Libraries</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label class="filter-label">Distance:</label>
+                        <select id="distanceFilter" class="filter-select" onchange="applyFilters()">
+                            <option value="">Any Distance</option>
+                            <option value="1">Within 1 mile</option>
+                            <option value="5">Within 5 miles</option>
+                            <option value="10">Within 10 miles</option>
+                            <option value="25">Within 25 miles</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label class="filter-label">Rating:</label>
+                        <select id="ratingFilter" class="filter-select" onchange="applyFilters()">
+                            <option value="">Any Rating</option>
+                            <option value="4">4+ Stars</option>
+                            <option value="3">3+ Stars</option>
+                            <option value="2">2+ Stars</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="filter-row">
+                    <div class="quick-filters">
+                        <button class="filter-btn" data-filter="wheelchair" onclick="toggleQuickFilter(this)">♿ Wheelchair Accessible</button>
+                        <button class="filter-btn" data-filter="baby-changing" onclick="toggleQuickFilter(this)">👶 Baby Changing</button>
+                        <button class="filter-btn" data-filter="open-now" onclick="toggleQuickFilter(this)">🕐 Open Now</button>
+                        <button class="filter-btn" data-filter="high-rated" onclick="toggleQuickFilter(this)">⭐ Highly Rated</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Search Results Info -->
+    <section class="search-results-section">
+        <div class="container">
+            <div class="search-results-info" id="searchResultsInfo">
+                Showing all restrooms in your area
+            </div>
+        </div>
+    </section>
+
+    <!-- Map Section -->
+    <section class="map-section">
+        <div class="container">
+            <div class="map-container">
+                <div id="map"></div>
+                <div class="map-controls">
+                    <button class="map-control-btn" onclick="centerMapOnUser()" title="Center on my location">📍</button>
+                    <button class="map-control-btn" onclick="toggleMapView()" title="Toggle map view">🗺️</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Listings Section -->
+    <section class="listings-section">
+        <div class="container">
+            <h3 class="section-title">Restroom Locations</h3>
+            <div class="business-grid" id="businessGrid">
+                <!-- Business cards will be dynamically inserted here -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Login to GTGOTG</h4>
+                <button class="modal-close" onclick="closeModal('loginModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="loginForm" onsubmit="handleLogin(event)">
+                    <div class="form-group">
+                        <label for="loginEmail">Email:</label>
+                        <input type="email" id="loginEmail" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPassword">Password:</label>
+                        <input type="password" id="loginPassword" name="password" required>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('loginModal')">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Login</button>
+                    </div>
+                </form>
+                
+                <!-- Test Accounts Info -->
+                <div class="test-accounts">
+                    <p><strong>Test Accounts:</strong></p>
+                    <p>User: <code>user@gtgotg.com</code> / <code>password123</code></p>
+                    <p>Admin: <code>admin@gtgotg.com</code> / <code>admin123</code></p>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Rating Modal -->
-    <div id="ratingModal" class="modal">
+    <!-- Register Modal -->
+    <div id="registerModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Rate this restroom (1-10 stars)</h2>
-                <span class="close" onclick="closeRatingModal()">&times;</span>
+                <h4 class="modal-title">Join GTGOTG</h4>
+                <button class="modal-close" onclick="closeModal('registerModal')">&times;</button>
             </div>
-            
-            <div class="rating-stars" id="ratingStars">
-                <span class="star" data-rating="1">★</span>
-                <span class="star" data-rating="2">★</span>
-                <span class="star" data-rating="3">★</span>
-                <span class="star" data-rating="4">★</span>
-                <span class="star" data-rating="5">★</span>
-                <span class="star" data-rating="6">★</span>
-                <span class="star" data-rating="7">★</span>
-                <span class="star" data-rating="8">★</span>
-                <span class="star" data-rating="9">★</span>
-                <span class="star" data-rating="10">★</span>
+            <div class="modal-body">
+                <form id="registerForm" onsubmit="handleRegister(event)">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="registerFirstName">First Name:</label>
+                            <input type="text" id="registerFirstName" name="firstName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="registerLastName">Last Name:</label>
+                            <input type="text" id="registerLastName" name="lastName" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerEmail">Email:</label>
+                        <input type="email" id="registerEmail" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerPassword">Password:</label>
+                        <input type="password" id="registerPassword" name="password" required minlength="6">
+                    </div>
+                    <div class="form-group">
+                        <label for="registerConfirmPassword">Confirm Password:</label>
+                        <input type="password" id="registerConfirmPassword" name="confirmPassword" required minlength="6">
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('registerModal')">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Create Account</button>
+                    </div>
+                </form>
             </div>
-            
-            <div id="ratingDisplay" style="text-align: center; margin: 1rem 0; font-weight: bold;"></div>
+        </div>
+    </div>
 
-            <h3>Which restroom did you use?</h3>
-            <div class="restroom-types">
-                <div class="restroom-type" data-type="mens">
-                    <div class="icon">🚹</div>
-                    <div>Men's</div>
+    <!-- Review Modal -->
+    <div id="reviewModal" class="modal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h4 class="modal-title">Rate & Review</h4>
+                <button class="modal-close" onclick="closeModal('reviewModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="reviewForm" onsubmit="handleReviewSubmission(event)">
+                    <!-- Business Name Display -->
+                    <div style="text-align: center; margin-bottom: 2rem;">
+                        <h5 id="businessNameDisplay" style="color: #8B5CF6; font-size: 1.3rem;">Rate This Business</h5>
+                    </div>
+
+                    <!-- Bathroom Type Selection -->
+                    <div class="bathroom-section">
+                        <h5>Which bathroom did you use?</h5>
+                        <div class="bathroom-symbols">
+                            <button type="button" class="bathroom-symbol-btn" data-type="mens">
+                                <div class="symbol-icon">🚹</div>
+                                <div class="symbol-label">Men's</div>
+                            </button>
+                            <button type="button" class="bathroom-symbol-btn" data-type="womens">
+                                <div class="symbol-icon">🚺</div>
+                                <div class="symbol-label">Women's</div>
+                            </button>
+                            <button type="button" class="bathroom-symbol-btn" data-type="neutral">
+                                <div class="symbol-icon">🚻</div>
+                                <div class="symbol-label">Neutral</div>
+                            </button>
+                        </div>
+                        
+                        <div class="accessibility-option">
+                            <button type="button" class="wheelchair-btn" data-accessible="false">
+                                <div class="wheelchair-icon">♿</div>
+                                <div class="wheelchair-label">Wheelchair Accessible</div>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Photo Upload Section -->
+                    <div class="photo-section">
+                        <h5>Add Photos (Optional)</h5>
+                        <div class="photo-note">
+                            Help others by sharing photos of the restroom facilities. Please be respectful and only share appropriate images.
+                        </div>
+                        
+                        <div class="photo-upload-area">
+                            <div class="upload-dropzone">
+                                <div class="upload-icon">📷</div>
+                                <div class="upload-text">
+                                    <strong>Click to upload</strong> or drag and drop photos here
+                                </div>
+                                <div class="upload-hint">
+                                    Maximum 3 photos, 5MB each (JPG, PNG, WebP)
+                                </div>
+                            </div>
+                            <input type="file" id="photoUpload" accept="image/*" multiple style="display: none;">
+                        </div>
+                        
+                        <div id="photoPreview" class="photo-preview-container" style="display: none;">
+                            <h6>Selected Photos:</h6>
+                            <div id="photoPreviewList" class="photo-preview-list"></div>
+                        </div>
+                    </div>
+
+                    <!-- Rating Section -->
+                    <div class="rating-section">
+                        <h5>Rate Your Experience</h5>
+                        
+                        <div class="rating-group">
+                            <span class="rating-label">Overall:</span>
+                            <div class="star-rating" data-rating="overall">
+                                <span class="star" data-value="1">★</span>
+                                <span class="star" data-value="2">★</span>
+                                <span class="star" data-value="3">★</span>
+                                <span class="star" data-value="4">★</span>
+                                <span class="star" data-value="5">★</span>
+                                <span class="star" data-value="6">★</span>
+                                <span class="star" data-value="7">★</span>
+                                <span class="star" data-value="8">★</span>
+                                <span class="star" data-value="9">★</span>
+                                <span class="star" data-value="10">★</span>
+                            </div>
+                            <span class="rating-display" id="overallRatingDisplay">0/10</span>
+                        </div>
+                        
+                        <div class="rating-group">
+                            <span class="rating-label">Cleanliness:</span>
+                            <div class="star-rating" data-rating="cleanliness">
+                                <span class="star" data-value="1">★</span>
+                                <span class="star" data-value="2">★</span>
+                                <span class="star" data-value="3">★</span>
+                                <span class="star" data-value="4">★</span>
+                                <span class="star" data-value="5">★</span>
+                                <span class="star" data-value="6">★</span>
+                                <span class="star" data-value="7">★</span>
+                                <span class="star" data-value="8">★</span>
+                                <span class="star" data-value="9">★</span>
+                                <span class="star" data-value="10">★</span>
+                            </div>
+                            <span class="rating-display" id="cleanlinessRatingDisplay">0/10</span>
+                        </div>
+                        
+                        <div class="rating-group">
+                            <span class="rating-label">Safety:</span>
+                            <div class="star-rating" data-rating="safety">
+                                <span class="star" data-value="1">★</span>
+                                <span class="star" data-value="2">★</span>
+                                <span class="star" data-value="3">★</span>
+                                <span class="star" data-value="4">★</span>
+                                <span class="star" data-value="5">★</span>
+                                <span class="star" data-value="6">★</span>
+                                <span class="star" data-value="7">★</span>
+                                <span class="star" data-value="8">★</span>
+                                <span class="star" data-value="9">★</span>
+                                <span class="star" data-value="10">★</span>
+                            </div>
+                            <span class="rating-display" id="safetyRatingDisplay">0/10</span>
+                        </div>
+                        
+                        <div class="rating-group">
+                            <span class="rating-label">Accessibility:</span>
+                            <div class="star-rating" data-rating="accessibility">
+                                <span class="star" data-value="1">★</span>
+                                <span class="star" data-value="2">★</span>
+                                <span class="star" data-value="3">★</span>
+                                <span class="star" data-value="4">★</span>
+                                <span class="star" data-value="5">★</span>
+                                <span class="star" data-value="6">★</span>
+                                <span class="star" data-value="7">★</span>
+                                <span class="star" data-value="8">★</span>
+                                <span class="star" data-value="9">★</span>
+                                <span class="star" data-value="10">★</span>
+                            </div>
+                            <span class="rating-display" id="accessibilityRatingDisplay">0/10</span>
+                        </div>
+                    </div>
+
+                    <!-- Amenities Section -->
+                    <div class="amenities-section">
+                        <h5>Available Amenities</h5>
+                        <div class="amenities-grid">
+                            <div class="amenity-item">
+                                <input type="checkbox" id="toiletPaper" name="amenities" value="toilet-paper">
+                                <label for="toiletPaper" class="amenity-label">Toilet Paper</label>
+                            </div>
+                            <div class="amenity-item">
+                                <input type="checkbox" id="soap" name="amenities" value="soap">
+                                <label for="soap" class="amenity-label">Soap</label>
+                            </div>
+                            <div class="amenity-item">
+                                <input type="checkbox" id="paperTowels" name="amenities" value="paper-towels">
+                                <label for="paperTowels" class="amenity-label">Paper Towels</label>
+                            </div>
+                            <div class="amenity-item">
+                                <input type="checkbox" id="handDryer" name="amenities" value="hand-dryer">
+                                <label for="handDryer" class="amenity-label">Hand Dryer</label>
+                            </div>
+                            <div class="amenity-item">
+                                <input type="checkbox" id="babyChanging" name="amenities" value="baby-changing">
+                                <label for="babyChanging" class="amenity-label">Baby Changing Table</label>
+                            </div>
+                            <div class="amenity-item">
+                                <input type="checkbox" id="adaCompliant" name="amenities" value="ada-compliant">
+                                <label for="adaCompliant" class="amenity-label">ADA Compliant</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Comment Section -->
+                    <div class="comment-section">
+                        <h5>Additional Comments</h5>
+                        <div class="comment-note">
+                            Share any additional details that might help other users.
+                        </div>
+                        <textarea id="reviewComment" name="comment" placeholder="Tell others about your experience..."></textarea>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('reviewModal')">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Submit Review</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Modal -->
+    <div id="adminModal" class="modal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h4 class="modal-title">Admin Dashboard</h4>
+                <button class="modal-close" onclick="closeModal('adminModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="admin-tabs">
+                    <button class="admin-tab-btn active" onclick="showAdminTab('analytics')">Analytics</button>
+                    <button class="admin-tab-btn" onclick="showAdminTab('businesses')">Businesses</button>
+                    <button class="admin-tab-btn" onclick="showAdminTab('reviews')">Reviews</button>
+                    <button class="admin-tab-btn" onclick="showAdminTab('users')">Users</button>
                 </div>
-                <div class="restroom-type" data-type="womens">
-                    <div class="icon">🚺</div>
-                    <div>Women's</div>
+                
+                <div id="analyticsTab" class="admin-tab-content active">
+                    <div class="analytics-grid">
+                        <div class="analytics-card">
+                            <h6>Total Businesses</h6>
+                            <div class="analytics-number" id="totalBusinesses">0</div>
+                        </div>
+                        <div class="analytics-card">
+                            <h6>Total Reviews</h6>
+                            <div class="analytics-number" id="totalReviews">0</div>
+                        </div>
+                        <div class="analytics-card">
+                            <h6>Total Users</h6>
+                            <div class="analytics-number" id="totalUsers">0</div>
+                        </div>
+                        <div class="analytics-card">
+                            <h6>Average Rating</h6>
+                            <div class="analytics-number" id="averageRating">0.0</div>
+                        </div>
+                    </div>
                 </div>
-                <div class="restroom-type" data-type="unisex">
-                    <div class="icon">🚻</div>
-                    <div>Unisex/Family</div>
+                
+                <div id="businessesTab" class="admin-tab-content">
+                    <div class="admin-list" id="adminBusinessList">
+                        <!-- Business management will be populated here -->
+                    </div>
                 </div>
-                <div class="restroom-type" data-type="accessible">
-                    <div class="icon">♿</div>
-                    <div>ADA Accessible</div>
+                
+                <div id="reviewsTab" class="admin-tab-content">
+                    <div class="admin-list" id="adminReviewList">
+                        <!-- Review management will be populated here -->
+                    </div>
+                </div>
+                
+                <div id="usersTab" class="admin-tab-content">
+                    <div class="admin-list" id="adminUserList">
+                        <!-- User management will be populated here -->
+                    </div>
                 </div>
             </div>
-
-            <h3>Restroom amenities available:</h3>
-            <div class="amenities-grid">
-                <div class="amenity-item" data-amenity="toilet_paper">
-                    <span class="emoji">🧻</span>
-                    <span>Toilet Paper</span>
-                </div>
-                <div class="amenity-item" data-amenity="soap">
-                    <span class="emoji">🧼</span>
-                    <span>Soap Available</span>
-                </div>
-                <div class="amenity-item" data-amenity="paper_towels">
-                    <span class="emoji">🗞️</span>
-                    <span>Paper Towels</span>
-                </div>
-                <div class="amenity-item" data-amenity="hand_dryer">
-                    <span class="emoji">💨</span>
-                    <span>Hand Dryer</span>
-                </div>
-                <div class="amenity-item" data-amenity="clean_tidy">
-                    <span class="emoji">✨</span>
-                    <span>Clean & Tidy</span>
-                </div>
-                <div class="amenity-item" data-amenity="running_water">
-                    <span class="emoji">🚰</span>
-                    <span>Running Water</span>
-                </div>
-                <div class="amenity-item" data-amenity="trash_emptied">
-                    <span class="emoji">🗑️</span>
-                    <span>Trash Emptied</span>
-                </div>
-                <div class="amenity-item" data-amenity="well_lit">
-                    <span class="emoji">💡</span>
-                    <span>Well Lit</span>
-                </div>
-                <div class="amenity-item" data-amenity="baby_changing">
-                    <span class="emoji">👶</span>
-                    <span>Baby Changing Station</span>
-                </div>
-            </div>
-
-            <div style="background: #fff3cd; padding: 1rem; border-radius: 8px; margin: 1rem 0; border: 1px solid #ffeaa7;">
-                <strong>Add a review (optional)</strong><br>
-                <small style="color: #856404;">Login required to write reviews and upload photos</small>
-            </div>
-
-            <button class="btn submit-rating" onclick="submitRating()">Submit Rating</button>
         </div>
     </div>
 
     <!-- Footer -->
     <footer class="footer">
-        <div class="footer-content">
-            <div class="footer-section">
-                <h3>For Business Owners</h3>
-                <a href="#" onclick="showBusinessClaim()">Claim Your Listing</a>
-                <a href="#" onclick="showBusinessVerification()">Verify Ownership</a>
-                <a href="#" onclick="showBusinessDashboard()">Business Dashboard</a>
-                <a href="#" onclick="showOwnerResources()">Owner Resources</a>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>GTGOTG</h4>
+                    <p>Making restroom access universal for everyone, everywhere.</p>
+                    <p>Find clean, safe, and accessible restrooms with community-driven reviews.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Features</h4>
+                    <ul>
+                        <li>Universal Restroom Finder</li>
+                        <li>Community Reviews & Ratings</li>
+                        <li>Accessibility Information</li>
+                        <li>Real-time Availability</li>
+                        <li>Mobile-Friendly Design</li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Community</h4>
+                    <ul>
+                        <li>Rate & Review Restrooms</li>
+                        <li>Help Others Find Facilities</li>
+                        <li>Earn Community Badges</li>
+                        <li>Share Your Experiences</li>
+                        <li>Build a Better Community</li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Support</h4>
+                    <ul>
+                        <li>Help Center</li>
+                        <li>Contact Support</li>
+                        <li>Report Issues</li>
+                        <li>Privacy Policy</li>
+                        <li>Terms of Service</li>
+                    </ul>
+                </div>
             </div>
-            <div class="footer-section">
-                <h3>Support</h3>
-                <a href="#" onclick="showHelp()">Help Center</a>
-                <a href="#" onclick="showContact()">Contact Us</a>
-                <a href="#" onclick="showReportIssue()">Report an Issue</a>
-                <a href="#" onclick="showFeedback()">Send Feedback</a>
+            <div class="footer-bottom">
+                <p>&copy; 2025 GTGOTG - Got To Go On The Go. All rights reserved.</p>
+                <p>Every Restroom, Everywhere - Making restroom access universal.</p>
             </div>
-            <div class="footer-section">
-                <h3>Legal</h3>
-                <a href="#" onclick="showPrivacyPolicy()">Privacy Policy</a>
-                <a href="#" onclick="showTermsOfService()">Terms of Service</a>
-                <a href="#" onclick="showCommunityGuidelines()">Community Guidelines</a>
-                <a href="#" onclick="showAccessibility()">Accessibility</a>
-            </div>
-            <div class="footer-section">
-                <h3>About GTGOTG</h3>
-                <a href="#" onclick="showAbout()">Our Mission</a>
-                <a href="#" onclick="showCareers()">Careers</a>
-                <a href="#" onclick="showPress()">Press</a>
-                <a href="#" onclick="showBlog()">Blog</a>
-            </div>
-        </div>
-        <div class="footer-bottom">
-            <p>&copy; 2025 GTGOTG - Got To Go On The Go. All rights reserved.</p>
         </div>
     </footer>
 
-    <!-- Leaflet JS -->
+    <!-- Scripts -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="assets/app.js"></script>
+    <script src="assets/GTGOTG_PHOTO_UPLOAD_JS.js"></script>
     
+    <!-- Service Worker Registration -->
     <script>
-        // Global variables
-        let map;
-        let markers = [];
-        let currentResults = [];
-        let currentRating = 0;
-        let selectedRestroomTypes = [];
-        let selectedAmenities = [];
-        let currentViewMode = 'both';
-
-        // Initialize the application
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('🚽 GTGOTG - Got To Go On The Go - Initializing...');
-            initializeMap();
-            initializeEventListeners();
-            console.log('✅ Application initialized successfully');
-        });
-
-        // Initialize the map
-        function initializeMap() {
-            try {
-                map = L.map('map').setView([39.8283, -98.5795], 4); // Center of USA
-                
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    attribution: '© OpenStreetMap contributors'
-                }).addTo(map);
-                
-                console.log('✅ Map initialized successfully');
-            } catch (error) {
-                console.error('❌ Map initialization failed:', error);
-            }
-        }
-
-        // Initialize event listeners
-        function initializeEventListeners() {
-            // Search input enter key
-            document.getElementById('searchInput').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    performSearch();
-                }
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then((registration) => {
+                        console.log('GTGOTG: Service Worker registered successfully:', registration.scope);
+                    })
+                    .catch((error) => {
+                        console.log('GTGOTG: Service Worker registration failed:', error);
+                    });
             });
-
-            // Rating stars
-            document.querySelectorAll('.star').forEach(star => {
-                star.addEventListener('click', function() {
-                    const rating = parseInt(this.dataset.rating);
-                    setRating(rating);
-                });
-            });
-
-            // Restroom types - Allow multiple selections
-            document.querySelectorAll('.restroom-type').forEach(type => {
-                type.addEventListener('click', function() {
-                    toggleRestroomType(this.dataset.type);
-                });
-            });
-
-            // Amenities
-            document.querySelectorAll('.amenity-item').forEach(item => {
-                item.addEventListener('click', function() {
-                    toggleAmenity(this.dataset.amenity);
-                });
-            });
-        }
-
-        // Perform search with comprehensive business data
-        async function performSearch() {
-            const searchTerm = document.getElementById('searchInput').value.trim();
-            const category = document.getElementById('categoryFilter').value;
-            const limit = parseInt(document.getElementById('resultsLimit').value);
-
-            if (!searchTerm) {
-                alert('Please enter a search term');
-                return;
-            }
-
-            console.log(`🔍 Searching for: "${searchTerm}", Category: "${category}", Limit: ${limit}`);
-            
-            showLoading();
-            
-            try {
-                // Get comprehensive business results
-                const businesses = await getComprehensiveBusinessResults(searchTerm, category, limit);
-                displayResults(businesses);
-            } catch (error) {
-                console.error('❌ Search failed:', error);
-                showError('Search failed. Please try again.');
-            }
-        }
-
-        // Get comprehensive business results
-        async function getComprehensiveBusinessResults(searchTerm, category, limit) {
-            console.log(`📊 Getting comprehensive results for: ${searchTerm}`);
-            
-            // For demonstration, return comprehensive sample data
-            // In production, this would connect to real APIs
-            return getComprehensiveSampleData(searchTerm, category, limit);
-        }
-
-        // Get comprehensive sample data
-        function getComprehensiveSampleData(searchTerm, category, limit) {
-            const term = searchTerm.toLowerCase();
-            let businesses = [];
-
-            // Generate businesses based on search term
-            if (term.includes('denver') || term.includes('colorado') || term.includes('80')) {
-                businesses = getDenverBusinesses();
-            } else if (term.includes('mcdonald')) {
-                businesses = getMcDonaldsLocations();
-            } else if (term.includes('starbucks')) {
-                businesses = getStarbucksLocations();
-            } else if (term.includes('rest area') || category === 'rest_area') {
-                businesses = getRestAreas();
-            } else if (term.includes('truck stop') || category === 'truck_stop') {
-                businesses = getTruckStops();
-            } else {
-                businesses = getNationalBusinesses(searchTerm);
-            }
-
-            // Filter by category if specified
-            if (category && category !== '') {
-                businesses = businesses.filter(b => b.categoryType === category);
-            }
-
-            // Limit results
-            return businesses.slice(0, limit);
-        }
-
-        // Get Denver area businesses
-        function getDenverBusinesses() {
-            return [
-                {
-                    id: 1,
-                    name: "McDonald's",
-                    category: "Fast Food",
-                    categoryType: "fast_food",
-                    address: "1660 Wynkoop Street, Denver, CO 80202",
-                    lat: 39.7539,
-                    lon: -105.0178,
-                    rating: 7.3,
-                    reviewCount: 158,
-                    qualityBadges: [{ type: 'clean', text: 'CLEAN' }]
-                },
-                {
-                    id: 2,
-                    name: "Starbucks",
-                    category: "Coffee Shop",
-                    categoryType: "cafe",
-                    address: "1730 Wynkoop Street, Denver, CO 80202",
-                    lat: 39.7549,
-                    lon: -105.0188,
-                    rating: 9.4,
-                    reviewCount: 139,
-                    qualityBadges: [{ type: 'clean', text: 'SPOTLESS' }, { type: 'accessible', text: 'ACCESSIBLE' }]
-                },
-                {
-                    id: 3,
-                    name: "Shell Gas Station",
-                    category: "Gas Station",
-                    categoryType: "fuel",
-                    address: "1800 Wynkoop Street, Denver, CO 80202",
-                    lat: 39.7559,
-                    lon: -105.0198,
-                    rating: 8.1,
-                    reviewCount: 119,
-                    qualityBadges: [{ type: 'clean', text: 'CLEAN' }]
-                },
-                {
-                    id: 4,
-                    name: "Walmart Supercenter",
-                    category: "Supermarket",
-                    categoryType: "supermarket",
-                    address: "8000 E Quincy Ave, Denver, CO 80237",
-                    lat: 39.6205,
-                    lon: -104.8978,
-                    rating: 8.6,
-                    reviewCount: 206,
-                    qualityBadges: [{ type: 'clean', text: 'CLEAN' }, { type: 'accessible', text: 'ACCESSIBLE' }]
-                },
-                {
-                    id: 5,
-                    name: "Target",
-                    category: "Shopping",
-                    categoryType: "shopping_mall",
-                    address: "7800 E Quincy Ave, Denver, CO 80237",
-                    lat: 39.6215,
-                    lon: -104.8988,
-                    rating: 7.2,
-                    reviewCount: 176,
-                    qualityBadges: [{ type: 'clean', text: 'CLEAN' }]
-                }
-            ];
-        }
-
-        // Get McDonald's locations nationwide
-        function getMcDonaldsLocations() {
-            return [
-                {
-                    id: 101,
-                    name: "McDonald's",
-                    category: "Fast Food",
-                    categoryType: "fast_food",
-                    address: "1660 Wynkoop Street, Denver, CO 80202",
-                    lat: 39.7539,
-                    lon: -105.0178,
-                    rating: 7.3,
-                    reviewCount: 158,
-                    qualityBadges: [{ type: 'clean', text: 'CLEAN' }]
-                },
-                {
-                    id: 102,
-                    name: "McDonald's",
-                    category: "Fast Food",
-                    categoryType: "fast_food",
-                    address: "1234 Broadway, New York, NY 10001",
-                    lat: 40.7505,
-                    lon: -73.9934,
-                    rating: 6.8,
-                    reviewCount: 245,
-                    qualityBadges: [{ type: 'clean', text: 'NEEDS ATTENTION' }]
-                },
-                {
-                    id: 103,
-                    name: "McDonald's",
-                    category: "Fast Food",
-                    categoryType: "fast_food",
-                    address: "9876 Rodeo Drive, Beverly Hills, CA 90210",
-                    lat: 34.0696,
-                    lon: -118.4006,
-                    rating: 8.9,
-                    reviewCount: 89,
-                    qualityBadges: [{ type: 'clean', text: 'SPOTLESS' }, { type: 'accessible', text: 'ACCESSIBLE' }]
-                }
-            ];
-        }
-
-        // Get Starbucks locations nationwide
-        function getStarbucksLocations() {
-            return [
-                {
-                    id: 201,
-                    name: "Starbucks",
-                    category: "Coffee Shop",
-                    categoryType: "cafe",
-                    address: "1730 Wynkoop Street, Denver, CO 80202",
-                    lat: 39.7549,
-                    lon: -105.0188,
-                    rating: 9.4,
-                    reviewCount: 139,
-                    qualityBadges: [{ type: 'clean', text: 'SPOTLESS' }, { type: 'accessible', text: 'ACCESSIBLE' }]
-                },
-                {
-                    id: 202,
-                    name: "Starbucks",
-                    category: "Coffee Shop",
-                    categoryType: "cafe",
-                    address: "456 5th Avenue, New York, NY 10018",
-                    lat: 40.7549,
-                    lon: -73.9840,
-                    rating: 8.7,
-                    reviewCount: 312,
-                    qualityBadges: [{ type: 'clean', text: 'CLEAN' }]
-                }
-            ];
-        }
-
-        // Get Rest Areas (highway rest stops)
-        function getRestAreas() {
-            return [
-                {
-                    id: 301,
-                    name: "I-70 Eastbound Rest Area",
-                    category: "Rest Area",
-                    categoryType: "rest_area",
-                    address: "I-70 Mile Marker 254, Colorado",
-                    lat: 39.7392,
-                    lon: -104.9903,
-                    rating: 8.2,
-                    reviewCount: 67,
-                    qualityBadges: [{ type: 'clean', text: 'CLEAN' }, { type: 'accessible', text: 'ACCESSIBLE' }]
-                },
-                {
-                    id: 302,
-                    name: "I-25 Northbound Rest Area",
-                    category: "Rest Area",
-                    categoryType: "rest_area",
-                    address: "I-25 Mile Marker 184, Colorado",
-                    lat: 39.5392,
-                    lon: -104.8903,
-                    rating: 7.8,
-                    reviewCount: 45,
-                    qualityBadges: [{ type: 'clean', text: 'CLEAN' }]
-                },
-                {
-                    id: 303,
-                    name: "I-80 Westbound Rest Area",
-                    category: "Rest Area",
-                    categoryType: "rest_area",
-                    address: "I-80 Mile Marker 126, Nebraska",
-                    lat: 41.2392,
-                    lon: -96.0903,
-                    rating: 9.1,
-                    reviewCount: 89,
-                    qualityBadges: [{ type: 'clean', text: 'SPOTLESS' }, { type: 'accessible', text: 'ACCESSIBLE' }]
-                }
-            ];
-        }
-
-        // Get Truck Stops
-        function getTruckStops() {
-            return [
-                {
-                    id: 401,
-                    name: "Flying J Travel Center",
-                    category: "Truck Stop",
-                    categoryType: "truck_stop",
-                    address: "12345 Highway 6, Denver, CO 80401",
-                    lat: 39.8392,
-                    lon: -105.1903,
-                    rating: 8.9,
-                    reviewCount: 234,
-                    qualityBadges: [{ type: 'clean', text: 'SPOTLESS' }, { type: 'accessible', text: 'ACCESSIBLE' }]
-                },
-                {
-                    id: 402,
-                    name: "Pilot Travel Center",
-                    category: "Truck Stop",
-                    categoryType: "truck_stop",
-                    address: "67890 Interstate 76, Colorado",
-                    lat: 40.1392,
-                    lon: -104.7903,
-                    rating: 8.4,
-                    reviewCount: 189,
-                    qualityBadges: [{ type: 'clean', text: 'CLEAN' }, { type: 'accessible', text: 'ACCESSIBLE' }]
-                }
-            ];
-        }
-
-        // Get national businesses for general searches
-        function getNationalBusinesses(searchTerm) {
-            return [
-                {
-                    id: 501,
-                    name: "Walmart Supercenter",
-                    category: "Supermarket",
-                    categoryType: "supermarket",
-                    address: "8000 E Quincy Ave, Denver, CO 80237",
-                    lat: 39.6205,
-                    lon: -104.8978,
-                    rating: 8.6,
-                    reviewCount: 206,
-                    qualityBadges: [{ type: 'clean', text: 'CLEAN' }, { type: 'accessible', text: 'ACCESSIBLE' }]
-                },
-                {
-                    id: 502,
-                    name: "Target",
-                    category: "Shopping",
-                    categoryType: "shopping_mall",
-                    address: "7800 E Quincy Ave, Denver, CO 80237",
-                    lat: 39.6215,
-                    lon: -104.8988,
-                    rating: 7.2,
-                    reviewCount: 176,
-                    qualityBadges: [{ type: 'clean', text: 'CLEAN' }]
-                },
-                {
-                    id: 503,
-                    name: "Home Depot",
-                    category: "Home Improvement",
-                    categoryType: "shopping_mall",
-                    address: "7900 E Quincy Ave, Denver, CO 80237",
-                    lat: 39.6225,
-                    lon: -104.8998,
-                    rating: 7.8,
-                    reviewCount: 134,
-                    qualityBadges: [{ type: 'clean', text: 'CLEAN' }]
-                }
-            ];
-        }
-
-        // Display results
-        function displayResults(businesses) {
-            currentResults = businesses;
-            
-            if (businesses.length === 0) {
-                showNoResults();
-                return;
-            }
-
-            // Update map
-            updateMap(businesses);
-            
-            // Update results list
-            updateResultsList(businesses);
-            
-            console.log(`✅ Displayed ${businesses.length} businesses`);
-        }
-
-        // Update map with business markers
-        function updateMap(businesses) {
-            // Clear existing markers
-            markers.forEach(marker => map.removeLayer(marker));
-            markers = [];
-
-            if (businesses.length === 0) return;
-
-            // Add new markers
-            businesses.forEach(business => {
-                const marker = L.marker([business.lat, business.lon])
-                    .bindPopup(`
-                        <div style="min-width: 200px;">
-                            <h3>${business.name}</h3>
-                            <p><strong>${business.category}</strong></p>
-                            <p>${business.address}</p>
-                            <div style="margin: 10px 0;">
-                                <span style="color: #ffc107;">★★★★★</span>
-                                <span>${business.rating}/10 (${business.reviewCount} reviews)</span>
-                            </div>
-                            <div style="display: flex; gap: 5px; margin: 10px 0;">
-                                <button onclick="openRatingModal(${business.id})" style="background: #4CAF50; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">Rate Restroom</button>
-                                <button onclick="getDirections(${business.lat}, ${business.lon})" style="background: #2196F3; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">Directions</button>
-                            </div>
-                        </div>
-                    `);
-                
-                marker.addTo(map);
-                markers.push(marker);
-            });
-
-            // Fit map to show all markers
-            if (markers.length > 0) {
-                const group = new L.featureGroup(markers);
-                map.fitBounds(group.getBounds().pad(0.1));
-            }
-        }
-
-        // Update results list
-        function updateResultsList(businesses) {
-            const resultsList = document.getElementById('resultsList');
-            
-            const resultsHeader = `
-                <div class="results-header">
-                    <div class="results-count">Showing 1-${businesses.length} of ${businesses.length} businesses found</div>
-                    ${businesses.length >= 25 ? '<button class="load-more-btn" onclick="loadMoreResults()">Load 25 More Results</button>' : ''}
-                </div>
-            `;
-
-            const businessCards = businesses.map(business => `
-                <div class="business-card">
-                    <div class="business-header">
-                        <div class="business-info">
-                            <h3>${business.name}</h3>
-                            <div class="business-category">${business.category}</div>
-                        </div>
-                    </div>
-                    
-                    <div class="business-address">${business.address}</div>
-                    
-                    <div class="rating-section">
-                        <div class="stars">★★★★★</div>
-                        <div class="rating-text">${business.rating}/10 (${business.reviewCount} reviews)</div>
-                    </div>
-                    
-                    <div class="quality-badges">
-                        ${business.qualityBadges.map(badge => 
-                            `<span class="badge badge-${badge.type}">${badge.text}</span>`
-                        ).join('')}
-                    </div>
-                    
-                    <div class="business-actions">
-                        <button class="btn btn-rate" onclick="openRatingModal(${business.id})">Rate Restroom</button>
-                        <button class="btn btn-directions" onclick="getDirections(${business.lat}, ${business.lon})">Directions</button>
-                        <button class="btn btn-claim" onclick="claimBusiness(${business.id})">Claim Listing</button>
-                    </div>
-                </div>
-            `).join('');
-
-            resultsList.innerHTML = resultsHeader + businessCards;
-        }
-
-        // Show loading state
-        function showLoading() {
-            document.getElementById('resultsList').innerHTML = `
-                <div class="loading">
-                    <h3>🔍 Searching...</h3>
-                    <p>Finding businesses with restrooms in your area...</p>
-                </div>
-            `;
-        }
-
-        // Show no results
-        function showNoResults() {
-            document.getElementById('resultsList').innerHTML = `
-                <div class="no-results">
-                    <h3>No businesses found</h3>
-                    <p>Try a different search term or category filter.</p>
-                    <p><strong>Try searching:</strong> "McDonald's", "Starbucks", "Denver Colorado", "Rest Area", "Truck Stop"</p>
-                </div>
-            `;
-        }
-
-        // Show error
-        function showError(message) {
-            document.getElementById('resultsList').innerHTML = `
-                <div class="no-results">
-                    <h3>Search Error</h3>
-                    <p>${message}</p>
-                    <p>Please try again with a different search term.</p>
-                </div>
-            `;
-        }
-
-        // Enable location
-        function enableLocation() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    function(position) {
-                        const lat = position.coords.latitude;
-                        const lon = position.coords.longitude;
-                        
-                        // Update search input
-                        document.getElementById('searchInput').value = `${lat.toFixed(4)}, ${lon.toFixed(4)}`;
-                        
-                        // Perform search
-                        performSearch();
-                    },
-                    function(error) {
-                        alert('Unable to get your location. Please enter a location manually.');
-                    }
-                );
-            } else {
-                alert('Geolocation is not supported by this browser.');
-            }
-        }
-
-        // Set view mode
-        function setViewMode(mode) {
-            currentViewMode = mode;
-            
-            // Update button states
-            document.querySelectorAll('.btn-view').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
-            
-            const mapContainer = document.getElementById('mapContainer');
-            const resultsList = document.getElementById('resultsList');
-            
-            switch(mode) {
-                case 'both':
-                    mapContainer.style.display = 'block';
-                    resultsList.style.display = 'block';
-                    break;
-                case 'map':
-                    mapContainer.style.display = 'block';
-                    resultsList.style.display = 'none';
-                    break;
-                case 'list':
-                    mapContainer.style.display = 'none';
-                    resultsList.style.display = 'block';
-                    break;
-            }
-            
-            // Resize map if visible
-            if (mode !== 'list') {
-                setTimeout(() => map.invalidateSize(), 100);
-            }
-        }
-
-        // Open rating modal
-        function openRatingModal(businessId) {
-            const business = currentResults.find(b => b.id === businessId);
-            if (!business) return;
-            
-            // Reset modal state
-            currentRating = 0;
-            selectedRestroomTypes = [];
-            selectedAmenities = [];
-            
-            // Update modal title
-            document.querySelector('#ratingModal .modal-header h2').textContent = `Rate ${business.name} restroom (1-10 stars)`;
-            
-            // Reset stars
-            document.querySelectorAll('.star').forEach(star => star.classList.remove('active'));
-            document.getElementById('ratingDisplay').textContent = '';
-            
-            // Reset restroom types
-            document.querySelectorAll('.restroom-type').forEach(type => type.classList.remove('selected'));
-            
-            // Reset amenities
-            document.querySelectorAll('.amenity-item').forEach(item => item.classList.remove('checked'));
-            
-            // Show modal
-            document.getElementById('ratingModal').style.display = 'block';
-        }
-
-        // Close rating modal
-        function closeRatingModal() {
-            document.getElementById('ratingModal').style.display = 'none';
-        }
-
-        // Set rating
-        function setRating(rating) {
-            currentRating = rating;
-            
-            // Update stars display - only show selected rating
-            document.querySelectorAll('.star').forEach((star, index) => {
-                if (index < rating) {
-                    star.classList.add('active');
-                } else {
-                    star.classList.remove('active');
-                }
-            });
-            
-            // Update rating display
-            document.getElementById('ratingDisplay').textContent = `${rating}/10 stars`;
-        }
-
-        // Toggle restroom type (allow multiple selections for gender + accessibility)
-        function toggleRestroomType(type) {
-            const element = document.querySelector(`[data-type="${type}"]`);
-            
-            if (selectedRestroomTypes.includes(type)) {
-                selectedRestroomTypes = selectedRestroomTypes.filter(t => t !== type);
-                element.classList.remove('selected');
-            } else {
-                selectedRestroomTypes.push(type);
-                element.classList.add('selected');
-            }
-        }
-
-        // Toggle amenity
-        function toggleAmenity(amenity) {
-            const element = document.querySelector(`[data-amenity="${amenity}"]`);
-            
-            if (selectedAmenities.includes(amenity)) {
-                selectedAmenities = selectedAmenities.filter(a => a !== amenity);
-                element.classList.remove('checked');
-            } else {
-                selectedAmenities.push(amenity);
-                element.classList.add('checked');
-            }
-        }
-
-        // Submit rating
-        function submitRating() {
-            if (currentRating === 0) {
-                alert('Please select a rating (1-10 stars)');
-                return;
-            }
-            
-            if (selectedRestroomTypes.length === 0) {
-                alert('Please select which restroom type you used');
-                return;
-            }
-            
-            // Simulate rating submission
-            console.log('Rating submitted:', {
-                rating: currentRating,
-                restroomTypes: selectedRestroomTypes,
-                amenities: selectedAmenities
-            });
-            
-            alert('Thank you for your rating! Your feedback helps other travelers find clean, safe restrooms.');
-            closeRatingModal();
-        }
-
-        // Get directions
-        function getDirections(lat, lon) {
-            const url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}`;
-            window.open(url, '_blank');
-        }
-
-        // Claim business
-        function claimBusiness(businessId) {
-            alert('Business claim feature coming soon! Contact support for assistance.');
-        }
-
-        // Load more results
-        function loadMoreResults() {
-            alert('Load more functionality coming soon!');
-        }
-
-        // Placeholder functions for footer links
-        function showLogin() { alert('Login feature coming soon!'); }
-        function showSignup() { alert('Sign up feature coming soon!'); }
-        function showBusinessClaim() { alert('Business claim feature coming soon!'); }
-        function showBusinessVerification() { alert('Business verification feature coming soon!'); }
-        function showBusinessDashboard() { alert('Business dashboard feature coming soon!'); }
-        function showOwnerResources() { alert('Owner resources feature coming soon!'); }
-        function showHelp() { alert('Help center feature coming soon!'); }
-        function showContact() { alert('Contact feature coming soon!'); }
-        function showReportIssue() { alert('Report issue feature coming soon!'); }
-        function showFeedback() { alert('Feedback feature coming soon!'); }
-        function showPrivacyPolicy() { alert('Privacy policy feature coming soon!'); }
-        function showTermsOfService() { alert('Terms of service feature coming soon!'); }
-        function showCommunityGuidelines() { alert('Community guidelines feature coming soon!'); }
-        function showAccessibility() { alert('Accessibility feature coming soon!'); }
-        function showAbout() { alert('About feature coming soon!'); }
-        function showCareers() { alert('Careers feature coming soon!'); }
-        function showPress() { alert('Press feature coming soon!'); }
-        function showBlog() { alert('Blog feature coming soon!'); }
-
-        // Close modal when clicking outside
-        window.onclick = function(event) {
-            const modal = document.getElementById('ratingModal');
-            if (event.target === modal) {
-                closeRatingModal();
-            }
         }
     </script>
 </body>
 </html>
-
