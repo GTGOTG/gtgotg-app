@@ -176,6 +176,132 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeMap();
     initializeSearch();
     initializeFilters();
+    loadNearbyBusinesses();
+}
+
+// Setup search input functionality
+function setupSearchInput() {
+    const searchInput = document.getElementById('searchInput');
+    const searchSuggestions = document.getElementById('searchSuggestions');
+    
+    if (!searchInput) return;
+    
+    let searchTimeout;
+    
+    searchInput.addEventListener('input', (e) => {
+        const query = e.target.value.trim();
+        
+        // Clear previous timeout
+        clearTimeout(searchTimeout);
+        
+        if (query.length < 2) {
+            hideSuggestions();
+            return;
+        }
+        
+        // Debounce search
+        searchTimeout = setTimeout(() => {
+            showSearchSuggestions(query);
+        }, 300);
+    });
+    
+    // Hide suggestions when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!searchInput.contains(e.target) && !searchSuggestions.contains(e.target)) {
+            hideSuggestions();
+        }
+    });
+    
+    // Handle enter key
+    searchInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            performSearch();
+        }
+    });
+}
+
+// Show search suggestions
+function showSearchSuggestions(query) {
+    const suggestions = generateSearchSuggestions(query);
+    const suggestionsContainer = document.getElementById('searchSuggestions');
+    
+    if (!suggestionsContainer || suggestions.length === 0) {
+        hideSuggestions();
+        return;
+    }
+    
+    suggestionsContainer.innerHTML = suggestions.map(suggestion => `
+        <div class="search-suggestion" onclick="selectSuggestion('${suggestion.value}')">
+            <div class="suggestion-main">${suggestion.main}</div>
+            <div class="suggestion-subtitle">${suggestion.subtitle}</div>
+        </div>
+    `).join('');
+    
+    suggestionsContainer.style.display = 'block';
+}
+
+// Generate search suggestions
+function generateSearchSuggestions(query) {
+    const suggestions = [];
+    const lowerQuery = query.toLowerCase();
+    
+    // Business name suggestions
+    const businessNames = ['McDonald\'s', 'Starbucks', 'Shell', 'Walmart', 'Target', 'Subway', 'Dunkin\'', 'CVS'];
+    businessNames.forEach(name => {
+        if (name.toLowerCase().includes(lowerQuery)) {
+            suggestions.push({
+                main: name,
+                subtitle: 'Find locations nationwide',
+                value: name
+            });
+        }
+    });
+    
+    // ZIP code suggestions
+    if (/^\d{1,5}$/.test(query)) {
+        suggestions.push({
+            main: `ZIP Code ${query}`,
+            subtitle: 'Search businesses in this area',
+            value: query
+        });
+    }
+    
+    // City suggestions
+    const cities = ['New York, NY', 'Los Angeles, CA', 'Chicago, IL', 'Houston, TX', 'Phoenix, AZ'];
+    cities.forEach(city => {
+        if (city.toLowerCase().includes(lowerQuery)) {
+            suggestions.push({
+                main: city,
+                subtitle: 'Search businesses in this city',
+                value: city
+            });
+        }
+    });
+    
+    return suggestions.slice(0, 5); // Limit to 5 suggestions
+}
+
+// Select a suggestion
+function selectSuggestion(value) {
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+        searchInput.value = value;
+        hideSuggestions();
+        performSearch();
+    }
+}
+
+// Hide search suggestions
+function hideSuggestions() {
+    const suggestionsContainer = document.getElementById('searchSuggestions');
+    if (suggestionsContainer) {
+        suggestionsContainer.style.display = 'none';
+    }
+}
+
+// Load nearby businesses
+function loadNearbyBusinesses() {
     checkUserLogin();
     
     // Setup enhanced search
