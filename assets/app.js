@@ -1,6 +1,3 @@
-// GTGOTG - "Got To Go On The Go" Complete Application with Real Business Data via Geoapify
-// Copyright © 2025 Jessica Esposito / Colorado Quality LLC. All rights reserved.
-
 console.log('🚽 GTGOTG - Got To Go On The Go - Loading...');
 
 // Global Variables
