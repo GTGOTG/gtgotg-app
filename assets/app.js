@@ -1319,4 +1319,7 @@ function centerMapOnUser() {
 function toggleMapView() {
     if (map) {
         const currentZoom = map.getZoom();
-        const newZoom = currentZoom > 15
+        const newZoom = currentZoom > 15 ? 10 : 18;
+        map.setZoom(newZoom);
+    }
+}
