@@ -1,7 +1,17 @@
-@@ .. @@
-   "scripts": {
--    "test": "echo \"Error: no test specified\" && exit 1"
-+    "test": "echo \"Error: no test specified\" && exit 1",
-+    "start": "http-server . -p 3000 -c-1",
-+    "dev": "http-server . -p 3000 -c-1 -o"
-   },
+{
+  "name": "gtgotg-app",
+  "version": "1.0.0",
+  "description": "Got To Go On The Go - Restroom Finder App",
+  "main": "index.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "http-server . -p 3000 -c-1",
+    "dev": "http-server . -p 3000 -c-1 -o"
+  },
+  "keywords": ["restroom", "finder", "pwa", "location"],
+  "author": "GTGOTG Team",
+  "license": "MIT",
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  }
+}
