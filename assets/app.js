@@ -299,6 +299,7 @@ function hideSuggestions() {
 
 // Load nearby businesses
 function loadNearbyBusinesses() {
+    // Check if user is logged in
     checkUserLogin();
     
     // Setup enhanced search
@@ -308,6 +309,28 @@ function loadNearbyBusinesses() {
     loadBusinessesForCurrentView();
     
     console.log('✅ GTGOTG application initialized successfully');
+}
+
+// Check if user is logged in
+function checkUserLogin() {
+    try {
+        const userData = localStorage.getItem('gtgotg_user');
+        if (userData) {
+            currentUser = JSON.parse(userData);
+            console.log('✅ User logged in:', currentUser.email);
+        } else {
+            currentUser = null;
+            console.log('ℹ️ No user logged in');
+        }
+        
+        // Update UI based on login status
+        if (typeof updateUserStatus === 'function') {
+            updateUserStatus();
+        }
+    } catch (error) {
+        console.error('❌ Error checking user login:', error);
+        currentUser = null;
+    }
 }
 
 // Load businesses for current map view
