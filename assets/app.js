@@ -1,4 +1,4 @@
-// GTGOTG - "Got To Go On The Go" Complete Application
+// GTGOTG - "Got To Go On The Go" Complete Application with Real Business Data
 // Copyright © 2025 Jessica Esposito / Colorado Quality LLC. All rights reserved.
 
 console.log('🚽 GTGOTG - Got To Go On The Go - Loading...');
@@ -9,6 +9,7 @@ let userLocation = null;
 let currentUser = null;
 let currentBusinesses = [];
 let currentBusinessForReview = null;
+let businessMarkers = [];
 let activeFilters = {
     category: '',
     distance: '',
@@ -16,179 +17,36 @@ let activeFilters = {
     quickFilters: []
 };
 
-// Sample Business Data with Real Recognizable Businesses
-const sampleBusinesses = [
-    {
-        id: 1,
-        name: "McDonald's",
-        category: "restaurant",
-        address: "123 Main St, Downtown",
-        phone: "(555) 123-4567",
-        coordinates: [40.7128, -74.0060],
-        distance: 0.3,
-        hours: "6:00 AM - 11:00 PM",
-        ratings: {
-            overall: 7.2,
-            cleanliness: 6.8,
-            safety: 7.5,
-            accessibility: 8.2
-        },
-        reviewCount: 124,
-        amenities: ["toilet-paper", "soap", "paper-towels", "hand-dryer", "baby-changing"],
-        bathroomTypes: ["mens", "womens", "accessible"],
-        isOpen: true
-    },
-    {
-        id: 2,
-        name: "Shell Gas Station",
-        category: "gas-station",
-        address: "456 Highway Blvd",
-        phone: "(555) 234-5678",
-        coordinates: [40.7589, -73.9851],
-        distance: 1.2,
-        hours: "24 Hours",
-        ratings: {
-            overall: 6.4,
-            cleanliness: 5.8,
-            safety: 6.9,
-            accessibility: 7.1
-        },
-        reviewCount: 89,
-        amenities: ["toilet-paper", "soap", "hand-dryer", "ada-compliant"],
-        bathroomTypes: ["neutral", "accessible"],
-        isOpen: true
-    },
-    {
-        id: 3,
-        name: "Starbucks Coffee",
-        category: "coffee-shop",
-        address: "789 Oak Avenue",
-        phone: "(555) 345-6789",
-        coordinates: [40.7505, -73.9934],
-        distance: 0.8,
-        hours: "5:00 AM - 10:00 PM",
-        ratings: {
-            overall: 8.7,
-            cleanliness: 9.1,
-            safety: 8.4,
-            accessibility: 8.9
-        },
-        reviewCount: 203,
-        amenities: ["toilet-paper", "soap", "paper-towels", "hand-dryer", "baby-changing", "ada-compliant"],
-        bathroomTypes: ["mens", "womens", "accessible"],
-        isOpen: true
-    },
-    {
-        id: 4,
-        name: "Walmart Supercenter",
-        category: "retail",
-        address: "321 Commerce Drive",
-        phone: "(555) 456-7890",
-        coordinates: [40.7282, -74.0776],
-        distance: 2.1,
-        hours: "6:00 AM - 11:00 PM",
-        ratings: {
-            overall: 7.8,
-            cleanliness: 7.5,
-            safety: 8.1,
-            accessibility: 9.2
-        },
-        reviewCount: 156,
-        amenities: ["toilet-paper", "soap", "paper-towels", "hand-dryer", "baby-changing", "ada-compliant"],
-        bathroomTypes: ["mens", "womens", "accessible"],
-        isOpen: true
-    },
-    {
-        id: 5,
-        name: "Target",
-        category: "retail",
-        address: "654 Shopping Plaza",
-        phone: "(555) 567-8901",
-        coordinates: [40.7614, -73.9776],
-        distance: 1.7,
-        hours: "8:00 AM - 10:00 PM",
-        ratings: {
-            overall: 8.3,
-            cleanliness: 8.7,
-            safety: 8.0,
-            accessibility: 9.1
-        },
-        reviewCount: 178,
-        amenities: ["toilet-paper", "soap", "paper-towels", "hand-dryer", "baby-changing", "ada-compliant"],
-        bathroomTypes: ["mens", "womens", "accessible"],
-        isOpen: true
-    },
-    {
-        id: 6,
-        name: "Subway",
-        category: "restaurant",
-        address: "987 Food Court Way",
-        phone: "(555) 678-9012",
-        coordinates: [40.7505, -74.0014],
-        distance: 0.6,
-        hours: "7:00 AM - 10:00 PM",
-        ratings: {
-            overall: 6.9,
-            cleanliness: 6.5,
-            safety: 7.2,
-            accessibility: 7.8
-        },
-        reviewCount: 67,
-        amenities: ["toilet-paper", "soap", "hand-dryer"],
-        bathroomTypes: ["neutral"],
-        isOpen: true
-    },
-    {
-        id: 7,
-        name: "Dunkin' Donuts",
-        category: "coffee-shop",
-        address: "147 Morning Street",
-        phone: "(555) 789-0123",
-        coordinates: [40.7392, -74.0020],
-        distance: 1.1,
-        hours: "5:00 AM - 9:00 PM",
-        ratings: {
-            overall: 7.6,
-            cleanliness: 7.8,
-            safety: 7.4,
-            accessibility: 7.9
-        },
-        reviewCount: 92,
-        amenities: ["toilet-paper", "soap", "paper-towels", "hand-dryer"],
-        bathroomTypes: ["mens", "womens"],
-        isOpen: true
-    },
-    {
-        id: 8,
-        name: "CVS Pharmacy",
-        category: "retail",
-        address: "258 Health Plaza",
-        phone: "(555) 890-1234",
-        coordinates: [40.7451, -73.9903],
-        distance: 1.4,
-        hours: "8:00 AM - 10:00 PM",
-        ratings: {
-            overall: 7.1,
-            cleanliness: 7.3,
-            safety: 6.9,
-            accessibility: 8.5
-        },
-        reviewCount: 45,
-        amenities: ["toilet-paper", "soap", "hand-dryer", "ada-compliant"],
-        bathroomTypes: ["neutral", "accessible"],
-        isOpen: true
-    }
-];
+// Real business search configuration
+const BUSINESS_SEARCH_CONFIG = {
+    overpassUrl: 'https://overpass-api.de/api/interpreter',
+    searchRadius: 5000, // 5km radius
+    maxResults: 50
+};
+
+// Business category mapping for Overpass API
+const BUSINESS_CATEGORIES = {
+    'restaurant': ['restaurant', 'fast_food', 'cafe'],
+    'gas-station': ['fuel'],
+    'coffee-shop': ['cafe'],
+    'retail': ['supermarket', 'convenience', 'department_store'],
+    'hotel': ['hotel', 'motel'],
+    'park': ['park'],
+    'hospital': ['hospital', 'clinic'],
+    'library': ['library']
+};
 
 // Initialize Application
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🔧 Initializing GTGOTG application...');
     
     initializeMap();
-    renderBusinesses(sampleBusinesses);
     initializeSearch();
     initializeFilters();
     checkUserLogin();
+    
+    // Load initial businesses for current view
+    loadBusinessesForCurrentView();
     
     console.log('✅ GTGOTG application initialized successfully');
 });
@@ -211,8 +69,14 @@ function initializeMap() {
             maxZoom: 19
         }).addTo(map);
         
-        // Add business markers
-        addBusinessMarkersToMap();
+        // Add map event listeners
+        map.on('moveend', function() {
+            loadBusinessesForCurrentView();
+        });
+        
+        map.on('zoomend', function() {
+            loadBusinessesForCurrentView();
+        });
         
         console.log('✅ Map initialized successfully');
     } catch (error) {
@@ -221,11 +85,377 @@ function initializeMap() {
     }
 }
 
-// Add business markers to map
-function addBusinessMarkersToMap() {
+// Load businesses for current map view
+async function loadBusinessesForCurrentView() {
     if (!map) return;
     
-    sampleBusinesses.forEach(business => {
+    const bounds = map.getBounds();
+    const center = map.getCenter();
+    
+    console.log('🔍 Loading businesses for current map view...');
+    
+    try {
+        const businesses = await searchRealBusinesses(center.lat, center.lng, BUSINESS_SEARCH_CONFIG.searchRadius);
+        currentBusinesses = businesses;
+        renderBusinesses(businesses);
+        addBusinessMarkersToMap(businesses);
+        updateSearchResultsInfo('', businesses.length);
+    } catch (error) {
+        console.error('❌ Error loading businesses:', error);
+        // Fallback to sample data if API fails
+        loadSampleBusinesses();
+    }
+}
+
+// Search real businesses using Overpass API
+async function searchRealBusinesses(lat, lng, radius) {
+    console.log(`🌐 Searching real businesses near ${lat}, ${lng} within ${radius}m...`);
+    
+    // Build Overpass query for various business types
+    const query = `
+        [out:json][timeout:25];
+        (
+          node["amenity"~"^(restaurant|fast_food|cafe|fuel|hospital|library)$"](around:${radius},${lat},${lng});
+          node["shop"~"^(supermarket|convenience|department_store)$"](around:${radius},${lat},${lng});
+          node["tourism"~"^(hotel|motel)$"](around:${radius},${lat},${lng});
+          node["leisure"="park"](around:${radius},${lat},${lng});
+        );
+        out geom;
+    `;
+    
+    try {
+        const response = await fetch(BUSINESS_SEARCH_CONFIG.overpassUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `data=${encodeURIComponent(query)}`
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        console.log(`📊 Found ${data.elements.length} real businesses`);
+        
+        return data.elements.map(element => convertOverpassToBusiness(element)).filter(Boolean);
+        
+    } catch (error) {
+        console.error('❌ Error fetching real business data:', error);
+        throw error;
+    }
+}
+
+// Convert Overpass API data to business format
+function convertOverpassToBusiness(element) {
+    if (!element.tags || !element.tags.name) return null;
+    
+    const tags = element.tags;
+    const category = determineBusinessCategory(tags);
+    
+    return {
+        id: element.id,
+        name: tags.name,
+        category: category,
+        address: formatAddress(tags),
+        phone: tags.phone || tags['contact:phone'] || '(555) 000-0000',
+        coordinates: [element.lat, element.lon],
+        distance: 0, // Will be calculated based on user location
+        hours: tags.opening_hours || tags['opening_hours:covid19'] || 'Hours vary',
+        ratings: generateRandomRatings(), // In real app, this would come from your database
+        reviewCount: Math.floor(Math.random() * 200) + 1,
+        amenities: generateRandomAmenities(),
+        bathroomTypes: generateRandomBathroomTypes(),
+        isOpen: isBusinessOpen(tags.opening_hours),
+        website: tags.website || tags['contact:website'] || null,
+        realBusiness: true
+    };
+}
+
+// Determine business category from OSM tags
+function determineBusinessCategory(tags) {
+    if (tags.amenity) {
+        switch (tags.amenity) {
+            case 'restaurant':
+            case 'fast_food': return 'restaurant';
+            case 'cafe': return 'coffee-shop';
+            case 'fuel': return 'gas-station';
+            case 'hospital': return 'hospital';
+            case 'library': return 'library';
+        }
+    }
+    
+    if (tags.shop) {
+        switch (tags.shop) {
+            case 'supermarket':
+            case 'convenience':
+            case 'department_store': return 'retail';
+        }
+    }
+    
+    if (tags.tourism) {
+        switch (tags.tourism) {
+            case 'hotel':
+            case 'motel': return 'hotel';
+        }
+    }
+    
+    if (tags.leisure === 'park') return 'park';
+    
+    return 'other';
+}
+
+// Format address from OSM tags
+function formatAddress(tags) {
+    const parts = [];
+    
+    if (tags['addr:housenumber']) parts.push(tags['addr:housenumber']);
+    if (tags['addr:street']) parts.push(tags['addr:street']);
+    if (tags['addr:city']) parts.push(tags['addr:city']);
+    if (tags['addr:state']) parts.push(tags['addr:state']);
+    if (tags['addr:postcode']) parts.push(tags['addr:postcode']);
+    
+    return parts.length > 0 ? parts.join(' ') : 'Address not available';
+}
+
+// Generate random ratings for demo (in real app, this would come from your database)
+function generateRandomRatings() {
+    return {
+        overall: Math.round((Math.random() * 4 + 6) * 10) / 10, // 6.0-10.0
+        cleanliness: Math.round((Math.random() * 4 + 6) * 10) / 10,
+        safety: Math.round((Math.random() * 4 + 6) * 10) / 10,
+        accessibility: Math.round((Math.random() * 4 + 6) * 10) / 10
+    };
+}
+
+// Generate random amenities for demo
+function generateRandomAmenities() {
+    const allAmenities = ['toilet-paper', 'soap', 'paper-towels', 'hand-dryer', 'baby-changing', 'ada-compliant'];
+    const count = Math.floor(Math.random() * 4) + 2; // 2-5 amenities
+    return allAmenities.sort(() => 0.5 - Math.random()).slice(0, count);
+}
+
+// Generate random bathroom types
+function generateRandomBathroomTypes() {
+    const types = ['mens', 'womens'];
+    if (Math.random() > 0.3) types.push('accessible');
+    if (Math.random() > 0.7) types.push('neutral');
+    return types;
+}
+
+// Check if business is open (simplified)
+function isBusinessOpen(openingHours) {
+    if (!openingHours) return true; // Assume open if no hours specified
+    if (openingHours.includes('24/7') || openingHours.includes('24 hours')) return true;
+    return Math.random() > 0.2; // 80% chance of being open for demo
+}
+
+// Search businesses by name or location
+async function searchBusinessesByQuery(query) {
+    console.log(`🔍 Searching for: "${query}"`);
+    
+    if (!query || query.length < 2) {
+        loadBusinessesForCurrentView();
+        return;
+    }
+    
+    try {
+        // First try to geocode the query to get coordinates
+        const geocodeResult = await geocodeQuery(query);
+        
+        if (geocodeResult) {
+            // Move map to the geocoded location
+            map.setView([geocodeResult.lat, geocodeResult.lng], 14);
+            
+            // Search for businesses around that location
+            const businesses = await searchRealBusinesses(geocodeResult.lat, geocodeResult.lng, BUSINESS_SEARCH_CONFIG.searchRadius);
+            currentBusinesses = businesses;
+            renderBusinesses(businesses);
+            addBusinessMarkersToMap(businesses);
+            updateSearchResultsInfo(query, businesses.length);
+        } else {
+            // If geocoding fails, search current businesses by name
+            const filteredBusinesses = currentBusinesses.filter(business => 
+                business.name.toLowerCase().includes(query.toLowerCase()) ||
+                business.address.toLowerCase().includes(query.toLowerCase())
+            );
+            
+            renderBusinesses(filteredBusinesses);
+            updateSearchResultsInfo(query, filteredBusinesses.length);
+        }
+        
+    } catch (error) {
+        console.error('❌ Error searching businesses:', error);
+        showNotification('Search failed. Please try again.', 'error');
+    }
+}
+
+// Geocode query using Nominatim (OpenStreetMap's geocoding service)
+async function geocodeQuery(query) {
+    const nominatimUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1&countrycodes=us`;
+    
+    try {
+        const response = await fetch(nominatimUrl);
+        const data = await response.json();
+        
+        if (data && data.length > 0) {
+            return {
+                lat: parseFloat(data[0].lat),
+                lng: parseFloat(data[0].lon),
+                displayName: data[0].display_name
+            };
+        }
+        
+        return null;
+    } catch (error) {
+        console.error('❌ Geocoding error:', error);
+        return null;
+    }
+}
+
+// Load sample businesses as fallback
+function loadSampleBusinesses() {
+    const sampleBusinesses = [
+        {
+            id: 1,
+            name: "McDonald's",
+            category: "restaurant",
+            address: "123 Main St, New York, NY 10001",
+            phone: "(555) 123-4567",
+            coordinates: [40.7128, -74.0060],
+            distance: 0.3,
+            hours: "6:00 AM - 11:00 PM",
+            ratings: { overall: 7.2, cleanliness: 6.8, safety: 7.5, accessibility: 8.2 },
+            reviewCount: 124,
+            amenities: ["toilet-paper", "soap", "paper-towels", "hand-dryer", "baby-changing"],
+            bathroomTypes: ["mens", "womens", "accessible"],
+            isOpen: true
+        },
+        {
+            id: 2,
+            name: "Shell Gas Station",
+            category: "gas-station",
+            address: "456 Highway Blvd, New York, NY 10002",
+            phone: "(555) 234-5678",
+            coordinates: [40.7589, -73.9851],
+            distance: 1.2,
+            hours: "24 Hours",
+            ratings: { overall: 6.4, cleanliness: 5.8, safety: 6.9, accessibility: 7.1 },
+            reviewCount: 89,
+            amenities: ["toilet-paper", "soap", "hand-dryer", "ada-compliant"],
+            bathroomTypes: ["neutral", "accessible"],
+            isOpen: true
+        },
+        {
+            id: 3,
+            name: "Starbucks Coffee",
+            category: "coffee-shop",
+            address: "789 Oak Avenue, New York, NY 10003",
+            phone: "(555) 345-6789",
+            coordinates: [40.7505, -73.9934],
+            distance: 0.8,
+            hours: "5:00 AM - 10:00 PM",
+            ratings: { overall: 8.7, cleanliness: 9.1, safety: 8.4, accessibility: 8.9 },
+            reviewCount: 203,
+            amenities: ["toilet-paper", "soap", "paper-towels", "hand-dryer", "baby-changing", "ada-compliant"],
+            bathroomTypes: ["mens", "womens", "accessible"],
+            isOpen: true
+        },
+        {
+            id: 4,
+            name: "Walmart Supercenter",
+            category: "retail",
+            address: "321 Commerce Drive, New York, NY 10004",
+            phone: "(555) 456-7890",
+            coordinates: [40.7282, -74.0776],
+            distance: 2.1,
+            hours: "6:00 AM - 11:00 PM",
+            ratings: { overall: 7.8, cleanliness: 7.5, safety: 8.1, accessibility: 9.2 },
+            reviewCount: 156,
+            amenities: ["toilet-paper", "soap", "paper-towels", "hand-dryer", "baby-changing", "ada-compliant"],
+            bathroomTypes: ["mens", "womens", "accessible"],
+            isOpen: true
+        },
+        {
+            id: 5,
+            name: "Target",
+            category: "retail",
+            address: "654 Shopping Plaza, New York, NY 10005",
+            phone: "(555) 567-8901",
+            coordinates: [40.7614, -73.9776],
+            distance: 1.7,
+            hours: "8:00 AM - 10:00 PM",
+            ratings: { overall: 8.3, cleanliness: 8.7, safety: 8.0, accessibility: 9.1 },
+            reviewCount: 178,
+            amenities: ["toilet-paper", "soap", "paper-towels", "hand-dryer", "baby-changing", "ada-compliant"],
+            bathroomTypes: ["mens", "womens", "accessible"],
+            isOpen: true
+        },
+        {
+            id: 6,
+            name: "Subway",
+            category: "restaurant",
+            address: "987 Food Court Way, New York, NY 10006",
+            phone: "(555) 678-9012",
+            coordinates: [40.7505, -74.0014],
+            distance: 0.6,
+            hours: "7:00 AM - 10:00 PM",
+            ratings: { overall: 6.9, cleanliness: 6.5, safety: 7.2, accessibility: 7.8 },
+            reviewCount: 67,
+            amenities: ["toilet-paper", "soap", "hand-dryer"],
+            bathroomTypes: ["neutral"],
+            isOpen: true
+        },
+        {
+            id: 7,
+            name: "Dunkin' Donuts",
+            category: "coffee-shop",
+            address: "147 Morning Street, New York, NY 10007",
+            phone: "(555) 789-0123",
+            coordinates: [40.7392, -74.0020],
+            distance: 1.1,
+            hours: "5:00 AM - 9:00 PM",
+            ratings: { overall: 7.6, cleanliness: 7.8, safety: 7.4, accessibility: 7.9 },
+            reviewCount: 92,
+            amenities: ["toilet-paper", "soap", "paper-towels", "hand-dryer"],
+            bathroomTypes: ["mens", "womens"],
+            isOpen: true
+        },
+        {
+            id: 8,
+            name: "CVS Pharmacy",
+            category: "retail",
+            address: "258 Health Plaza, New York, NY 10008",
+            phone: "(555) 890-1234",
+            coordinates: [40.7451, -73.9903],
+            distance: 1.4,
+            hours: "8:00 AM - 10:00 PM",
+            ratings: { overall: 7.1, cleanliness: 7.3, safety: 6.9, accessibility: 8.5 },
+            reviewCount: 45,
+            amenities: ["toilet-paper", "soap", "hand-dryer", "ada-compliant"],
+            bathroomTypes: ["neutral", "accessible"],
+            isOpen: true
+        }
+    ];
+    
+    currentBusinesses = sampleBusinesses;
+    renderBusinesses(sampleBusinesses);
+    addBusinessMarkersToMap(sampleBusinesses);
+}
+
+// Add business markers to map
+function addBusinessMarkersToMap(businesses) {
+    if (!map) return;
+    
+    // Clear existing markers
+    businessMarkers.forEach(marker => {
+        map.removeLayer(marker);
+    });
+    businessMarkers = [];
+    
+    // Add new markers
+    businesses.forEach(business => {
         const marker = L.marker(business.coordinates).addTo(map);
         
         const popupContent = `
@@ -242,10 +472,13 @@ function addBusinessMarkersToMap() {
         `;
         
         marker.bindPopup(popupContent);
+        businessMarkers.push(marker);
     });
+    
+    console.log(`📍 Added ${businesses.length} business markers to map`);
 }
 
-// Generate star display for ratings
+// Generate star display for 10-point ratings
 function generateStars(rating) {
     const fullStars = Math.floor(rating);
     const hasHalfStar = rating % 1 >= 0.5;
@@ -275,14 +508,15 @@ function initializeSearch() {
     
     // Hide suggestions when clicking outside
     document.addEventListener('click', function(e) {
-        if (!searchInput.contains(e.target) && !searchSuggestions.contains(e.target)) {
+        if (searchInput && searchSuggestions && 
+            !searchInput.contains(e.target) && !searchSuggestions.contains(e.target)) {
             hideSuggestions();
         }
     });
 }
 
-// Handle search input
-function handleSearchInput(event) {
+// Handle search input with real-time suggestions
+async function handleSearchInput(event) {
     const query = event.target.value.toLowerCase().trim();
     
     if (query.length < 2) {
@@ -290,14 +524,40 @@ function handleSearchInput(event) {
         return;
     }
     
-    // Filter businesses based on search query
-    const suggestions = sampleBusinesses.filter(business => 
+    // Show suggestions from current businesses
+    const suggestions = currentBusinesses.filter(business => 
         business.name.toLowerCase().includes(query) ||
         business.address.toLowerCase().includes(query) ||
         business.category.toLowerCase().includes(query)
-    ).slice(0, 5); // Limit to 5 suggestions
+    ).slice(0, 5);
     
-    showSuggestions(suggestions);
+    // Also try to get location suggestions
+    try {
+        const locationSuggestions = await getLocationSuggestions(query);
+        showSuggestions([...suggestions, ...locationSuggestions]);
+    } catch (error) {
+        showSuggestions(suggestions);
+    }
+}
+
+// Get location suggestions from Nominatim
+async function getLocationSuggestions(query) {
+    const nominatimUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=3&countrycodes=us`;
+    
+    try {
+        const response = await fetch(nominatimUrl);
+        const data = await response.json();
+        
+        return data.map(item => ({
+            name: item.display_name.split(',')[0],
+            address: item.display_name,
+            coordinates: [parseFloat(item.lat), parseFloat(item.lon)],
+            isLocation: true
+        }));
+    } catch (error) {
+        console.error('❌ Error getting location suggestions:', error);
+        return [];
+    }
 }
 
 // Show search suggestions
@@ -310,12 +570,23 @@ function showSuggestions(suggestions) {
         return;
     }
     
-    suggestionsContainer.innerHTML = suggestions.map(business => `
-        <div class="search-suggestion" onclick="selectSuggestion('${business.name}')">
-            <div class="suggestion-main">${business.name}</div>
-            <div class="suggestion-subtitle">${business.address} • ${business.distance} mi</div>
-        </div>
-    `).join('');
+    suggestionsContainer.innerHTML = suggestions.map(item => {
+        if (item.isLocation) {
+            return `
+                <div class="search-suggestion" onclick="selectLocationSuggestion(${item.coordinates[0]}, ${item.coordinates[1]}, '${item.name}')">
+                    <div class="suggestion-main">📍 ${item.name}</div>
+                    <div class="suggestion-subtitle">${item.address}</div>
+                </div>
+            `;
+        } else {
+            return `
+                <div class="search-suggestion" onclick="selectBusinessSuggestion('${item.name}')">
+                    <div class="suggestion-main">${item.name}</div>
+                    <div class="suggestion-subtitle">${item.address} • ${item.distance} mi</div>
+                </div>
+            `;
+        }
+    }).join('');
     
     suggestionsContainer.style.display = 'block';
 }
@@ -328,8 +599,8 @@ function hideSuggestions() {
     }
 }
 
-// Select a suggestion
-function selectSuggestion(businessName) {
+// Select a business suggestion
+function selectBusinessSuggestion(businessName) {
     const searchInput = document.getElementById('searchInput');
     if (searchInput) {
         searchInput.value = businessName;
@@ -338,29 +609,42 @@ function selectSuggestion(businessName) {
     performSearch();
 }
 
-// Perform search
-function performSearch() {
+// Select a location suggestion
+async function selectLocationSuggestion(lat, lng, name) {
     const searchInput = document.getElementById('searchInput');
-    const query = searchInput ? searchInput.value.toLowerCase().trim() : '';
+    if (searchInput) {
+        searchInput.value = name;
+    }
+    hideSuggestions();
+    
+    // Move map to location and search for businesses
+    map.setView([lat, lng], 14);
+    
+    try {
+        const businesses = await searchRealBusinesses(lat, lng, BUSINESS_SEARCH_CONFIG.searchRadius);
+        currentBusinesses = businesses;
+        renderBusinesses(businesses);
+        addBusinessMarkersToMap(businesses);
+        updateSearchResultsInfo(name, businesses.length);
+    } catch (error) {
+        console.error('❌ Error loading businesses for location:', error);
+        loadSampleBusinesses();
+    }
+}
+
+// Perform search
+async function performSearch() {
+    const searchInput = document.getElementById('searchInput');
+    const query = searchInput ? searchInput.value.trim() : '';
     
     console.log(`🔍 Performing search for: "${query}"`);
     
     if (!query) {
-        currentBusinesses = [...sampleBusinesses];
-    } else {
-        currentBusinesses = sampleBusinesses.filter(business => 
-            business.name.toLowerCase().includes(query) ||
-            business.address.toLowerCase().includes(query) ||
-            business.category.toLowerCase().includes(query)
-        );
+        loadBusinessesForCurrentView();
+        return;
     }
     
-    // Apply current filters
-    applyFilters();
-    
-    // Update search results info
-    updateSearchResultsInfo(query, currentBusinesses.length);
-    
+    await searchBusinessesByQuery(query);
     hideSuggestions();
 }
 
@@ -436,6 +720,7 @@ function applyFilters() {
     });
     
     renderBusinesses(filteredBusinesses);
+    addBusinessMarkersToMap(filteredBusinesses);
 }
 
 // Toggle quick filter
@@ -460,7 +745,7 @@ function renderBusinesses(businesses) {
     if (!grid) return;
     
     if (businesses.length === 0) {
-        grid.innerHTML = '<div class="no-results">No restrooms found matching your criteria. Try adjusting your filters.</div>';
+        grid.innerHTML = '<div class="no-results">No restrooms found matching your criteria. Try adjusting your filters or searching a different area.</div>';
         return;
     }
     
@@ -584,7 +869,7 @@ function getCurrentLocation() {
     }
     
     navigator.geolocation.getCurrentPosition(
-        function(position) {
+        async function(position) {
             userLocation = {
                 lat: position.coords.latitude,
                 lng: position.coords.longitude
@@ -603,8 +888,18 @@ function getCurrentLocation() {
                     .openPopup();
             }
             
-            // Update business distances
-            updateBusinessDistances();
+            // Load businesses for new location
+            try {
+                const businesses = await searchRealBusinesses(userLocation.lat, userLocation.lng, BUSINESS_SEARCH_CONFIG.searchRadius);
+                currentBusinesses = businesses;
+                renderBusinesses(businesses);
+                addBusinessMarkersToMap(businesses);
+                updateBusinessDistances();
+            } catch (error) {
+                console.error('❌ Error loading businesses for location:', error);
+                loadSampleBusinesses();
+                updateBusinessDistances();
+            }
             
             showNotification('Location updated successfully!', 'success');
         },
@@ -624,12 +919,15 @@ function getCurrentLocation() {
 function updateBusinessDistances() {
     if (!userLocation) return;
     
-    sampleBusinesses.forEach(business => {
+    currentBusinesses.forEach(business => {
         business.distance = calculateDistance(
             userLocation.lat, userLocation.lng,
             business.coordinates[0], business.coordinates[1]
         );
     });
+    
+    // Sort by distance
+    currentBusinesses.sort((a, b) => a.distance - b.distance);
     
     // Re-render businesses with updated distances
     renderBusinesses(currentBusinesses);
@@ -644,7 +942,7 @@ function calculateDistance(lat1, lng1, lat2, lng2) {
               Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
               Math.sin(dLng/2) * Math.sin(dLng/2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-    return (R * c).toFixed(1);
+    return parseFloat((R * c).toFixed(1));
 }
 
 // Center map on business
@@ -697,7 +995,7 @@ function closeModal(modalId) {
 
 // Open review modal
 function openReviewModal(businessId) {
-    const business = sampleBusinesses.find(b => b.id === businessId);
+    const business = currentBusinesses.find(b => b.id === businessId);
     if (!business) return;
     
     currentBusinessForReview = businessId;
@@ -868,7 +1166,9 @@ function showAdminTab(tabName) {
     }
     
     // Add active class to clicked button
-    event.target.classList.add('active');
+    if (event && event.target) {
+        event.target.classList.add('active');
+    }
     
     // Load tab content
     if (tabName === 'analytics') {
@@ -880,12 +1180,19 @@ function loadAnalytics() {
     const reviews = JSON.parse(localStorage.getItem('gtgotg_reviews') || '[]');
     const users = JSON.parse(localStorage.getItem('gtgotg_users') || '[]');
     
-    document.getElementById('totalBusinesses').textContent = sampleBusinesses.length;
-    document.getElementById('totalReviews').textContent = reviews.length;
-    document.getElementById('totalUsers').textContent = users.length;
+    const totalBusinessesEl = document.getElementById('totalBusinesses');
+    const totalReviewsEl = document.getElementById('totalReviews');
+    const totalUsersEl = document.getElementById('totalUsers');
+    const averageRatingEl = document.getElementById('averageRating');
     
-    const avgRating = sampleBusinesses.reduce((sum, b) => sum + b.ratings.overall, 0) / sampleBusinesses.length;
-    document.getElementById('averageRating').textContent = avgRating.toFixed(1);
+    if (totalBusinessesEl) totalBusinessesEl.textContent = currentBusinesses.length;
+    if (totalReviewsEl) totalReviewsEl.textContent = reviews.length;
+    if (totalUsersEl) totalUsersEl.textContent = users.length;
+    
+    if (averageRatingEl && currentBusinesses.length > 0) {
+        const avgRating = currentBusinesses.reduce((sum, b) => sum + b.ratings.overall, 0) / currentBusinesses.length;
+        averageRatingEl.textContent = avgRating.toFixed(1);
+    }
 }
 
 // Notification system
@@ -909,9 +1216,6 @@ function showNotification(message, type = 'info') {
     }, 5000);
 }
 
-// Initialize current businesses
-currentBusinesses = [...sampleBusinesses];
-
 // Export functions to global scope
 window.performSearch = performSearch;
 window.getCurrentLocation = getCurrentLocation;
@@ -929,6 +1233,7 @@ window.centerMapOnUser = centerMapOnUser;
 window.toggleMapView = toggleMapView;
 window.getDirections = getDirections;
 window.centerMapOnBusiness = centerMapOnBusiness;
-window.selectSuggestion = selectSuggestion;
+window.selectBusinessSuggestion = selectBusinessSuggestion;
+window.selectLocationSuggestion = selectLocationSuggestion;
 
 console.log('✅ GTGOTG - Got To Go On The Go - Loaded successfully!');
