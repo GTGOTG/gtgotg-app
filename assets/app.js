@@ -172,7 +172,7 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('🔧 Initializing GTGOTG application...');
     
     initializeMap();
-    initializeSearch();
+    setupSearchInput();
     initializeFilters();
     loadNearbyBusinesses();
 });
