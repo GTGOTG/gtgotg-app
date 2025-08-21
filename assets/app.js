@@ -620,4 +620,30 @@ function generateRealisticBusinesses(lat, lng, query = '') {
     
     // Generate businesses around the location
     for (let i = 0; i < 20; i++) {
-        const business
+        const businessType = businessTypes[Math.floor(Math.random() * businessTypes.length)];
+        const business = {
+            id: `realistic_${i}`,
+            name: businessType.name,
+            category: businessType.category,
+            address: `${100 + i * 10} ${generateStreetName()}, ${generateCityName()}, ${generateStateCode()} ${generateZipCode()}`,
+            phone: generatePhoneNumber(),
+            coordinates: [
+                lat + (Math.random() - 0.5) * 0.02, // Random offset within ~1km
+                lng + (Math.random() - 0.5) * 0.02
+            ],
+            distance: Math.round(Math.random() * 50) / 10, // 0.0 to 5.0 miles
+            hours: generateBusinessHours(businessType.category),
+            ratings: generateRealisticRatings(),
+            reviewCount: Math.floor(Math.random() * 500) + 1,
+            amenities: generateRealisticAmenities(businessType.category),
+            bathroomTypes: generateRealisticBathroomTypes(),
+            isOpen: Math.random() > 0.1, // 90% chance of being open
+            website: businessType.chain ? `https://www.${businessType.name.toLowerCase().replace(/[^a-z]/g, '')}.com` : null,
+            realBusiness: false
+        };
+        
+        businesses.push(business);
+    }
+    
+    return businesses;
+}
