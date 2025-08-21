@@ -591,6 +591,461 @@ function convertGeoapifyToBusiness(feature) {
     };
 }
 
+// Add missing functions that are being called
+
+// Render businesses in the grid
+function renderBusinesses(businesses) {
+    const businessGrid = document.getElementById('businessGrid');
+    if (!businessGrid) return;
+    
+    if (!businesses || businesses.length === 0) {
+        businessGrid.innerHTML = '<div class="no-results">No restrooms found in this area.</div>';
+        return;
+    }
+    
+    businessGrid.innerHTML = businesses.map(business => createBusinessCard(business)).join('');
+}
+
+// Create a business card HTML
+function createBusinessCard(business) {
+    const stars = generateStarRating(business.ratings.overall);
+    const amenityTags = business.amenities.map(amenity => 
+        `<span class="amenity-tag">${formatAmenityName(amenity)}</span>`
+    ).join('');
+    
+    return `
+        <div class="business-card">
+            <div class="business-header">
+                <div>
+                    <h3 class="business-name">${business.name}</h3>
+                    <p class="business-category">${formatCategoryName(business.category)}</p>
+                </div>
+                <div class="bathroom-types">
+                    ${business.bathroomTypes.map(type => getBathroomSymbol(type)).join('')}
+                </div>
+            </div>
+            <div class="business-info">
+                <p class="business-address">📍 ${business.address}</p>
+                <p class="business-distance">📏 ${business.distance} miles away</p>
+                <p class="business-hours">🕐 ${business.hours}</p>
+                <p class="business-phone">📞 ${business.phone}</p>
+            </div>
+            <div class="business-ratings">
+                <div class="rating-item">
+                    <span class="rating-label">Overall:</span>
+                    <div class="rating-value">
+                        <span class="stars">${stars}</span>
+                        <span class="rating-number">${business.ratings.overall}/10</span>
+                    </div>
+                </div>
+                <div class="review-count">${business.reviewCount} reviews</div>
+            </div>
+            <div class="business-amenities">
+                <div class="amenities-list">${amenityTags}</div>
+            </div>
+            <div class="business-actions">
+                <button class="btn btn-primary" onclick="openReviewModal(${business.id})">Rate & Review</button>
+                <button class="btn btn-secondary" onclick="showDirections(${business.coordinates[0]}, ${business.coordinates[1]})">Directions</button>
+            </div>
+        </div>
+    `;
+}
+
+// Generate star rating display
+function generateStarRating(rating) {
+    const fullStars = Math.floor(rating);
+    const halfStar = rating % 1 >= 0.5;
+    let stars = '';
+    
+    for (let i = 0; i < fullStars; i++) {
+        stars += '★';
+    }
+    if (halfStar) {
+        stars += '☆';
+    }
+    
+    return stars;
+}
+
+// Format amenity names
+function formatAmenityName(amenity) {
+    const amenityNames = {
+        'toilet-paper': 'Toilet Paper',
+        'soap': 'Soap',
+        'paper-towels': 'Paper Towels',
+        'hand-dryer': 'Hand Dryer',
+        'baby-changing': 'Baby Changing',
+        'ada-compliant': 'ADA Compliant'
+    };
+    return amenityNames[amenity] || amenity;
+}
+
+// Format category names
+function formatCategoryName(category) {
+    const categoryNames = {
+        'restaurant': 'Restaurant',
+        'gas-station': 'Gas Station',
+        'coffee-shop': 'Coffee Shop',
+        'retail': 'Retail Store',
+        'hotel': 'Hotel',
+        'park': 'Park',
+        'hospital': 'Hospital',
+        'library': 'Library'
+    };
+    return categoryNames[category] || category;
+}
+
+// Get bathroom symbol
+function getBathroomSymbol(type) {
+    const symbols = {
+        'mens': '🚹',
+        'womens': '🚺',
+        'neutral': '🚻',
+        'accessible': '♿'
+    };
+    return `<span class="bathroom-symbol">${symbols[type] || '🚻'}</span>`;
+}
+
+// Load sample businesses as fallback
+function loadSampleBusinesses() {
+    console.log('📋 Loading sample businesses...');
+    currentBusinesses = sampleBusinesses;
+    renderBusinesses(currentBusinesses);
+    addBusinessMarkersToMap(currentBusinesses);
+    updateSearchResultsInfo('', currentBusinesses.length);
+}
+
+// Add business markers to map
+function addBusinessMarkersToMap(businesses) {
+    if (!map) return;
+    
+    // Clear existing markers
+    businessMarkers.forEach(marker => map.removeLayer(marker));
+    businessMarkers = [];
+    
+    // Add new markers
+    businesses.forEach(business => {
+        const marker = L.marker(business.coordinates)
+            .addTo(map)
+            .bindPopup(`
+                <div class="map-popup">
+                    <h4>${business.name}</h4>
+                    <p>${business.address}</p>
+                    <p>Rating: ${business.ratings.overall}/10</p>
+                    <button onclick="openReviewModal(${business.id})">Rate & Review</button>
+                </div>
+            `);
+        businessMarkers.push(marker);
+    });
+}
+
+// Update search results info
+function updateSearchResultsInfo(query, count) {
+    const infoElement = document.getElementById('searchResultsInfo');
+    if (infoElement) {
+        if (query) {
+            infoElement.textContent = `Found ${count} restrooms for "${query}"`;
+        } else {
+            infoElement.textContent = `Showing ${count} restrooms in your area`;
+        }
+    }
+}
+
+// Calculate distance between two points
+function calculateDistance(lat1, lon1, lat2, lon2) {
+    const R = 3959; // Earth's radius in miles
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+        Math.sin(dLon/2) * Math.sin(dLon/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return Math.round(R * c * 10) / 10; // Round to 1 decimal place
+}
+
+// Show directions to a location
+function showDirections(lat, lng) {
+    const url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+    window.open(url, '_blank');
+}
+
+// Initialize filters
+function initializeFilters() {
+    console.log('🔧 Initializing filters...');
+    
+    // Category filter
+    const categoryFilter = document.getElementById('categoryFilter');
+    if (categoryFilter) {
+        categoryFilter.addEventListener('change', applyFilters);
+    }
+    
+    // Distance filter
+    const distanceFilter = document.getElementById('distanceFilter');
+    if (distanceFilter) {
+        distanceFilter.addEventListener('change', applyFilters);
+    }
+    
+    // Rating filter
+    const ratingFilter = document.getElementById('ratingFilter');
+    if (ratingFilter) {
+        ratingFilter.addEventListener('change', applyFilters);
+    }
+    
+    console.log('✅ Filters initialized');
+}
+
+// Apply filters to business list
+function applyFilters() {
+    const categoryFilter = document.getElementById('categoryFilter')?.value || '';
+    const distanceFilter = document.getElementById('distanceFilter')?.value || '';
+    const ratingFilter = document.getElementById('ratingFilter')?.value || '';
+    
+    let filteredBusinesses = [...currentBusinesses];
+    
+    // Apply category filter
+    if (categoryFilter) {
+        filteredBusinesses = filteredBusinesses.filter(b => b.category === categoryFilter);
+    }
+    
+    // Apply distance filter
+    if (distanceFilter) {
+        const maxDistance = parseFloat(distanceFilter);
+        filteredBusinesses = filteredBusinesses.filter(b => b.distance <= maxDistance);
+    }
+    
+    // Apply rating filter
+    if (ratingFilter) {
+        const minRating = parseFloat(ratingFilter);
+        filteredBusinesses = filteredBusinesses.filter(b => b.ratings.overall >= minRating);
+    }
+    
+    renderBusinesses(filteredBusinesses);
+    updateSearchResultsInfo('', filteredBusinesses.length);
+}
+
+// Toggle quick filter
+function toggleQuickFilter(button) {
+    button.classList.toggle('active');
+    applyFilters();
+}
+
+// Perform search
+function performSearch() {
+    const searchInput = document.getElementById('searchInput');
+    if (!searchInput) return;
+    
+    const query = searchInput.value.trim();
+    if (!query) return;
+    
+    console.log('🔍 Performing search for:', query);
+    
+    // Hide suggestions
+    hideSuggestions();
+    
+    // Show loading
+    const businessGrid = document.getElementById('businessGrid');
+    if (businessGrid) {
+        businessGrid.innerHTML = '<div class="loading">Searching for restrooms...</div>';
+    }
+    
+    // Simulate search delay
+    setTimeout(() => {
+        // For now, filter existing businesses by name or address
+        const filteredBusinesses = currentBusinesses.filter(business => 
+            business.name.toLowerCase().includes(query.toLowerCase()) ||
+            business.address.toLowerCase().includes(query.toLowerCase()) ||
+            business.category.toLowerCase().includes(query.toLowerCase())
+        );
+        
+        renderBusinesses(filteredBusinesses);
+        updateSearchResultsInfo(query, filteredBusinesses.length);
+    }, 1000);
+}
+
+// Get current location
+function getCurrentLocation() {
+    if (!navigator.geolocation) {
+        showNotification('Geolocation is not supported by this browser.', 'error');
+        return;
+    }
+    
+    navigator.geolocation.getCurrentPosition(
+        (position) => {
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+            
+            userLocation = [lat, lng];
+            
+            // Center map on user location
+            if (map) {
+                map.setView([lat, lng], 15);
+                
+                // Add user location marker
+                L.marker([lat, lng])
+                    .addTo(map)
+                    .bindPopup('You are here!')
+                    .openPopup();
+            }
+            
+            // Load businesses near user
+            loadBusinessesForCurrentView();
+            
+            showNotification('Location found! Loading nearby restrooms...', 'success');
+        },
+        (error) => {
+            console.error('Error getting location:', error);
+            showNotification('Unable to get your location. Please try again.', 'error');
+        }
+    );
+}
+
+// Center map on user location
+function centerMapOnUser() {
+    if (userLocation && map) {
+        map.setView(userLocation, 15);
+    } else {
+        getCurrentLocation();
+    }
+}
+
+// Toggle map view
+function toggleMapView() {
+    // This could toggle between different map styles or views
+    showNotification('Map view toggled!', 'info');
+}
+
+// Show notification
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.innerHTML = `
+        <div class="notification-content">
+            <span>${message}</span>
+            <button class="notification-close" onclick="this.parentElement.parentElement.remove()">×</button>
+        </div>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Auto-remove after 5 seconds
+    setTimeout(() => {
+        if (notification.parentElement) {
+            notification.remove();
+        }
+    }, 5000);
+}
+
+// Modal functions
+function showModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.style.display = 'block';
+    }
+}
+
+function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
+
+// Handle login
+function handleLogin(event) {
+    event.preventDefault();
+    const formData = new FormData(event.target);
+    const email = formData.get('email');
+    const password = formData.get('password');
+    
+    // Simple demo login
+    if (email === 'user@gtgotg.com' && password === 'password123') {
+        currentUser = {
+            id: 1,
+            email: email,
+            name: 'Demo User',
+            badge: 'Reviewer'
+        };
+        localStorage.setItem('gtgotg_user', JSON.stringify(currentUser));
+        updateUserStatus();
+        closeModal('loginModal');
+        showNotification('Welcome back!', 'success');
+    } else if (email === 'admin@gtgotg.com' && password === 'admin123') {
+        currentUser = {
+            id: 2,
+            email: email,
+            name: 'Admin User',
+            badge: 'Admin',
+            isAdmin: true
+        };
+        localStorage.setItem('gtgotg_user', JSON.stringify(currentUser));
+        updateUserStatus();
+        closeModal('loginModal');
+        showNotification('Admin login successful!', 'success');
+    } else {
+        showNotification('Invalid email or password', 'error');
+    }
+}
+
+// Handle registration
+function handleRegister(event) {
+    event.preventDefault();
+    const formData = new FormData(event.target);
+    const firstName = formData.get('firstName');
+    const lastName = formData.get('lastName');
+    const email = formData.get('email');
+    const password = formData.get('password');
+    const confirmPassword = formData.get('confirmPassword');
+    
+    if (password !== confirmPassword) {
+        showNotification('Passwords do not match', 'error');
+        return;
+    }
+    
+    currentUser = {
+        id: Date.now(),
+        email: email,
+        name: `${firstName} ${lastName}`,
+        badge: 'Reviewer'
+    };
+    
+    localStorage.setItem('gtgotg_user', JSON.stringify(currentUser));
+    updateUserStatus();
+    closeModal('registerModal');
+    showNotification('Account created successfully!', 'success');
+}
+
+// Update user status
+function updateUserStatus() {
+    const userStatus = document.getElementById('userStatus');
+    const userName = document.getElementById('userName');
+    const userBadge = document.getElementById('userBadge');
+    const adminBtn = document.getElementById('adminBtn');
+    const loginBtn = document.querySelector('button[onclick="showModal(\'loginModal\')"]');
+    const signUpBtn = document.querySelector('button[onclick="showModal(\'registerModal\')"]');
+    
+    if (currentUser) {
+        if (userStatus) userStatus.style.display = 'block';
+        if (userName) userName.textContent = currentUser.name;
+        if (userBadge) userBadge.textContent = currentUser.badge;
+        if (adminBtn && currentUser.isAdmin) adminBtn.style.display = 'inline-block';
+        if (loginBtn) loginBtn.style.display = 'none';
+        if (signUpBtn) signUpBtn.style.display = 'none';
+    } else {
+        if (userStatus) userStatus.style.display = 'none';
+        if (adminBtn) adminBtn.style.display = 'none';
+        if (loginBtn) loginBtn.style.display = 'inline-block';
+        if (signUpBtn) signUpBtn.style.display = 'inline-block';
+    }
+}
+
+// Logout
+function logout() {
+    currentUser = null;
+    localStorage.removeItem('gtgotg_user');
+    updateUserStatus();
+    showNotification('Logged out successfully', 'info');
+}
+
 // Generate realistic businesses for demo (simulates real API data)
 function generateRealisticBusinesses(lat, lng, query = '') {
     const businessTypes = [
