@@ -421,36 +421,128 @@ async function loadBusinessesForCurrentView() {
     }
 }
 
-// Search real businesses using Geoapify Places API
-async function searchRealBusinessesGeoapify(lat, lng, query = '') {
-    console.log(`🌐 Searching real businesses via Geoapify near ${lat}, ${lng}...`);
-    
+// Search for real businesses using Geoapify API
+async function searchRealBusinessesGeoapify(lat, lon, query = '') {
     try {
-        // Build query parameters
-        const params = new URLSearchParams({
-            categories: 'catering,commercial,automotive,healthcare,education,leisure',
-            filter: `circle:${lng},${lat},${GEOAPIFY_CONFIG.searchRadius}`,
-            limit: GEOAPIFY_CONFIG.maxResults,
-            apiKey: GEOAPIFY_CONFIG.apiKey
-        });
+        const apiKey = 'YOUR_GEOAPIFY_API_KEY'; // Replace with your actual API key
+        
+        // Use Geoapify Places API with correct parameter format
+        const categories = 'commercial.food_and_drink,commercial.shopping,accommodation,healthcare,public_transport.gas_station';
+        let url = `https://api.geoapify.com/v2/places?categories=${categories}&filter=circle:${lon},${lat},5000&limit=20&apiKey=${apiKey}`;
         
         if (query) {
-            params.append('text', query);
+            // For text search, use the geocoding API instead
+            url = `https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(query)}&limit=20&apiKey=${apiKey}`;
         }
         
-        const response = await fetch(`${GEOAPIFY_CONFIG.baseUrl}?${params}`);
+        console.log('🔍 Searching Geoapify:', url);
+        
+        const response = await fetch(url);
+        
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            const errorText = await response.text();
+            console.error('Geoapify API Error Response:', errorText);
+            throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
         }
+        
         const data = await response.json();
-        return data.features.map(feature => convertGeoapifyToBusiness(feature));
+        console.log('📍 Geoapify response:', data);
+        
+        // Handle both Places API and Geocoding API responses
+        const features = data.features || [];
+        
+        if (features.length === 0) {
+            console.log('No results from Geoapify, using sample data');
+            return generateSampleBusinesses(lat, lon);
+        }
+        
+        // Convert Geoapify data to our business format  
+        return features.map((feature, index) => {
+            const props = feature.properties;
+            const coords = feature.geometry.coordinates;
+            
+            return {
+                id: `geoapify_${index}`,
+                name: props.name || props.address_line1 || props.formatted || `Business ${index + 1}`,
+                category: mapGeoapifyCategory(props.categories?.[0] || 'commercial'),
+                address: props.formatted || props.address_line1 || 'Address not available',
+                distance: calculateDistance(lat, lon, coords[1], coords[0]),
+                coordinates: [coords[1], coords[0]], // Convert from [lon, lat] to [lat, lon]
+                ratings: {
+                    overall: Math.round((Math.random() * 4 + 6) * 10) / 10,
+                    cleanliness: Math.round((Math.random() * 4 + 6) * 10) / 10,
+                    safety: Math.round((Math.random() * 4 + 6) * 10) / 10,
+                    accessibility: Math.round((Math.random() * 4 + 6) * 10) / 10
+                },
+                isOpen: true,
+                bathroomTypes: ['mens', 'womens'],
+                amenities: ['toilet-paper', 'soap'],
+                reviewCount: Math.floor(Math.random() * 50) + 1,
+                hours: props.opening_hours?.text || 'Hours not available',
+                phone: props.contact?.phone || props.phone || 'Phone not available'
+            };
+        });
         
     } catch (error) {
         console.error('❌ Error fetching from Geoapify:', error);
-        // Fallback to sample data if API fails
-        console.log('📋 Falling back to sample data');
-        return generateRealisticBusinesses(lat, lng, query);
+        
+        // Fallback to sample data
+        console.log('🔄 Falling back to sample data');
+        return generateSampleBusinesses(lat, lon);
     }
+}
+
+// Generate sample businesses for fallback
+function generateSampleBusinesses(lat, lon) {
+    const businessTypes = [
+        { name: "McDonald's", category: "restaurant" },
+        { name: "Starbucks", category: "coffee-shop" },
+        { name: "Shell", category: "gas-station" },
+        { name: "Walmart", category: "retail" },
+        { name: "CVS Pharmacy", category: "retail" }
+    ];
+    
+    return businessTypes.map((type, index) => ({
+        id: `sample_${index}`,
+        name: type.name,
+        category: type.category,
+        address: `${100 + index * 10} Sample St, Sample City, SC 12345`,
+        distance: Math.round(Math.random() * 50) / 10,
+        coordinates: [lat + (Math.random() - 0.5) * 0.01, lon + (Math.random() - 0.5) * 0.01],
+        ratings: {
+            overall: Math.round((Math.random() * 4 + 6) * 10) / 10,
+            cleanliness: Math.round((Math.random() * 4 + 6) * 10) / 10,
+            safety: Math.round((Math.random() * 4 + 6) * 10) / 10,
+            accessibility: Math.round((Math.random() * 4 + 6) * 10) / 10
+        },
+        isOpen: true,
+        bathroomTypes: ['mens', 'womens'],
+        amenities: ['toilet-paper', 'soap'],
+        reviewCount: Math.floor(Math.random() * 50) + 1,
+        hours: '9:00 AM - 9:00 PM',
+        phone: '(555) 123-4567'
+    }));
+}
+
+// Map Geoapify categories to our categories
+function mapGeoapifyCategory(geoapifyCategory) {
+    const categoryMap = {
+        'commercial.food_and_drink.restaurant': 'restaurant',
+        'commercial.food_and_drink.cafe': 'coffee-shop',
+        'commercial.food_and_drink.fast_food': 'restaurant',
+        'commercial.shopping': 'retail',
+        'commercial.shopping.supermarket': 'retail',
+        'accommodation.hotel': 'hotel',
+        'healthcare.hospital': 'hospital',
+        'public_transport.gas_station': 'gas-station',
+        'commercial': 'retail',
+        'accommodation': 'hotel',
+        'healthcare': 'hospital',
+        'entertainment': 'retail',
+        'tourism': 'retail'
+    };
+    
+    return categoryMap[geoapifyCategory] || categoryMap[geoapifyCategory?.split('.')[0]] || 'retail';
 }
 
 // Convert Geoapify feature to business object
@@ -475,43 +567,6 @@ function convertGeoapifyToBusiness(feature) {
         website: props.contact?.website || null,
         realBusiness: true
     };
-}
-
-// Map Geoapify categories to our categories
-function mapGeoapifyCategory(categories) {
-    if (!categories || !Array.isArray(categories)) return 'retail';
-    
-    const categoryMap = {
-        'catering.restaurant': 'restaurant',
-        'catering.fast_food': 'restaurant',
-        'catering.cafe': 'coffee-shop',
-        'automotive.fuel': 'gas-station',
-        'commercial.supermarket': 'retail',
-        'commercial.convenience': 'retail',
-        'commercial.department_store': 'retail',
-        'accommodation.hotel': 'hotel',
-        'leisure.park': 'park',
-        'healthcare.hospital': 'hospital',
-        'education.library': 'library'
-    };
-    
-    for (const category of categories) {
-        if (categoryMap[category]) {
-            return categoryMap[category];
-        }
-    }
-    
-    // Default mapping based on main category
-    const mainCategory = categories[0];
-    if (mainCategory.startsWith('catering')) return 'restaurant';
-    if (mainCategory.startsWith('automotive')) return 'gas-station';
-    if (mainCategory.startsWith('commercial')) return 'retail';
-    if (mainCategory.startsWith('accommodation')) return 'hotel';
-    if (mainCategory.startsWith('healthcare')) return 'hospital';
-    if (mainCategory.startsWith('education')) return 'library';
-    if (mainCategory.startsWith('leisure')) return 'park';
-    
-    return 'retail';
 }
 
 // Generate realistic businesses for demo (simulates real API data)
@@ -924,14 +979,6 @@ function showSuggestions(suggestions) {
     }).join('');
     
     suggestionsContainer.style.display = 'block';
-}
-
-// Hide search suggestions
-function hideSuggestions() {
-    const suggestionsContainer = document.getElementById('searchSuggestions');
-    if (suggestionsContainer) {
-        suggestionsContainer.style.display = 'none';
-    }
 }
 
 // Search business by name
