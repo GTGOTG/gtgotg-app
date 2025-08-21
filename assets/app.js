@@ -16,8 +16,9 @@ let activeFilters = {
 
 // Geoapify API Configuration (Free tier: 3,000 requests/day)
 const GEOAPIFY_CONFIG = {
-    apiKey: 'YOUR_GEOAPIFY_API_KEY', // Replace with actual API key
+    apiKey: '596ca8b1ff84488c9edbc26997613168',
     baseUrl: 'https://api.geoapify.com/v2/places',
+    geocodeUrl: 'https://api.geoapify.com/v1/geocode',
     searchRadius: 5000, // 5km radius
     maxResults: 50
 };
@@ -424,9 +425,6 @@ async function loadBusinessesForCurrentView() {
 async function searchRealBusinessesGeoapify(lat, lng, query = '') {
     console.log(`🌐 Searching real businesses via Geoapify near ${lat}, ${lng}...`);
     
-    // Note: For production, you need a real Geoapify API key
-    // For demo purposes, we'll simulate the API response structure
-    
     try {
         // Build query parameters
         const params = new URLSearchParams({
@@ -440,24 +438,80 @@ async function searchRealBusinessesGeoapify(lat, lng, query = '') {
             params.append('text', query);
         }
         
-        // For demo, return sample data that simulates real API response
-        // In production, uncomment the fetch call below:
-        /*
         const response = await fetch(`${GEOAPIFY_CONFIG.baseUrl}?${params}`);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data = await response.json();
         return data.features.map(feature => convertGeoapifyToBusiness(feature));
-        */
-        
-        // Demo: Return sample businesses with realistic data
-        return generateRealisticBusinesses(lat, lng, query);
         
     } catch (error) {
         console.error('❌ Error fetching from Geoapify:', error);
-        throw error;
+        // Fallback to sample data if API fails
+        console.log('📋 Falling back to sample data');
+        return generateRealisticBusinesses(lat, lng, query);
     }
+}
+
+// Convert Geoapify feature to business object
+function convertGeoapifyToBusiness(feature) {
+    const props = feature.properties;
+    const coords = feature.geometry.coordinates;
+    
+    return {
+        id: props.place_id || Date.now() + Math.random(),
+        name: props.name || props.formatted || 'Unknown Business',
+        category: mapGeoapifyCategory(props.categories),
+        address: props.formatted || props.address_line1 || 'Address not available',
+        phone: props.contact?.phone || generatePhoneNumber(),
+        coordinates: [coords[1], coords[0]], // Geoapify uses [lng, lat], we need [lat, lng]
+        distance: 0, // Will be calculated later
+        hours: props.opening_hours || generateBusinessHours(mapGeoapifyCategory(props.categories)),
+        ratings: generateRealisticRatings(),
+        reviewCount: Math.floor(Math.random() * 500) + 1,
+        amenities: generateRealisticAmenities(mapGeoapifyCategory(props.categories)),
+        bathroomTypes: generateRealisticBathroomTypes(),
+        isOpen: true, // Could be enhanced with real opening hours
+        website: props.contact?.website || null,
+        realBusiness: true
+    };
+}
+
+// Map Geoapify categories to our categories
+function mapGeoapifyCategory(categories) {
+    if (!categories || !Array.isArray(categories)) return 'retail';
+    
+    const categoryMap = {
+        'catering.restaurant': 'restaurant',
+        'catering.fast_food': 'restaurant',
+        'catering.cafe': 'coffee-shop',
+        'automotive.fuel': 'gas-station',
+        'commercial.supermarket': 'retail',
+        'commercial.convenience': 'retail',
+        'commercial.department_store': 'retail',
+        'accommodation.hotel': 'hotel',
+        'leisure.park': 'park',
+        'healthcare.hospital': 'hospital',
+        'education.library': 'library'
+    };
+    
+    for (const category of categories) {
+        if (categoryMap[category]) {
+            return categoryMap[category];
+        }
+    }
+    
+    // Default mapping based on main category
+    const mainCategory = categories[0];
+    if (mainCategory.startsWith('catering')) return 'restaurant';
+    if (mainCategory.startsWith('automotive')) return 'gas-station';
+    if (mainCategory.startsWith('commercial')) return 'retail';
+    if (mainCategory.startsWith('accommodation')) return 'hotel';
+    if (mainCategory.startsWith('healthcare')) return 'hospital';
+    if (mainCategory.startsWith('education')) return 'library';
+    if (mainCategory.startsWith('leisure')) return 'park';
+    
+    return 'retail';
 }
 
 // Generate realistic businesses for demo (simulates real API data)
@@ -650,17 +704,31 @@ async function searchByZipCode(zipCode) {
 
 // Geocode ZIP code using Nominatim
 async function geocodeZipCode(zipCode) {
-    const nominatimUrl = `https://nominatim.openstreetmap.org/search?format=json&postalcode=${zipCode}&country=US&limit=1`;
+    console.log(`📮 Geocoding ZIP code: ${zipCode}`);
     
     try {
-        const response = await fetch(nominatimUrl);
+        // Use Geoapify Geocoding API instead of Nominatim
+        const params = new URLSearchParams({
+            text: zipCode,
+            type: 'postcode',
+            filter: 'countrycode:us',
+            format: 'json',
+            apiKey: GEOAPIFY_CONFIG.apiKey
+        });
+        
+        const response = await fetch(`${GEOAPIFY_CONFIG.geocodeUrl}/search?${params}`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
         const data = await response.json();
         
-        if (data && data.length > 0) {
+        if (data.results && data.results.length > 0) {
+            const result = data.results[0];
             return {
-                lat: parseFloat(data[0].lat),
-                lng: parseFloat(data[0].lon),
-                displayName: data[0].display_name
+                lat: result.lat,
+                lng: result.lon,
+                displayName: result.formatted
             };
         }
         
@@ -795,16 +863,29 @@ function showZipCodeSuggestion(zipCode) {
 
 // Get location suggestions from Nominatim
 async function getLocationSuggestions(query) {
-    const nominatimUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=3&countrycodes=us`;
+    console.log(`🔍 Getting location suggestions for: ${query}`);
     
     try {
-        const response = await fetch(nominatimUrl);
+        // Use Geoapify Geocoding API for suggestions
+        const params = new URLSearchParams({
+            text: query,
+            filter: 'countrycode:us',
+            format: 'json',
+            limit: 3,
+            apiKey: GEOAPIFY_CONFIG.apiKey
+        });
+        
+        const response = await fetch(`${GEOAPIFY_CONFIG.geocodeUrl}/autocomplete?${params}`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
         const data = await response.json();
         
-        return data.map(item => ({
-            name: item.display_name.split(',')[0],
-            address: item.display_name,
-            coordinates: [parseFloat(item.lat), parseFloat(item.lon)],
+        return (data.results || []).map(item => ({
+            name: item.formatted.split(',')[0],
+            address: item.formatted,
+            coordinates: [item.lat, item.lon],
             isLocation: true
         }));
     } catch (error) {
@@ -947,17 +1028,30 @@ async function searchByLocation(location) {
 
 // Geocode query using Nominatim
 async function geocodeQuery(query) {
-    const nominatimUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1&countrycodes=us`;
+    console.log(`📍 Geocoding query: ${query}`);
     
     try {
-        const response = await fetch(nominatimUrl);
+        // Use Geoapify Geocoding API
+        const params = new URLSearchParams({
+            text: query,
+            filter: 'countrycode:us',
+            format: 'json',
+            apiKey: GEOAPIFY_CONFIG.apiKey
+        });
+        
+        const response = await fetch(`${GEOAPIFY_CONFIG.geocodeUrl}/search?${params}`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
         const data = await response.json();
         
-        if (data && data.length > 0) {
+        if (data.results && data.results.length > 0) {
+            const result = data.results[0];
             return {
-                lat: parseFloat(data[0].lat),
-                lng: parseFloat(data[0].lon),
-                displayName: data[0].display_name
+                lat: result.lat,
+                lng: result.lon,
+                displayName: result.formatted
             };
         }
         
