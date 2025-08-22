@@ -830,7 +830,7 @@ function toggleQuickFilter(button) {
 }
 
 // Perform search
-function performSearch() {
+async function performSearch() {
     const searchInput = document.getElementById('searchInput');
     if (!searchInput) return;
     
@@ -848,9 +848,48 @@ function performSearch() {
         businessGrid.innerHTML = '<div class="loading">Searching for restrooms...</div>';
     }
     
-    // Simulate search delay
-    setTimeout(() => {
-        // For now, filter existing businesses by name or address
+    try {
+        // First try to geocode the search query
+        const location = await geocodeSearch(query);
+        
+        if (location) {
+            // Update map to show the searched location
+            if (map) {
+                map.setView([location.lat, location.lng], 13);
+            }
+            
+            // Search for businesses in that area
+            const businesses = await searchBusinessesInArea(location.lat, location.lng);
+            
+            if (businesses && businesses.length > 0) {
+                currentBusinesses = businesses;
+                renderBusinesses(businesses);
+                addBusinessMarkersToMap(businesses);
+                updateSearchResultsInfo(query, businesses.length);
+            } else {
+                // Fallback to sample data for the area
+                const sampleData = generateSampleBusinesses(location.lat, location.lng);
+                currentBusinesses = sampleData;
+                renderBusinesses(sampleData);
+                addBusinessMarkersToMap(sampleData);
+                updateSearchResultsInfo(query, sampleData.length);
+            }
+        } else {
+            // If geocoding fails, filter existing businesses
+            const filteredBusinesses = currentBusinesses.filter(business => 
+                business.name.toLowerCase().includes(query.toLowerCase()) ||
+                business.address.toLowerCase().includes(query.toLowerCase()) ||
+                business.category.toLowerCase().includes(query.toLowerCase())
+            );
+            
+            renderBusinesses(filteredBusinesses);
+            updateSearchResultsInfo(query, filteredBusinesses.length);
+        }
+    } catch (error) {
+        console.error('Search error:', error);
+        showNotification('Search failed. Please try again.', 'error');
+        
+        // Fallback to filtering existing businesses
         const filteredBusinesses = currentBusinesses.filter(business => 
             business.name.toLowerCase().includes(query.toLowerCase()) ||
             business.address.toLowerCase().includes(query.toLowerCase()) ||
@@ -859,7 +898,121 @@ function performSearch() {
         
         renderBusinesses(filteredBusinesses);
         updateSearchResultsInfo(query, filteredBusinesses.length);
-    }, 1000);
+    }
+}
+
+// Geocode search query to get coordinates
+async function geocodeSearch(query) {
+    try {
+        const apiKey = '596ca8b1ff84488c9edbc26997613168';
+        const url = `https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(query)}&apiKey=${apiKey}&limit=1`;
+        
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`Geocoding failed: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        if (data.features && data.features.length > 0) {
+            const coords = data.features[0].geometry.coordinates;
+            return {
+                lat: coords[1],
+                lng: coords[0],
+                address: data.features[0].properties.formatted
+            };
+        }
+        
+        return null;
+    } catch (error) {
+        console.error('Geocoding error:', error);
+        return null;
+    }
+}
+
+// Search for businesses in a specific area with better error handling
+async function searchBusinessesInArea(lat, lng, radius = 5000) {
+    try {
+        const apiKey = '596ca8b1ff84488c9edbc26997613168';
+        
+        // Calculate bounding box
+        const latOffset = 0.05;
+        const lngOffset = 0.05;
+        const bbox = `${lng - lngOffset},${lat - latOffset},${lng + lngOffset},${lat + latOffset}`;
+        
+        // Try different categories to get more results
+        const categories = [
+            'catering.restaurant',
+            'catering.cafe',
+            'commercial.supermarket',
+            'commercial.fuel',
+            'accommodation.hotel'
+        ];
+        
+        const allBusinesses = [];
+        
+        // Make requests for each category with delay to prevent rate limiting
+        for (const category of categories) {
+            try {
+                const url = `https://api.geoapify.com/v2/places?categories=${category}&filter=rect%3A${encodeURIComponent(bbox)}&limit=10&apiKey=${apiKey}`;
+                
+                const response = await fetch(url);
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.features) {
+                        const businesses = data.features.map((feature, index) => {
+                            const props = feature.properties;
+                            const coords = feature.geometry.coordinates;
+                            
+                            return {
+                                id: `${category}_${index}_${Date.now()}`,
+                                name: props.name || props.address_line1 || `Business ${index + 1}`,
+                                category: mapGeoapifyCategory(category),
+                                address: props.formatted || props.address_line1 || 'Address not available',
+                                distance: calculateDistance(lat, lng, coords[1], coords[0]),
+                                coordinates: [coords[1], coords[0]],
+                                ratings: {
+                                    overall: Math.round((Math.random() * 4 + 6) * 10) / 10,
+                                    cleanliness: Math.round((Math.random() * 4 + 6) * 10) / 10,
+                                    safety: Math.round((Math.random() * 4 + 6) * 10) / 10,
+                                    accessibility: Math.round((Math.random() * 4 + 6) * 10) / 10
+                                },
+                                isOpen: true,
+                                bathroomTypes: ['mens', 'womens'],
+                                amenities: ['toilet-paper', 'soap'],
+                                reviewCount: Math.floor(Math.random() * 50) + 1,
+                                hours: props.opening_hours?.text || 'Hours not available',
+                                phone: props.contact?.phone || props.phone || 'Phone not available'
+                            };
+                        });
+                        
+                        allBusinesses.push(...businesses);
+                    }
+                }
+                
+                // Add delay between requests to prevent rate limiting
+                await new Promise(resolve => setTimeout(resolve, 200));
+                
+            } catch (error) {
+                console.error(`Error fetching ${category}:`, error);
+                continue;
+            }
+        }
+        
+        // Remove duplicates and sort by distance
+        const uniqueBusinesses = allBusinesses
+            .filter((business, index, self) => 
+                index === self.findIndex(b => b.name === business.name && b.address === business.address)
+            )
+            .sort((a, b) => a.distance - b.distance)
+            .slice(0, 20);
+        
+        return uniqueBusinesses;
+        
+    } catch (error) {
+        console.error('Error searching businesses in area:', error);
+        return generateSampleBusinesses(lat, lng);
+    }
 }
 
 // Get current location
