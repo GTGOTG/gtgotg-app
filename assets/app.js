@@ -6,7 +6,7 @@ let userLocation = null;
 let currentUser = null;
 let currentBusinesses = [];
 let currentBusinessForReview = null;
-let businessMarkers = [];
+let businessMarkers = {};
 let activeFilters = {
     category: '',
     distance: '',
@@ -14,13 +14,12 @@ let activeFilters = {
     quickFilters: []
 };
 
-// Geoapify API Configuration (Free tier: 3,000 requests/day)
-const GEOAPIFY_CONFIG = {
-    apiKey: '596ca8b1ff84488c9edbc26997613168',
-    baseUrl: 'https://api.geoapify.com/v2/places',
-    geocodeUrl: 'https://api.geoapify.com/v1/geocode',
+// Mapbox Configuration (Free tier: 50,000 requests/month)
+const MAPBOX_CONFIG = {
+    accessToken: 'pk.eyJ1IjoiZ3Rnb3RnLWFwcCIsImEiOiJjbHpkNXB4ZGowMDFrMmxzYzBkdGVhbzN5In0.example', // You'll need to get your own token
+    style: 'mapbox://styles/mapbox/streets-v12',
     searchRadius: 5000, // 5km radius
-    maxResults: 50
+    maxResults: 20
 };
 
 // Business category mapping for Geoapify
@@ -367,21 +366,26 @@ function initializeMap() {
         const defaultLat = 40.7128;
         const defaultLng = -74.0060;
         
-        // Initialize map
-        map = L.map('map').setView([defaultLat, defaultLng], 13);
+        // Set Mapbox access token
+        mapboxgl.accessToken = 'pk.eyJ1IjoiZ3Rnb3RnLWFwcCIsImEiOiJjbHpkNXB4ZGowMDFrMmxzYzBkdGVhbzN5In0.example';
         
-        // Add OpenStreetMap tiles
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors',
-            maxZoom: 19
-        }).addTo(map);
+        // Initialize Mapbox map
+        map = new mapboxgl.Map({
+            container: 'map',
+            style: 'mapbox://styles/mapbox/streets-v12',
+            center: [defaultLng, defaultLat],
+            zoom: 13
+        });
+        
+        // Add navigation controls
+        map.addControl(new mapboxgl.NavigationControl());
         
         // Add map event listeners
-        map.on('moveend', function() {
+        map.on('moveend', () => {
             loadBusinessesForCurrentView();
         });
         
-        map.on('zoomend', function() {
+        map.on('zoomend', () => {
             loadBusinessesForCurrentView();
         });
         
@@ -397,12 +401,14 @@ async function loadBusinessesForCurrentView() {
     if (!map) return;
     
     const center = map.getCenter();
+    const lat = center.lat;
+    const lng = center.lng;
     
     console.log('🔍 Loading businesses for current map view...');
     
     try {
-        // Try to get real businesses from Geoapify
-        const businesses = await searchRealBusinessesGeoapify(center.lat, center.lng);
+        // Try to get real businesses from Mapbox
+        const businesses = await searchRealBusinessesMapbox(lat, lng);
         
         if (businesses && businesses.length > 0) {
             currentBusinesses = businesses;
@@ -412,43 +418,39 @@ async function loadBusinessesForCurrentView() {
         } else {
             // Fallback to sample data
             console.log('📋 Using sample business data');
-            loadSampleBusinesses();
+            loadSampleBusinesses(lat, lng);
         }
     } catch (error) {
         console.error('❌ Error loading businesses:', error);
         // Fallback to sample data
-        loadSampleBusinesses();
+        loadSampleBusinesses(lat, lng);
     }
 }
 
-// Search for real businesses using Geoapify API
-async function searchRealBusinessesGeoapify(lat, lng, radius = 5000, category = '') {
+// Search for real businesses using Mapbox Places API
+async function searchRealBusinessesMapbox(lat, lng, radius = 5000, category = '') {
     try {
-        const apiKey = '596ca8b1ff84488c9edbc26997613168';
+        const accessToken = 'pk.eyJ1IjoiZ3Rnb3RnLWFwcCIsImEiOiJjbHpkNXB4ZGowMDFrMmxzYzBkdGVhbzN5In0.example';
         
-        // Map our categories to Geoapify categories
+        // Map our categories to Mapbox categories
         const categoryMap = {
-            'gas-station': 'commercial.fuel',
-            'restaurant': 'catering.restaurant',
-            'coffee-shop': 'catering.cafe',
-            'retail': 'commercial.supermarket',
-            'hotel': 'accommodation.hotel',
-            'park': 'leisure.park',
-            'hospital': 'healthcare.hospital',
-            'library': 'education.library'
+            'gas-station': 'fuel',
+            'restaurant': 'restaurant',
+            'coffee-shop': 'cafe',
+            'retail': 'shop',
+            'hotel': 'lodging',
+            'park': 'park',
+            'hospital': 'hospital',
+            'library': 'library'
         };
         
-        const geoapifyCategory = categoryMap[category] || 'commercial.supermarket';
+        const mapboxCategory = categoryMap[category] || 'restaurant';
         
-        // Calculate bounding box around the center point (approximate)
-        const latOffset = 0.05; // roughly 5km
-        const lngOffset = 0.05;
-        const bbox = `${lng - lngOffset},${lat - latOffset},${lng + lngOffset},${lat + latOffset}`;
+        // Use Mapbox Geocoding API for places search
+        const proximity = `${lng},${lat}`;
+        const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${mapboxCategory}.json?proximity=${proximity}&limit=20&access_token=${accessToken}`;
         
-        // Build the API URL using rect filter like your working example
-        const url = `https://api.geoapify.com/v2/places?categories=${geoapifyCategory}&filter=rect%3A${encodeURIComponent(bbox)}&limit=20&apiKey=${apiKey}`;
-        
-        console.log('🔍 Searching Geoapify with URL:', url);
+        console.log('🔍 Searching Mapbox with URL:', url);
         
         const requestOptions = {
             method: 'GET',
@@ -458,38 +460,37 @@ async function searchRealBusinessesGeoapify(lat, lng, radius = 5000, category = 
         
         if (!response.ok) {
             const errorText = await response.text();
-            console.error('Geoapify API Error Response:', errorText);
+            console.error('Mapbox API Error Response:', errorText);
             throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
         }
         
         const data = await response.json();
-        console.log('Geoapify API Response:', data);
+        console.log('Mapbox API Response:', data);
         
         if (!data.features || data.features.length === 0) {
-            console.log('No businesses found from Geoapify');
+            console.log('No businesses found from Mapbox');
             return [];
         }
 
-        // Handle both Places API and Geocoding API responses
         const features = data.features || [];
         
         if (features.length === 0) {
-            console.log('No results from Geoapify, using sample data');
+            console.log('No results from Mapbox, using sample data');
             return generateSampleBusinesses(lat, lng);
         }
         
-        // Convert Geoapify data to our business format  
+        // Convert Mapbox data to our business format  
         return features.map((feature, index) => {
-            const props = feature.properties;
+            const props = feature.properties || {};
             const coords = feature.geometry.coordinates;
             
             return {
-                id: `geoapify_${index}`,
-                name: props.name || props.address_line1 || props.formatted || `Business ${index + 1}`,
-                category: mapGeoapifyCategory(props.categories?.[0] || 'commercial'),
-                address: props.formatted || props.address_line1 || 'Address not available',
+                id: `mapbox_${index}`,
+                name: props.text || feature.place_name || `Business ${index + 1}`,
+                category: mapMapboxCategory(props.category || 'restaurant'),
+                address: feature.place_name || 'Address not available',
                 distance: calculateDistance(lat, lng, coords[1], coords[0]),
-                coordinates: [coords[1], coords[0]], // Convert from [lon, lat] to [lat, lon]
+                coordinates: [coords[1], coords[0]], // Mapbox uses [lng, lat], we need [lat, lng]
                 ratings: {
                     overall: Math.round((Math.random() * 4 + 6) * 10) / 10,
                     cleanliness: Math.round((Math.random() * 4 + 6) * 10) / 10,
@@ -500,13 +501,13 @@ async function searchRealBusinessesGeoapify(lat, lng, radius = 5000, category = 
                 bathroomTypes: ['mens', 'womens'],
                 amenities: ['toilet-paper', 'soap'],
                 reviewCount: Math.floor(Math.random() * 50) + 1,
-                hours: props.opening_hours?.text || 'Hours not available',
-                phone: props.contact?.phone || props.phone || 'Phone not available'
+                hours: 'Hours not available',
+                phone: 'Phone not available'
             };
         });
         
     } catch (error) {
-        console.error('❌ Error fetching from Geoapify:', error);
+        console.error('❌ Error fetching from Mapbox:', error);
         
         // Fallback to sample data
         console.log('🔄 Falling back to sample data');
@@ -546,47 +547,42 @@ function generateSampleBusinesses(lat, lng) {
     }));
 }
 
-// Map Geoapify categories to our categories
-function mapGeoapifyCategory(geoapifyCategory) {
+// Map Mapbox categories to our categories
+function mapMapboxCategory(mapboxCategory) {
     const categoryMap = {
-        'commercial.food_and_drink.restaurant': 'restaurant',
-        'commercial.food_and_drink.cafe': 'coffee-shop',
-        'commercial.food_and_drink.fast_food': 'restaurant',
-        'commercial.shopping': 'retail',
-        'commercial.shopping.supermarket': 'retail',
-        'accommodation.hotel': 'hotel',
-        'healthcare.hospital': 'hospital',
-        'public_transport.gas_station': 'gas-station',
-        'commercial': 'retail',
-        'accommodation': 'hotel',
-        'healthcare': 'hospital',
-        'entertainment': 'retail',
-        'tourism': 'retail'
+        'restaurant': 'restaurant',
+        'cafe': 'coffee-shop',
+        'fuel': 'gas-station',
+        'shop': 'retail',
+        'lodging': 'hotel',
+        'hospital': 'hospital',
+        'library': 'library',
+        'park': 'park'
     };
     
-    return categoryMap[geoapifyCategory] || categoryMap[geoapifyCategory?.split('.')[0]] || 'retail';
+    return categoryMap[mapboxCategory] || 'retail';
 }
 
-// Convert Geoapify feature to business object
-function convertGeoapifyToBusiness(feature) {
+// Convert Mapbox feature to business object
+function convertMapboxToBusiness(feature) {
     const props = feature.properties;
     const coords = feature.geometry.coordinates;
     
     return {
         id: props.place_id || Date.now() + Math.random(),
-        name: props.name || props.formatted || 'Unknown Business',
-        category: mapGeoapifyCategory(props.categories),
-        address: props.formatted || props.address_line1 || 'Address not available',
-        phone: props.contact?.phone || generatePhoneNumber(),
-        coordinates: [coords[1], coords[0]], // Geoapify uses [lng, lat], we need [lat, lng]
+        name: props.text || feature.place_name || 'Unknown Business',
+        category: mapMapboxCategory(props.category),
+        address: feature.place_name || 'Address not available',
+        phone: generatePhoneNumber(),
+        coordinates: [coords[1], coords[0]], // Mapbox uses [lng, lat], we need [lat, lng]
         distance: 0, // Will be calculated later
-        hours: props.opening_hours || generateBusinessHours(mapGeoapifyCategory(props.categories)),
+        hours: generateBusinessHours(mapMapboxCategory(props.category)),
         ratings: generateRealisticRatings(),
         reviewCount: Math.floor(Math.random() * 500) + 1,
-        amenities: generateRealisticAmenities(mapGeoapifyCategory(props.categories)),
+        amenities: generateRealisticAmenities(mapMapboxCategory(props.category)),
         bathroomTypes: generateRealisticBathroomTypes(),
         isOpen: true, // Could be enhanced with real opening hours
-        website: props.contact?.website || null,
+        website: null,
         realBusiness: true
     };
 }
@@ -707,9 +703,15 @@ function getBathroomSymbol(type) {
 }
 
 // Load sample businesses as fallback
-function loadSampleBusinesses() {
+function loadSampleBusinesses(lat = 40.7128, lng = -74.0060) {
     console.log('📋 Loading sample businesses...');
-    currentBusinesses = sampleBusinesses;
+    
+    // Update sample businesses with current location distances
+    currentBusinesses = sampleBusinesses.map(business => ({
+        ...business,
+        distance: calculateDistance(lat, lng, business.coordinates[0], business.coordinates[1])
+    }));
+    
     renderBusinesses(currentBusinesses);
     addBusinessMarkersToMap(currentBusinesses);
     updateSearchResultsInfo('', currentBusinesses.length);
@@ -720,22 +722,28 @@ function addBusinessMarkersToMap(businesses) {
     if (!map) return;
     
     // Clear existing markers
-    businessMarkers.forEach(marker => map.removeLayer(marker));
-    businessMarkers = [];
+    Object.values(businessMarkers).forEach(marker => marker.remove());
+    businessMarkers = {};
     
     // Add new markers
     businesses.forEach(business => {
-        const marker = L.marker(business.coordinates)
-            .addTo(map)
-            .bindPopup(`
-                <div class="map-popup">
-                    <h4>${business.name}</h4>
-                    <p>${business.address}</p>
-                    <p>Rating: ${business.ratings.overall}/10</p>
-                    <button onclick="openReviewModal(${business.id})">Rate & Review</button>
-                </div>
-            `);
-        businessMarkers.push(marker);
+        // Create popup HTML
+        const popupHTML = `
+            <div class="map-popup">
+                <h4>${business.name}</h4>
+                <p>${business.address}</p>
+                <p>Rating: ${business.ratings.overall}/10</p>
+                <button onclick="openReviewModal(${business.id})">Rate & Review</button>
+            </div>
+        `;
+        
+        // Create marker
+        const marker = new mapboxgl.Marker()
+            .setLngLat([business.coordinates[1], business.coordinates[0]])
+            .setPopup(new mapboxgl.Popup().setHTML(popupHTML))
+            .addTo(map);
+            
+        businessMarkers[business.id] = marker;
     });
 }
 
@@ -855,7 +863,8 @@ async function performSearch() {
         if (location) {
             // Update map to show the searched location
             if (map) {
-                map.setView([location.lat, location.lng], 13);
+                map.setCenter([location.lng, location.lat]);
+                map.setZoom(13);
             }
             
             // Search for businesses in that area
@@ -904,8 +913,8 @@ async function performSearch() {
 // Geocode search query to get coordinates
 async function geocodeSearch(query) {
     try {
-        const apiKey = '596ca8b1ff84488c9edbc26997613168';
-        const url = `https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(query)}&apiKey=${apiKey}&limit=1`;
+        const accessToken = 'pk.eyJ1IjoiZ3Rnb3RnLWFwcCIsImEiOiJjbHpkNXB4ZGowMDFrMmxzYzBkdGVhbzN5In0.example';
+        const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?access_token=${accessToken}&limit=1&country=US`;
         
         const response = await fetch(url);
         if (!response.ok) {
@@ -919,7 +928,7 @@ async function geocodeSearch(query) {
             return {
                 lat: coords[1],
                 lng: coords[0],
-                address: data.features[0].properties.formatted
+                address: data.features[0].place_name
             };
         }
         
@@ -933,42 +942,38 @@ async function geocodeSearch(query) {
 // Search for businesses in a specific area with better error handling
 async function searchBusinessesInArea(lat, lng, radius = 5000) {
     try {
-        const apiKey = '596ca8b1ff84488c9edbc26997613168';
-        
-        // Calculate bounding box
-        const latOffset = 0.05;
-        const lngOffset = 0.05;
-        const bbox = `${lng - lngOffset},${lat - latOffset},${lng + lngOffset},${lat + latOffset}`;
+        const accessToken = 'pk.eyJ1IjoiZ3Rnb3RnLWFwcCIsImEiOiJjbHpkNXB4ZGowMDFrMmxzYzBkdGVhbzN5In0.example';
         
         // Try different categories to get more results
         const categories = [
-            'catering.restaurant',
-            'catering.cafe',
-            'commercial.supermarket',
-            'commercial.fuel',
-            'accommodation.hotel'
+            'restaurant',
+            'cafe',
+            'fuel',
+            'shop',
+            'lodging'
         ];
         
         const allBusinesses = [];
+        const proximity = `${lng},${lat}`;
         
         // Make requests for each category with delay to prevent rate limiting
         for (const category of categories) {
             try {
-                const url = `https://api.geoapify.com/v2/places?categories=${category}&filter=rect%3A${encodeURIComponent(bbox)}&limit=10&apiKey=${apiKey}`;
+                const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${category}.json?proximity=${proximity}&limit=10&access_token=${accessToken}`;
                 
                 const response = await fetch(url);
                 if (response.ok) {
                     const data = await response.json();
                     if (data.features) {
                         const businesses = data.features.map((feature, index) => {
-                            const props = feature.properties;
+                            const props = feature.properties || {};
                             const coords = feature.geometry.coordinates;
                             
                             return {
                                 id: `${category}_${index}_${Date.now()}`,
-                                name: props.name || props.address_line1 || `Business ${index + 1}`,
-                                category: mapGeoapifyCategory(category),
-                                address: props.formatted || props.address_line1 || 'Address not available',
+                                name: props.text || feature.place_name || `Business ${index + 1}`,
+                                category: mapMapboxCategory(category),
+                                address: feature.place_name || 'Address not available',
                                 distance: calculateDistance(lat, lng, coords[1], coords[0]),
                                 coordinates: [coords[1], coords[0]],
                                 ratings: {
@@ -981,8 +986,8 @@ async function searchBusinessesInArea(lat, lng, radius = 5000) {
                                 bathroomTypes: ['mens', 'womens'],
                                 amenities: ['toilet-paper', 'soap'],
                                 reviewCount: Math.floor(Math.random() * 50) + 1,
-                                hours: props.opening_hours?.text || 'Hours not available',
-                                phone: props.contact?.phone || props.phone || 'Phone not available'
+                                hours: 'Hours not available',
+                                phone: 'Phone not available'
                             };
                         });
                         
@@ -1031,13 +1036,14 @@ function getCurrentLocation() {
             
             // Center map on user location
             if (map) {
-                map.setView([lat, lng], 15);
+                map.setCenter([lng, lat]);
+                map.setZoom(15);
                 
                 // Add user location marker
-                L.marker([lat, lng])
-                    .addTo(map)
-                    .bindPopup('You are here!')
-                    .openPopup();
+                new mapboxgl.Marker({ color: 'red' })
+                    .setLngLat([lng, lat])
+                    .setPopup(new mapboxgl.Popup().setHTML('You are here!'))
+                    .addTo(map);
             }
             
             // Load businesses near user
@@ -1055,7 +1061,8 @@ function getCurrentLocation() {
 // Center map on user location
 function centerMapOnUser() {
     if (userLocation && map) {
-        map.setView(userLocation, 15);
+        map.setCenter([userLocation[1], userLocation[0]]);
+        map.setZoom(15);
     } else {
         getCurrentLocation();
     }
