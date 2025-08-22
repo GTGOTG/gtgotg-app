@@ -16,7 +16,7 @@ let activeFilters = {
 
 // Mapbox Configuration (Free tier: 50,000 requests/month)
 const MAPBOX_CONFIG = {
-    accessToken: 'pk.eyJ1IjoiZ3Rnb3RnLWFwcCIsImEiOiJjbHpkNXB4ZGowMDFrMmxzYzBkdGVhbzN5In0.example', // You'll need to get your own token
+    accessToken: 'pk.eyJ1IjoiY29sb3JhZG9xdWFsaXR5bGxjIiwiYSI6ImNtZW4yOG9scTB4ZzgybG9jNTgwZW8wbDAifQ.Vo3vwfNTszwGPkYp4H054Q',
     style: 'mapbox://styles/mapbox/streets-v12',
     searchRadius: 5000, // 5km radius
     maxResults: 20
@@ -367,7 +367,7 @@ function initializeMap() {
         const defaultLng = -74.0060;
         
         // Set Mapbox access token
-        mapboxgl.accessToken = 'pk.eyJ1IjoiZ3Rnb3RnLWFwcCIsImEiOiJjbHpkNXB4ZGowMDFrMmxzYzBkdGVhbzN5In0.example';
+        mapboxgl.accessToken = 'pk.eyJ1IjoiY29sb3JhZG9xdWFsaXR5bGxjIiwiYSI6ImNtZW4yOG9scTB4ZzgybG9jNTgwZW8wbDAifQ.Vo3vwfNTszwGPkYp4H054Q';
         
         // Initialize Mapbox map
         map = new mapboxgl.Map({
@@ -430,7 +430,7 @@ async function loadBusinessesForCurrentView() {
 // Search for real businesses using Mapbox Places API
 async function searchRealBusinessesMapbox(lat, lng, radius = 5000, category = '') {
     try {
-        const accessToken = 'pk.eyJ1IjoiZ3Rnb3RnLWFwcCIsImEiOiJjbHpkNXB4ZGowMDFrMmxzYzBkdGVhbzN5In0.example';
+        const accessToken = 'pk.eyJ1IjoiY29sb3JhZG9xdWFsaXR5bGxjIiwiYSI6ImNtZW4yOG9scTB4ZzgybG9jNTgwZW8wbDAifQ.Vo3vwfNTszwGPkYp4H054Q';
         
         // Map our categories to Mapbox categories
         const categoryMap = {
@@ -913,7 +913,7 @@ async function performSearch() {
 // Geocode search query to get coordinates
 async function geocodeSearch(query) {
     try {
-        const accessToken = 'pk.eyJ1IjoiZ3Rnb3RnLWFwcCIsImEiOiJjbHpkNXB4ZGowMDFrMmxzYzBkdGVhbzN5In0.example';
+        const accessToken = 'pk.eyJ1IjoiY29sb3JhZG9xdWFsaXR5bGxjIiwiYSI6ImNtZW4yOG9scTB4ZzgybG9jNTgwZW8wbDAifQ.Vo3vwfNTszwGPkYp4H054Q';
         const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?access_token=${accessToken}&limit=1&country=US`;
         
         const response = await fetch(url);
@@ -942,7 +942,7 @@ async function geocodeSearch(query) {
 // Search for businesses in a specific area with better error handling
 async function searchBusinessesInArea(lat, lng, radius = 5000) {
     try {
-        const accessToken = 'pk.eyJ1IjoiZ3Rnb3RnLWFwcCIsImEiOiJjbHpkNXB4ZGowMDFrMmxzYzBkdGVhbzN5In0.example';
+        const accessToken = 'pk.eyJ1IjoiY29sb3JhZG9xdWFsaXR5bGxjIiwiYSI6ImNtZW4yOG9scTB4ZzgybG9jNTgwZW8wbDAifQ.Vo3vwfNTszwGPkYp4H054Q';
         
         // Try different categories to get more results
         const categories = [
