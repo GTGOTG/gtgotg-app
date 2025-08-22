@@ -1262,3 +1262,78 @@ function generateRealisticBusinesses(lat, lng, query = '') {
     
     return businesses;
 }
+
+// Helper functions for generating realistic data
+function generatePhoneNumber() {
+    const area = Math.floor(Math.random() * 900) + 100;
+    const exchange = Math.floor(Math.random() * 900) + 100;
+    const number = Math.floor(Math.random() * 9000) + 1000;
+    return `(${area}) ${exchange}-${number}`;
+}
+
+function generateBusinessHours(category) {
+    const hours = {
+        'restaurant': '11:00 AM - 10:00 PM',
+        'coffee-shop': '6:00 AM - 8:00 PM',
+        'gas-station': '24 Hours',
+        'retail': '9:00 AM - 9:00 PM',
+        'hotel': '24 Hours',
+        'hospital': '24 Hours',
+        'library': '9:00 AM - 6:00 PM',
+        'park': '6:00 AM - 10:00 PM'
+    };
+    return hours[category] || '9:00 AM - 9:00 PM';
+}
+
+function generateRealisticRatings() {
+    return {
+        overall: Math.round((Math.random() * 4 + 6) * 10) / 10,
+        cleanliness: Math.round((Math.random() * 4 + 6) * 10) / 10,
+        safety: Math.round((Math.random() * 4 + 6) * 10) / 10,
+        accessibility: Math.round((Math.random() * 4 + 6) * 10) / 10
+    };
+}
+
+function generateRealisticAmenities(category) {
+    const baseAmenities = ['toilet-paper', 'soap'];
+    const additionalAmenities = ['paper-towels', 'hand-dryer', 'baby-changing', 'ada-compliant'];
+    
+    // Add random additional amenities
+    const numAdditional = Math.floor(Math.random() * 3);
+    for (let i = 0; i < numAdditional; i++) {
+        const randomAmenity = additionalAmenities[Math.floor(Math.random() * additionalAmenities.length)];
+        if (!baseAmenities.includes(randomAmenity)) {
+            baseAmenities.push(randomAmenity);
+        }
+    }
+    
+    return baseAmenities;
+}
+
+function generateRealisticBathroomTypes() {
+    const types = ['mens', 'womens'];
+    if (Math.random() > 0.7) types.push('accessible');
+    if (Math.random() > 0.8) types.push('neutral');
+    return types;
+}
+
+function generateStreetName() {
+    const streets = ['Main St', 'Oak Ave', 'Park Blvd', 'First St', 'Second Ave', 'Broadway', 'Market St', 'Church St'];
+    return streets[Math.floor(Math.random() * streets.length)];
+}
+
+function generateCityName() {
+    const cities = ['Springfield', 'Franklin', 'Georgetown', 'Madison', 'Washington', 'Lincoln', 'Jefferson', 'Jackson'];
+    return cities[Math.floor(Math.random() * cities.length)];
+}
+
+function generateStateCode() {
+    const states = ['NY', 'CA', 'TX', 'FL', 'IL', 'PA', 'OH', 'GA', 'NC', 'MI'];
+    return states[Math.floor(Math.random() * states.length)];
+}
+
+function generateZipCode() {
+    return String(Math.floor(Math.random() * 90000) + 10000);
+}
+
+console.log('✅ GTGOTG - Got To Go On The Go - Loaded successfully!');
