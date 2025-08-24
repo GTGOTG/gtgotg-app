@@ -1,7 +1,18 @@
-// GTGOTG - Enhanced Review System with Photo Upload
+// GTGOTG - Got To Go On The Go - Complete Application
 // Copyright © 2025 Jessica Esposito / Colorado Quality LLC. All rights reserved.
 
-console.log('📷 GTGOTG - Photo Upload & Enhanced Review System - Loading...');
+console.log('🚽 GTGOTG - Loading...');
+
+// Mapbox Configuration
+mapboxgl.accessToken = 'pk.eyJ1IjoiY29sb3JhZG9xdWFsaXR5bGxjIiwiYSI6ImNtZW4yOG9scTB4ZzgybG9jNTgwZW8wbDAifQ.Vo3vwfNTszwGPkYp4H054Q';
+
+// Global Variables
+let map;
+let currentUser = null;
+let currentBusinesses = [];
+let currentBusinessForReview = null;
+let userLocation = null;
+let searchMarkers = [];
 
 // Photo upload configuration
 const PHOTO_CONFIG = {
@@ -21,6 +32,762 @@ let currentRatings = {
     safety: 0,
     accessibility: 0
 };
+
+// Sample business data
+const sampleBusinesses = [
+    {
+        id: 1,
+        name: "Shell Gas Station",
+        category: "gas-station",
+        address: "123 Main St, Denver, CO 80202",
+        phone: "(303) 555-0123",
+        hours: "24/7",
+        coordinates: [-104.9903, 39.7392],
+        distance: 0.3,
+        ratings: {
+            overall: 4.2,
+            cleanliness: 4.0,
+            safety: 4.5,
+            accessibility: 3.8
+        },
+        reviewCount: 24,
+        amenities: ["toilet-paper", "soap", "hand-dryer", "ada-compliant"],
+        bathroomTypes: ["mens", "womens", "accessible"]
+    },
+    {
+        id: 2,
+        name: "Starbucks Coffee",
+        category: "coffee-shop",
+        address: "456 Broadway, Denver, CO 80203",
+        phone: "(303) 555-0456",
+        hours: "5:00 AM - 10:00 PM",
+        coordinates: [-104.9847, 39.7348],
+        distance: 0.7,
+        ratings: {
+            overall: 4.6,
+            cleanliness: 4.8,
+            safety: 4.4,
+            accessibility: 4.2
+        },
+        reviewCount: 18,
+        amenities: ["toilet-paper", "soap", "paper-towels", "baby-changing"],
+        bathroomTypes: ["neutral", "accessible"]
+    },
+    {
+        id: 3,
+        name: "McDonald's",
+        category: "restaurant",
+        address: "789 Colfax Ave, Denver, CO 80204",
+        phone: "(303) 555-0789",
+        hours: "6:00 AM - 11:00 PM",
+        coordinates: [-105.0178, 39.7392],
+        distance: 1.2,
+        ratings: {
+            overall: 3.8,
+            cleanliness: 3.5,
+            safety: 4.0,
+            accessibility: 4.5
+        },
+        reviewCount: 32,
+        amenities: ["toilet-paper", "soap", "hand-dryer", "baby-changing", "ada-compliant"],
+        bathroomTypes: ["mens", "womens", "accessible"]
+    },
+    {
+        id: 4,
+        name: "Target",
+        category: "retail",
+        address: "321 Colorado Blvd, Denver, CO 80206",
+        phone: "(303) 555-0321",
+        hours: "8:00 AM - 10:00 PM",
+        coordinates: [-104.9403, 39.7392],
+        distance: 2.1,
+        ratings: {
+            overall: 4.4,
+            cleanliness: 4.6,
+            safety: 4.2,
+            accessibility: 4.8
+        },
+        reviewCount: 15,
+        amenities: ["toilet-paper", "soap", "paper-towels", "hand-dryer", "baby-changing", "ada-compliant"],
+        bathroomTypes: ["mens", "womens", "accessible"]
+    },
+    {
+        id: 5,
+        name: "Denver Public Library",
+        category: "library",
+        address: "10 W 14th Ave Pkwy, Denver, CO 80204",
+        phone: "(303) 555-1000",
+        hours: "9:00 AM - 8:00 PM",
+        coordinates: [-104.9903, 39.7372],
+        distance: 0.8,
+        ratings: {
+            overall: 4.7,
+            cleanliness: 4.9,
+            safety: 4.5,
+            accessibility: 4.9
+        },
+        reviewCount: 12,
+        amenities: ["toilet-paper", "soap", "paper-towels", "hand-dryer", "ada-compliant"],
+        bathroomTypes: ["mens", "womens", "accessible"]
+    }
+];
+
+// Initialize the application
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🔧 Initializing GTGOTG...');
+    
+    initializeMap();
+    initializeSearch();
+    initializeFilters();
+    initializeModals();
+    initializeAuth();
+    loadBusinesses();
+    
+    // Initialize enhanced review system after a delay
+    setTimeout(() => {
+        initializeEnhancedReviewSystem();
+    }, 1000);
+    
+    console.log('✅ GTGOTG initialized successfully');
+});
+
+// Initialize map
+function initializeMap() {
+    try {
+        map = new mapboxgl.Map({
+            container: 'map',
+            style: 'mapbox://styles/mapbox/streets-v12',
+            center: [-104.9903, 39.7392], // Denver, CO
+            zoom: 12
+        });
+
+        map.on('load', function() {
+            console.log('🗺️ Map loaded successfully');
+            addBusinessMarkers();
+        });
+
+        map.on('error', function(e) {
+            console.error('Map error:', e);
+        });
+
+    } catch (error) {
+        console.error('Failed to initialize map:', error);
+        showNotification('Map failed to load. Please refresh the page.', 'error');
+    }
+}
+
+// Add business markers to map
+function addBusinessMarkers() {
+    if (!map) return;
+    
+    sampleBusinesses.forEach(business => {
+        const marker = new mapboxgl.Marker({
+            color: '#8B5CF6'
+        })
+        .setLngLat(business.coordinates)
+        .setPopup(new mapboxgl.Popup().setHTML(`
+            <div style="padding: 10px;">
+                <h4 style="margin: 0 0 5px 0; color: #8B5CF6;">${business.name}</h4>
+                <p style="margin: 0 0 5px 0; font-size: 0.9rem;">${business.address}</p>
+                <p style="margin: 0; font-size: 0.8rem; color: #666;">
+                    ⭐ ${business.ratings.overall.toFixed(1)} • ${business.reviewCount} reviews
+                </p>
+            </div>
+        `))
+        .addTo(map);
+    });
+}
+
+// Initialize search functionality
+function initializeSearch() {
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+        searchInput.addEventListener('input', handleSearchInput);
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                performSearch();
+            }
+        });
+    }
+}
+
+// Handle search input
+function handleSearchInput(event) {
+    const query = event.target.value.trim();
+    if (query.length > 2) {
+        showSearchSuggestions(query);
+    } else {
+        hideSearchSuggestions();
+    }
+}
+
+// Show search suggestions
+function showSearchSuggestions(query) {
+    const suggestions = document.getElementById('searchSuggestions');
+    if (!suggestions) return;
+    
+    // Filter businesses based on query
+    const matches = sampleBusinesses.filter(business => 
+        business.name.toLowerCase().includes(query.toLowerCase()) ||
+        business.address.toLowerCase().includes(query.toLowerCase()) ||
+        business.category.toLowerCase().includes(query.toLowerCase())
+    );
+    
+    if (matches.length > 0) {
+        suggestions.innerHTML = matches.slice(0, 5).map(business => `
+            <div class="search-suggestion" onclick="selectSuggestion('${business.name}', '${business.address}')">
+                <div class="suggestion-main">${business.name}</div>
+                <div class="suggestion-subtitle">${business.address}</div>
+            </div>
+        `).join('');
+        suggestions.style.display = 'block';
+    } else {
+        hideSearchSuggestions();
+    }
+}
+
+// Hide search suggestions
+function hideSearchSuggestions() {
+    const suggestions = document.getElementById('searchSuggestions');
+    if (suggestions) {
+        suggestions.style.display = 'none';
+    }
+}
+
+// Select suggestion
+function selectSuggestion(name, address) {
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+        searchInput.value = name;
+    }
+    hideSearchSuggestions();
+    performSearch();
+}
+
+// Perform search
+function performSearch() {
+    const searchInput = document.getElementById('searchInput');
+    const query = searchInput ? searchInput.value.trim() : '';
+    
+    console.log('🔍 Performing search for:', query);
+    
+    if (!query) {
+        showNotification('Please enter a search term', 'warning');
+        return;
+    }
+    
+    // Filter businesses based on search query
+    const results = sampleBusinesses.filter(business => 
+        business.name.toLowerCase().includes(query.toLowerCase()) ||
+        business.address.toLowerCase().includes(query.toLowerCase()) ||
+        business.category.toLowerCase().includes(query.toLowerCase())
+    );
+    
+    currentBusinesses = results;
+    renderBusinesses(results);
+    updateSearchResults(results.length, query);
+    hideSearchSuggestions();
+    
+    // Center map on first result if available
+    if (results.length > 0 && map) {
+        map.flyTo({
+            center: results[0].coordinates,
+            zoom: 14
+        });
+    }
+}
+
+// Update search results info
+function updateSearchResults(count, query) {
+    const resultsInfo = document.getElementById('searchResultsInfo');
+    if (resultsInfo) {
+        if (query) {
+            resultsInfo.textContent = `Found ${count} result${count !== 1 ? 's' : ''} for "${query}"`;
+        } else {
+            resultsInfo.textContent = 'Showing all restrooms in your area';
+        }
+    }
+}
+
+// Initialize filters
+function initializeFilters() {
+    const categoryFilter = document.getElementById('categoryFilter');
+    const distanceFilter = document.getElementById('distanceFilter');
+    const ratingFilter = document.getElementById('ratingFilter');
+    
+    if (categoryFilter) categoryFilter.addEventListener('change', applyFilters);
+    if (distanceFilter) distanceFilter.addEventListener('change', applyFilters);
+    if (ratingFilter) ratingFilter.addEventListener('change', applyFilters);
+}
+
+// Apply filters
+function applyFilters() {
+    const categoryFilter = document.getElementById('categoryFilter');
+    const distanceFilter = document.getElementById('distanceFilter');
+    const ratingFilter = document.getElementById('ratingFilter');
+    
+    const category = categoryFilter ? categoryFilter.value : '';
+    const maxDistance = distanceFilter ? parseFloat(distanceFilter.value) : null;
+    const minRating = ratingFilter ? parseFloat(ratingFilter.value) : null;
+    
+    let filtered = [...sampleBusinesses];
+    
+    // Apply category filter
+    if (category) {
+        filtered = filtered.filter(business => business.category === category);
+    }
+    
+    // Apply distance filter
+    if (maxDistance) {
+        filtered = filtered.filter(business => business.distance <= maxDistance);
+    }
+    
+    // Apply rating filter
+    if (minRating) {
+        filtered = filtered.filter(business => business.ratings.overall >= minRating);
+    }
+    
+    currentBusinesses = filtered;
+    renderBusinesses(filtered);
+    updateSearchResults(filtered.length, '');
+    
+    console.log('🔧 Applied filters, showing', filtered.length, 'businesses');
+}
+
+// Toggle quick filter
+function toggleQuickFilter(button) {
+    button.classList.toggle('active');
+    
+    const filter = button.dataset.filter;
+    let filtered = [...sampleBusinesses];
+    
+    // Get all active quick filters
+    const activeFilters = Array.from(document.querySelectorAll('.filter-btn.active'))
+        .map(btn => btn.dataset.filter);
+    
+    // Apply quick filters
+    activeFilters.forEach(filterType => {
+        switch(filterType) {
+            case 'wheelchair':
+                filtered = filtered.filter(business => 
+                    business.bathroomTypes.includes('accessible'));
+                break;
+            case 'baby-changing':
+                filtered = filtered.filter(business => 
+                    business.amenities.includes('baby-changing'));
+                break;
+            case 'open-now':
+                filtered = filtered.filter(business => 
+                    business.hours === '24/7' || business.hours.includes('AM'));
+                break;
+            case 'high-rated':
+                filtered = filtered.filter(business => 
+                    business.ratings.overall >= 4.0);
+                break;
+        }
+    });
+    
+    currentBusinesses = filtered;
+    renderBusinesses(filtered);
+    updateSearchResults(filtered.length, '');
+}
+
+// Get current location
+function getCurrentLocation() {
+    if (!navigator.geolocation) {
+        showNotification('Geolocation is not supported by this browser', 'error');
+        return;
+    }
+    
+    showNotification('Getting your location...', 'info');
+    
+    navigator.geolocation.getCurrentPosition(
+        function(position) {
+            userLocation = {
+                lat: position.coords.latitude,
+                lng: position.coords.longitude
+            };
+            
+            if (map) {
+                map.flyTo({
+                    center: [userLocation.lng, userLocation.lat],
+                    zoom: 14
+                });
+                
+                // Add user location marker
+                new mapboxgl.Marker({ color: '#10B981' })
+                    .setLngLat([userLocation.lng, userLocation.lat])
+                    .setPopup(new mapboxgl.Popup().setHTML('<div style="padding: 10px;"><strong>Your Location</strong></div>'))
+                    .addTo(map);
+            }
+            
+            showNotification('Location found!', 'success');
+            
+            // Update distances and re-render
+            updateDistances();
+            renderBusinesses(currentBusinesses.length > 0 ? currentBusinesses : sampleBusinesses);
+        },
+        function(error) {
+            console.error('Geolocation error:', error);
+            showNotification('Unable to get your location', 'error');
+        }
+    );
+}
+
+// Update distances based on user location
+function updateDistances() {
+    if (!userLocation) return;
+    
+    sampleBusinesses.forEach(business => {
+        const distance = calculateDistance(
+            userLocation.lat, userLocation.lng,
+            business.coordinates[1], business.coordinates[0]
+        );
+        business.distance = distance;
+    });
+    
+    // Sort by distance
+    sampleBusinesses.sort((a, b) => a.distance - b.distance);
+}
+
+// Calculate distance between two points
+function calculateDistance(lat1, lon1, lat2, lon2) {
+    const R = 3959; // Earth's radius in miles
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+        Math.sin(dLon/2) * Math.sin(dLon/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c;
+}
+
+// Load and render businesses
+function loadBusinesses() {
+    currentBusinesses = sampleBusinesses;
+    renderBusinesses(sampleBusinesses);
+    updateSearchResults(sampleBusinesses.length, '');
+}
+
+// Render businesses
+function renderBusinesses(businesses) {
+    const grid = document.getElementById('businessGrid');
+    if (!grid) return;
+    
+    if (businesses.length === 0) {
+        grid.innerHTML = '<div class="no-results">No restrooms found matching your criteria.</div>';
+        return;
+    }
+    
+    grid.innerHTML = businesses.map(business => createBusinessCard(business)).join('');
+}
+
+// Create business card HTML
+function createBusinessCard(business) {
+    const stars = '★'.repeat(Math.floor(business.ratings.overall)) + 
+                 '☆'.repeat(5 - Math.floor(business.ratings.overall));
+    
+    const bathroomSymbols = business.bathroomTypes.map(type => {
+        switch(type) {
+            case 'mens': return '🚹';
+            case 'womens': return '🚺';
+            case 'neutral': return '🚻';
+            case 'accessible': return '♿';
+            default: return '';
+        }
+    }).join(' ');
+    
+    return `
+        <div class="business-card">
+            <div class="business-header">
+                <div>
+                    <h4 class="business-name">${business.name}</h4>
+                    <p class="business-category">${formatCategory(business.category)}</p>
+                </div>
+                <div class="bathroom-types">
+                    ${bathroomSymbols.split(' ').map(symbol => 
+                        `<span class="bathroom-symbol">${symbol}</span>`
+                    ).join('')}
+                </div>
+            </div>
+            
+            <div class="business-info">
+                <p class="business-address">📍 ${business.address}</p>
+                <p class="business-distance">📏 ${business.distance.toFixed(1)} miles away</p>
+                <p class="business-hours">🕐 ${business.hours}</p>
+                <p class="business-phone">📞 ${business.phone}</p>
+            </div>
+            
+            <div class="business-ratings">
+                <div class="rating-item">
+                    <span class="rating-label">Overall</span>
+                    <div class="rating-value">
+                        <span class="stars">${stars}</span>
+                        <span class="rating-number">${business.ratings.overall.toFixed(1)}</span>
+                    </div>
+                </div>
+                <div class="rating-item">
+                    <span class="rating-label">Cleanliness</span>
+                    <div class="rating-value">
+                        <span class="rating-number">${business.ratings.cleanliness.toFixed(1)}/10</span>
+                    </div>
+                </div>
+                <div class="rating-item">
+                    <span class="rating-label">Safety</span>
+                    <div class="rating-value">
+                        <span class="rating-number">${business.ratings.safety.toFixed(1)}/10</span>
+                    </div>
+                </div>
+                <div class="rating-item">
+                    <span class="rating-label">Accessibility</span>
+                    <div class="rating-value">
+                        <span class="rating-number">${business.ratings.accessibility.toFixed(1)}/10</span>
+                    </div>
+                </div>
+                <div class="review-count">${business.reviewCount} reviews</div>
+            </div>
+            
+            <div class="business-amenities">
+                <div class="amenities-list">
+                    ${business.amenities.map(amenity => 
+                        `<span class="amenity-tag">${formatAmenity(amenity)}</span>`
+                    ).join('')}
+                </div>
+            </div>
+            
+            <div class="business-actions">
+                <button class="btn btn-primary btn-small" onclick="openReviewModal(${business.id})">
+                    ⭐ Rate & Review
+                </button>
+                <button class="btn btn-secondary btn-small" onclick="getDirections(${business.coordinates[1]}, ${business.coordinates[0]})">
+                    🧭 Directions
+                </button>
+            </div>
+        </div>
+    `;
+}
+
+// Format category for display
+function formatCategory(category) {
+    const categories = {
+        'gas-station': 'Gas Station',
+        'restaurant': 'Restaurant',
+        'coffee-shop': 'Coffee Shop',
+        'retail': 'Retail Store',
+        'hotel': 'Hotel',
+        'park': 'Park',
+        'hospital': 'Hospital',
+        'library': 'Library'
+    };
+    return categories[category] || category;
+}
+
+// Format amenity for display
+function formatAmenity(amenity) {
+    const amenities = {
+        'toilet-paper': 'Toilet Paper',
+        'soap': 'Soap',
+        'paper-towels': 'Paper Towels',
+        'hand-dryer': 'Hand Dryer',
+        'baby-changing': 'Baby Changing',
+        'ada-compliant': 'ADA Compliant'
+    };
+    return amenities[amenity] || amenity;
+}
+
+// Get directions
+function getDirections(lat, lng) {
+    const url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+    window.open(url, '_blank');
+}
+
+// Initialize modals
+function initializeModals() {
+    // Close modal when clicking outside
+    window.addEventListener('click', function(event) {
+        if (event.target.classList.contains('modal')) {
+            closeModal(event.target.id);
+        }
+    });
+}
+
+// Show modal
+function showModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.style.display = 'block';
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+// Close modal
+function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+}
+
+// Initialize authentication
+function initializeAuth() {
+    // Check for existing user session
+    const savedUser = localStorage.getItem('gtgotg_current_user');
+    if (savedUser) {
+        currentUser = JSON.parse(savedUser);
+        updateUserStatus();
+    }
+}
+
+// Handle login
+function handleLogin(event) {
+    event.preventDefault();
+    
+    const formData = new FormData(event.target);
+    const email = formData.get('email');
+    const password = formData.get('password');
+    
+    // Simple authentication (in real app, this would be server-side)
+    const users = JSON.parse(localStorage.getItem('gtgotg_users') || '[]');
+    const user = users.find(u => u.email === email && u.password === password);
+    
+    if (user) {
+        currentUser = user;
+        localStorage.setItem('gtgotg_current_user', JSON.stringify(user));
+        updateUserStatus();
+        closeModal('loginModal');
+        showNotification(`Welcome back, ${user.firstName}!`, 'success');
+        event.target.reset();
+    } else {
+        showNotification('Invalid email or password', 'error');
+    }
+}
+
+// Handle registration
+function handleRegister(event) {
+    event.preventDefault();
+    
+    const formData = new FormData(event.target);
+    const userData = {
+        id: Date.now(),
+        firstName: formData.get('firstName'),
+        lastName: formData.get('lastName'),
+        email: formData.get('email'),
+        password: formData.get('password'),
+        confirmPassword: formData.get('confirmPassword'),
+        badge: 'Reviewer',
+        joinDate: new Date().toISOString()
+    };
+    
+    // Validate passwords match
+    if (userData.password !== userData.confirmPassword) {
+        showNotification('Passwords do not match', 'error');
+        return;
+    }
+    
+    // Check if user already exists
+    const users = JSON.parse(localStorage.getItem('gtgotg_users') || '[]');
+    if (users.find(u => u.email === userData.email)) {
+        showNotification('An account with this email already exists', 'error');
+        return;
+    }
+    
+    // Save user
+    users.push(userData);
+    localStorage.setItem('gtgotg_users', JSON.stringify(users));
+    
+    // Log in the user
+    currentUser = userData;
+    localStorage.setItem('gtgotg_current_user', JSON.stringify(userData));
+    
+    updateUserStatus();
+    closeModal('registerModal');
+    showNotification(`Welcome to GTGOTG, ${userData.firstName}!`, 'success');
+    event.target.reset();
+}
+
+// Update user status display
+function updateUserStatus() {
+    const userStatus = document.getElementById('userStatus');
+    const userName = document.getElementById('userName');
+    const userBadge = document.getElementById('userBadge');
+    const adminBtn = document.getElementById('adminBtn');
+    const loginBtn = document.querySelector('button[onclick="showModal(\'loginModal\')"]');
+    const signUpBtn = document.querySelector('button[onclick="showModal(\'registerModal\')"]');
+    
+    if (currentUser) {
+        if (userStatus) userStatus.style.display = 'block';
+        if (userName) userName.textContent = currentUser.firstName;
+        if (userBadge) userBadge.textContent = currentUser.badge;
+        if (loginBtn) loginBtn.style.display = 'none';
+        if (signUpBtn) signUpBtn.style.display = 'none';
+        
+        // Show admin button for admin users
+        if (adminBtn && currentUser.email === 'admin@gtgotg.com') {
+            adminBtn.style.display = 'inline-block';
+        }
+    } else {
+        if (userStatus) userStatus.style.display = 'none';
+        if (loginBtn) loginBtn.style.display = 'inline-block';
+        if (signUpBtn) signUpBtn.style.display = 'inline-block';
+        if (adminBtn) adminBtn.style.display = 'none';
+    }
+}
+
+// Logout
+function logout() {
+    currentUser = null;
+    localStorage.removeItem('gtgotg_current_user');
+    updateUserStatus();
+    showNotification('Logged out successfully', 'info');
+}
+
+// Show notification
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.innerHTML = `
+        <div class="notification-content">
+            <span>${message}</span>
+            <button class="notification-close" onclick="this.parentElement.parentElement.remove()">&times;</button>
+        </div>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+        if (notification.parentElement) {
+            notification.remove();
+        }
+    }, 5000);
+}
+
+// Center map on user location
+function centerMapOnUser() {
+    if (userLocation && map) {
+        map.flyTo({
+            center: [userLocation.lng, userLocation.lat],
+            zoom: 14
+        });
+    } else {
+        getCurrentLocation();
+    }
+}
+
+// Toggle map view
+function toggleMapView() {
+    if (!map) return;
+    
+    const currentStyle = map.getStyle().name;
+    if (currentStyle === 'Mapbox Streets') {
+        map.setStyle('mapbox://styles/mapbox/satellite-streets-v12');
+    } else {
+        map.setStyle('mapbox://styles/mapbox/streets-v12');
+    }
+}
+
+// Enhanced Review System Functions
 
 // Initialize enhanced review system
 function initializeEnhancedReviewSystem() {
@@ -592,15 +1359,147 @@ function openReviewModal(businessId) {
     console.log(`📝 Opened review modal for: ${business.name}`);
 }
 
-// Initialize when DOM is ready
-document.addEventListener('DOMContentLoaded', () => {
-    console.log('🔧 Initializing enhanced review system...');
-    setTimeout(initializeEnhancedReviewSystem, 500);
-});
+// Admin Functions
+function showAdminTab(tabName) {
+    // Hide all tabs
+    document.querySelectorAll('.admin-tab-content').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    
+    // Remove active class from all buttons
+    document.querySelectorAll('.admin-tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // Show selected tab
+    const selectedTab = document.getElementById(tabName + 'Tab');
+    if (selectedTab) {
+        selectedTab.classList.add('active');
+    }
+    
+    // Add active class to clicked button
+    event.target.classList.add('active');
+    
+    // Load tab content
+    loadAdminTabContent(tabName);
+}
 
-// Export functions for global use
-window.removePhoto = removePhoto;
-window.openReviewModal = openReviewModal;
+function loadAdminTabContent(tabName) {
+    switch(tabName) {
+        case 'analytics':
+            loadAnalytics();
+            break;
+        case 'businesses':
+            loadBusinessManagement();
+            break;
+        case 'reviews':
+            loadReviewManagement();
+            break;
+        case 'users':
+            loadUserManagement();
+            break;
+    }
+}
 
-console.log('✅ GTGOTG - Photo Upload & Enhanced Review System - Loaded successfully!');
+function loadAnalytics() {
+    const reviews = JSON.parse(localStorage.getItem('gtgotg_reviews') || '[]');
+    const users = JSON.parse(localStorage.getItem('gtgotg_users') || '[]');
+    
+    document.getElementById('totalBusinesses').textContent = sampleBusinesses.length;
+    document.getElementById('totalReviews').textContent = reviews.length;
+    document.getElementById('totalUsers').textContent = users.length;
+    
+    const avgRating = sampleBusinesses.reduce((sum, b) => sum + b.ratings.overall, 0) / sampleBusinesses.length;
+    document.getElementById('averageRating').textContent = avgRating.toFixed(1);
+}
 
+function loadBusinessManagement() {
+    const container = document.getElementById('adminBusinessList');
+    container.innerHTML = sampleBusinesses.map(business => `
+        <div class="admin-item">
+            <div class="admin-item-info">
+                <h6>${business.name}</h6>
+                <p>${business.address} • ${business.reviewCount} reviews</p>
+            </div>
+            <div class="admin-item-actions">
+                <button class="btn btn-small btn-secondary">Edit</button>
+                <button class="btn btn-small btn-admin">Delete</button>
+            </div>
+        </div>
+    `).join('');
+}
+
+function loadReviewManagement() {
+    const reviews = JSON.parse(localStorage.getItem('gtgotg_reviews') || '[]');
+    const container = document.getElementById('adminReviewList');
+    
+    container.innerHTML = reviews.map(review => {
+        const business = sampleBusinesses.find(b => b.id === review.businessId);
+        return `
+            <div class="admin-item">
+                <div class="admin-item-info">
+                    <h6>Review for ${business ? business.name : 'Unknown Business'}</h6>
+                    <p>Rating: ${review.ratings.overall}/10 • ${new Date(review.timestamp).toLocaleDateString()}</p>
+                </div>
+                <div class="admin-item-actions">
+                    <button class="btn btn-small btn-secondary">View</button>
+                    <button class="btn btn-small btn-admin">Delete</button>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function loadUserManagement() {
+    const users = JSON.parse(localStorage.getItem('gtgotg_users') || '[]');
+    const container = document.getElementById('adminUserList');
+    
+    container.innerHTML = users.map(user => `
+        <div class="admin-item">
+            <div class="admin-item-info">
+                <h6>${user.firstName} ${user.lastName}</h6>
+                <p>${user.email} • ${user.badge} • Joined ${new Date(user.joinDate).toLocaleDateString()}</p>
+            </div>
+            <div class="admin-item-actions">
+                <button class="btn btn-small btn-secondary">Edit</button>
+                <button class="btn btn-small btn-admin">Ban</button>
+            </div>
+        </div>
+    `).join('');
+}
+
+// Initialize default test users
+function initializeTestUsers() {
+    const existingUsers = JSON.parse(localStorage.getItem('gtgotg_users') || '[]');
+    
+    if (existingUsers.length === 0) {
+        const testUsers = [
+            {
+                id: 1,
+                firstName: 'Test',
+                lastName: 'User',
+                email: 'user@gtgotg.com',
+                password: 'password123',
+                badge: 'Reviewer',
+                joinDate: new Date().toISOString()
+            },
+            {
+                id: 2,
+                firstName: 'Admin',
+                lastName: 'User',
+                email: 'admin@gtgotg.com',
+                password: 'admin123',
+                badge: 'Expert',
+                joinDate: new Date().toISOString()
+            }
+        ];
+        
+        localStorage.setItem('gtgotg_users', JSON.stringify(testUsers));
+        console.log('✅ Test users initialized');
+    }
+}
+
+// Initialize test users on load
+initializeTestUsers();
+
+console.log('✅ GTGOTG - Loaded successfully!');
