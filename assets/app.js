@@ -254,14 +254,28 @@ function hideSearchSuggestions() {
     }
 }
 
-// Select suggestion
-function selectSuggestion(name, address) {
+// Select location suggestion
+function selectLocationSuggestion(placeName, center) {
     const searchInput = document.getElementById('searchInput');
     if (searchInput) {
-        searchInput.value = name;
+        searchInput.value = placeName;
     }
     hideSearchSuggestions();
-    performSearch();
+    
+    // Center map and find nearby businesses
+    if (map) {
+        map.flyTo({
+            center: center,
+            zoom: 12
+        });
+    }
+    
+    const nearbyBusinesses = findNearbyBusinesses(center);
+    currentBusinesses = nearbyBusinesses;
+    renderBusinesses(nearbyBusinesses);
+    updateSearchResults(nearbyBusinesses.length, placeName);
+    
+    showNotification(`Found ${nearbyBusinesses.length} restrooms near ${placeName}`, 'success');
 }
 
 // Perform search
@@ -276,24 +290,100 @@ function performSearch() {
         return;
     }
     
-    // Filter businesses based on search query
-    const results = sampleBusinesses.filter(business => 
-        business.name.toLowerCase().includes(query.toLowerCase()) ||
-        business.address.toLowerCase().includes(query.toLowerCase()) ||
-        business.category.toLowerCase().includes(query.toLowerCase())
-    );
+    // Use Mapbox Geocoding API for real location search
+    geocodeLocation(query).then(results => {
+        if (results.length > 0) {
+            const location = results[0];
+            
+            // Center map on searched location
+            if (map) {
+                map.flyTo({
+                    center: location.center,
+                    zoom: 12
+                });
+            }
+            
+            // Find nearby businesses (simulate for demo)
+            const nearbyBusinesses = findNearbyBusinesses(location.center);
+            currentBusinesses = nearbyBusinesses;
+            renderBusinesses(nearbyBusinesses);
+            updateSearchResults(nearbyBusinesses.length, query);
+            hideSearchSuggestions();
+            
+            showNotification(`Found ${nearbyBusinesses.length} restrooms near ${location.place_name}`, 'success');
+        } else {
+            showNotification('Location not found. Please try a different search.', 'warning');
+        }
+    }).catch(error => {
+        console.error('Geocoding error:', error);
+        showNotification('Search failed. Please try again.', 'error');
+    });
+}
+
+// Geocode location using Mapbox API
+async function geocodeLocation(query) {
+    try {
+        const response = await fetch(
+            `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?access_token=${mapboxgl.accessToken}&country=US&types=place,postcode,address`
+        );
+        
+        if (!response.ok) {
+            throw new Error('Geocoding request failed');
+        }
+        
+        const data = await response.json();
+        return data.features || [];
+    } catch (error) {
+        console.error('Geocoding error:', error);
+        return [];
+    }
+}
+
+// Find nearby businesses (simulate based on location)
+function findNearbyBusinesses(center) {
+    // For demo purposes, return sample businesses with updated distances
+    return sampleBusinesses.map(business => {
+        const distance = calculateDistance(
+            center[1], center[0],
+            business.coordinates[1], business.coordinates[0]
+        );
+        return {
+            ...business,
+            distance: distance
+        };
+    }).sort((a, b) => a.distance - b.distance);
+}
+
+// Show search suggestions with real geocoding
+async function showSearchSuggestions(query) {
+    const suggestions = document.getElementById('searchSuggestions');
+    if (!suggestions) return;
     
-    currentBusinesses = results;
-    renderBusinesses(results);
-    updateSearchResults(results.length, query);
-    hideSearchSuggestions();
-    
-    // Center map on first result if available
-    if (results.length > 0 && map) {
-        map.flyTo({
-            center: results[0].coordinates,
-            zoom: 14
-        });
+    try {
+        // Get geocoding suggestions
+        const response = await fetch(
+            `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?access_token=${mapboxgl.accessToken}&country=US&types=place,postcode,address&limit=5`
+        );
+        
+        if (response.ok) {
+            const data = await response.json();
+            const features = data.features || [];
+            
+            if (features.length > 0) {
+                suggestions.innerHTML = features.map(feature => `
+                    <div class="search-suggestion" onclick="selectLocationSuggestion('${feature.place_name}', [${feature.center}])">
+                        <div class="suggestion-main">${feature.text}</div>
+                        <div class="suggestion-subtitle">${feature.place_name}</div>
+                    </div>
+                `).join('');
+                suggestions.style.display = 'block';
+            } else {
+                hideSearchSuggestions();
+            }
+        }
+    } catch (error) {
+        console.error('Suggestion error:', error);
+        hideSearchSuggestions();
     }
 }
 

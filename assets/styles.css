@@ -1,6 +1,19 @@
 /* GTGOTG - "Got To Go On The Go" Enhanced Styles with OpenStreetMap Integration
    Copyright © 2025 Jessica Esposito / Colorado Quality LLC. All rights reserved. */
 
+/* Screen reader only class for accessibility */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
 /* Reset and Base Styles */
 * {
     margin: 0;

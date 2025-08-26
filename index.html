@@ -72,8 +72,9 @@
                         <div class="search-input-container">
                             <input type="text" id="searchInput" class="search-input" 
                                    name="searchInput"
+                                   autocomplete="address-line1"
                                    placeholder="Search by business name, address, or location..." 
-                                   autocomplete="off">
+                                   aria-label="Search for restrooms by location">
                             <div class="search-suggestions" id="searchSuggestions"></div>
                         </div>
                         <button class="btn location-btn" onclick="getCurrentLocation()">📍 Use My Location</button>
@@ -222,24 +223,24 @@
                     <div class="form-row">
                         <div class="form-group">
                             <label for="registerFirstName">First Name:</label>
-                            <input type="text" id="registerFirstName" name="firstName" required>
+                            <input type="text" id="registerFirstName" name="firstName" autocomplete="given-name" required>
                         </div>
                         <div class="form-group">
                             <label for="registerLastName">Last Name:</label>
-                            <input type="text" id="registerLastName" name="lastName" required>
+                            <input type="text" id="registerLastName" name="lastName" autocomplete="family-name" required>
                         </div>
                     </div>
                     <div class="form-group">
                         <label for="registerEmail">Email:</label>
-                        <input type="email" id="registerEmail" name="email" required>
+                        <input type="email" id="registerEmail" name="email" autocomplete="email" required>
                     </div>
                     <div class="form-group">
                         <label for="registerPassword">Password:</label>
-                        <input type="password" id="registerPassword" name="password" required minlength="6">
+                        <input type="password" id="registerPassword" name="password" autocomplete="new-password" required minlength="6">
                     </div>
                     <div class="form-group">
                         <label for="registerConfirmPassword">Confirm Password:</label>
-                        <input type="password" id="registerConfirmPassword" name="confirmPassword" required minlength="6">
+                        <input type="password" id="registerConfirmPassword" name="confirmPassword" autocomplete="new-password" required minlength="6">
                     </div>
                     <div class="form-actions">
                         <button type="button" class="btn btn-secondary" onclick="closeModal('registerModal')">Cancel</button>
@@ -426,7 +427,8 @@
                         <div class="comment-note">
                             Share any additional details that might help other users.
                         </div>
-                        <textarea id="reviewComment" name="comment" placeholder="Tell others about your experience..."></textarea>
+                        <label for="reviewComment" class="sr-only">Additional Comments</label>
+                        <textarea id="reviewComment" name="comment" autocomplete="off" placeholder="Tell others about your experience..." aria-label="Additional comments about your restroom experience"></textarea>
                     </div>
 
                     <div class="form-actions">
