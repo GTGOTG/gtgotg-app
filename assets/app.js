@@ -153,6 +153,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Initialize map
 async function initializeMap() {
+    console.log('🗺️ Initializing map...');
+    
+    // Check if Mapbox is available
     try {
         map = new mapboxgl.Map({
             container: 'map',
