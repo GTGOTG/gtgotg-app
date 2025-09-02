@@ -380,10 +380,9 @@ function findNearbyBusinesses(center) {
                 `limit=10&` +
                 `access_token=${mapboxgl.accessToken}`;
             
-            const response = fetch(url);
-            const data = response.then(r => r.json());
-            
-            data.then(result => {
+            fetch(url)
+                .then(response => response.json())
+                .then(result => {
                 if (result.features) {
                     result.features.forEach(feature => {
                         const business = createBusinessFromMapboxFeature(feature, businessType, center[1], center[0]);
