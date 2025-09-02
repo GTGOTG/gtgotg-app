@@ -6,10 +6,12 @@ const urlsToCache = [
   '/',
   '/index.html',
   '/assets/styles.css',
-  '/assets/app.js',
+  '/assets/GTGOTG_ENHANCED_REVIEW_CSS.css',
+  '/assets/GTGOTG_PHOTO_UPLOAD_JS.js',
   '/manifest.json',
-  '/assets/icon-192x192.png',
-  '/assets/icon-512x512.png'
+  '/assets/gtgotg-app-icon-192.png',
+  '/assets/gtgotg-app-icon-512.png',
+  '/assets/gtgotg-favicon-32.png'
 ];
 
 // Install event - cache resources
