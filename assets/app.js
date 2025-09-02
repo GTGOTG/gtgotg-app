@@ -18,13 +18,12 @@ var activeFilters = {
 };
 
 // Mapbox configuration - Using a demo token (replace with your own)
-// mapboxgl.accessToken = 'pk.eyJ1IjoiZ3Rnb3RnLWRlbW8iLCJhIjoiY2x0ZXN0MTIzNDU2Nzg5MCJ9.demo_token_replace_with_real_one';
+mapboxgl.accessToken = 'pk.eyJ1IjoiY29sb3JhZG9xdWFsaXR5bGxjIiwiYSI6ImNtZW4yOG9scTB4ZzgybG9jNTgwZW8wbDAifQ.Vo3vwfNTszwGPkYp4H054Q';
 
 // Check if Mapbox token is available, otherwise show fallback
 if (typeof mapboxgl !== 'undefined') {
-    // You need to replace this with your actual Mapbox public access token
-    // Get one from: https://account.mapbox.com/access-tokens/
-    mapboxgl.accessToken = 'YOUR_MAPBOX_ACCESS_TOKEN_HERE';
+    // Mapbox token is already set above
+    console.log('🗺️ Mapbox token configured');
 }
 
 // Sample business data with enhanced information
