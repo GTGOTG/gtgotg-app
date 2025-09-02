@@ -4,7 +4,7 @@
 console.log('📷 GTGOTG - Photo Upload & Enhanced Review System - Loading...');
 
 // Photo upload configuration
-const PHOTO_CONFIG = {
+var PHOTO_CONFIG = {
     maxFiles: 3,
     maxFileSize: 5 * 1024 * 1024, // 5MB
     allowedTypes: ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'],
@@ -12,10 +12,10 @@ const PHOTO_CONFIG = {
 };
 
 // Global variables for review system
-let selectedPhotos = [];
-let selectedBathroomType = null;
-let isWheelchairAccessible = false;
-let currentRatings = {
+var selectedPhotos = [];
+var selectedBathroomType = null;
+var isWheelchairAccessible = false;
+var currentRatings = {
     overall: 0,
     cleanliness: 0,
     safety: 0,
@@ -43,8 +43,8 @@ function initializeEnhancedReviewSystem() {
 
 // Initialize photo upload functionality
 function initializePhotoUpload() {
-    const photoUpload = document.getElementById('photoUpload');
-    const uploadDropzone = document.querySelector('.upload-dropzone');
+    var photoUpload = document.getElementById('photoUpload');
+    var uploadDropzone = document.querySelector('.upload-dropzone');
     
     if (!photoUpload || !uploadDropzone) {
         console.log('Photo upload elements not found');
@@ -69,7 +69,7 @@ function initializePhotoUpload() {
 
 // Handle file selection
 function handleFileSelection(event) {
-    const files = Array.from(event.target.files);
+    var files = Array.from(event.target.files);
     processSelectedFiles(files);
 }
 
@@ -93,7 +93,7 @@ function handleFileDrop(event) {
     event.stopPropagation();
     event.currentTarget.classList.remove('dragover');
     
-    const files = Array.from(event.dataTransfer.files);
+    var files = Array.from(event.dataTransfer.files);
     processSelectedFiles(files);
 }
 
@@ -102,7 +102,7 @@ function processSelectedFiles(files) {
     console.log(`📁 Processing ${files.length} selected files...`);
     
     // Filter valid image files
-    const validFiles = files.filter(file => {
+    var validFiles = files.filter(function(file) {
         if (!PHOTO_CONFIG.allowedTypes.includes(file.type)) {
             showNotification(`File "${file.name}" is not a supported image format.`, 'warning');
             return false;
@@ -118,13 +118,13 @@ function processSelectedFiles(files) {
     
     // Check total file limit
     if (selectedPhotos.length + validFiles.length > PHOTO_CONFIG.maxFiles) {
-        const remaining = PHOTO_CONFIG.maxFiles - selectedPhotos.length;
+        var remaining = PHOTO_CONFIG.maxFiles - selectedPhotos.length;
         showNotification(`You can only upload ${PHOTO_CONFIG.maxFiles} photos total. ${remaining} slots remaining.`, 'warning');
         validFiles.splice(remaining);
     }
     
     // Add valid files to selection
-    validFiles.forEach(file => {
+    validFiles.forEach(function(file) {
         addPhotoToSelection(file);
     });
     
@@ -136,7 +136,7 @@ function processSelectedFiles(files) {
 
 // Add photo to selection
 function addPhotoToSelection(file) {
-    const photoData = {
+    var photoData = {
         file: file,
         id: Date.now() + Math.random(),
         name: file.name,
@@ -150,8 +150,8 @@ function addPhotoToSelection(file) {
 
 // Update photo preview
 function updatePhotoPreview() {
-    const previewContainer = document.getElementById('photoPreview');
-    const previewList = document.getElementById('photoPreviewList');
+    var previewContainer = document.getElementById('photoPreview');
+    var previewList = document.getElementById('photoPreviewList');
     
     if (!previewContainer || !previewList) return;
     
@@ -163,15 +163,15 @@ function updatePhotoPreview() {
     previewContainer.style.display = 'block';
     previewList.innerHTML = '';
     
-    selectedPhotos.forEach(photo => {
-        const previewItem = createPhotoPreviewItem(photo);
+    selectedPhotos.forEach(function(photo) {
+        var previewItem = createPhotoPreviewItem(photo);
         previewList.appendChild(previewItem);
     });
 }
 
 // Create photo preview item
 function createPhotoPreviewItem(photo) {
-    const item = document.createElement('div');
+    var item = document.createElement('div');
     item.className = 'photo-preview-item';
     item.innerHTML = `
         <img src="${photo.url}" alt="${photo.name}" class="photo-preview-img">
@@ -187,7 +187,7 @@ function createPhotoPreviewItem(photo) {
 
 // Remove photo from selection
 function removePhoto(photoId) {
-    const index = selectedPhotos.findIndex(photo => photo.id == photoId);
+    var index = selectedPhotos.findIndex(function(photo) { return photo.id == photoId; });
     if (index !== -1) {
         // Revoke object URL to free memory
         URL.revokeObjectURL(selectedPhotos[index].url);
@@ -201,22 +201,22 @@ function removePhoto(photoId) {
 // Format file size
 function formatFileSize(bytes) {
     if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    var k = 1024;
+    var sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    var i = Math.floor(Math.log(bytes) / Math.log(k));
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 }
 
 // Initialize bathroom symbol selection
 function initializeBathroomSymbols() {
-    const bathroomBtns = document.querySelectorAll('.bathroom-symbol-btn');
-    const wheelchairBtn = document.querySelector('.wheelchair-btn');
+    var bathroomBtns = document.querySelectorAll('.bathroom-symbol-btn');
+    var wheelchairBtn = document.querySelector('.wheelchair-btn');
     
     // Bathroom type selection
-    bathroomBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
+    bathroomBtns.forEach(function(btn) {
+        btn.addEventListener('click', function() {
             // Remove selected class from all buttons
-            bathroomBtns.forEach(b => b.classList.remove('selected'));
+            bathroomBtns.forEach(function(b) { b.classList.remove('selected'); });
             
             // Add selected class to clicked button
             btn.classList.add('selected');
@@ -230,7 +230,7 @@ function initializeBathroomSymbols() {
     
     // Wheelchair accessibility selection
     if (wheelchairBtn) {
-        wheelchairBtn.addEventListener('click', () => {
+        wheelchairBtn.addEventListener('click', function() {
             isWheelchairAccessible = !isWheelchairAccessible;
             wheelchairBtn.classList.toggle('selected', isWheelchairAccessible);
             wheelchairBtn.dataset.accessible = isWheelchairAccessible;
@@ -244,25 +244,25 @@ function initializeBathroomSymbols() {
 
 // Initialize enhanced star ratings
 function initializeEnhancedRatings() {
-    const starRatings = document.querySelectorAll('.star-rating');
+    var starRatings = document.querySelectorAll('.star-rating');
     
-    starRatings.forEach(rating => {
-        const ratingType = rating.dataset.rating;
-        const stars = rating.querySelectorAll('.star');
-        const display = document.getElementById(`${ratingType}RatingDisplay`);
+    starRatings.forEach(function(rating) {
+        var ratingType = rating.dataset.rating;
+        var stars = rating.querySelectorAll('.star');
+        var display = document.getElementById(ratingType + 'RatingDisplay');
         
-        stars.forEach((star, index) => {
-            star.addEventListener('click', () => {
-                const value = parseInt(star.dataset.value);
+        stars.forEach(function(star, index) {
+            star.addEventListener('click', function() {
+                var value = parseInt(star.dataset.value);
                 setRating(ratingType, value, stars, display);
             });
             
-            star.addEventListener('mouseenter', () => {
+            star.addEventListener('mouseenter', function() {
                 highlightStars(stars, parseInt(star.dataset.value));
             });
         });
         
-        rating.addEventListener('mouseleave', () => {
+        rating.addEventListener('mouseleave', function() {
             highlightStars(stars, currentRatings[ratingType] || 0);
         });
     });
@@ -284,7 +284,7 @@ function setRating(type, value, stars, display) {
 
 // Highlight stars up to value
 function highlightStars(stars, value) {
-    stars.forEach((star, index) => {
+    stars.forEach(function(star, index) {
         if (index < value) {
             star.classList.add('active');
         } else {
@@ -295,7 +295,7 @@ function highlightStars(stars, value) {
 
 // Initialize form validation
 function initializeFormValidation() {
-    const reviewForm = document.getElementById('reviewForm');
+    var reviewForm = document.getElementById('reviewForm');
     
     if (reviewForm) {
         reviewForm.addEventListener('submit', handleReviewSubmission);
@@ -364,7 +364,8 @@ function validateReviewForm() {
     
     // Validate photos if any
     if (selectedPhotos.length > 0) {
-        for (const photo of selectedPhotos) {
+        for (var i = 0; i < selectedPhotos.length; i++) {
+            var photo = selectedPhotos[i];
             if (photo.size > PHOTO_CONFIG.maxFileSize) {
                 showNotification(`Photo "${photo.name}" is too large.`, 'warning');
                 return false;
@@ -377,10 +378,10 @@ function validateReviewForm() {
 
 // Prepare review data
 function prepareReviewData() {
-    const form = document.getElementById('reviewForm');
-    const formData = new FormData(form);
+    var form = document.getElementById('reviewForm');
+    var formData = new FormData(form);
     
-    const reviewData = {
+    var reviewData = {
         businessId: currentBusinessForReview,
         userId: currentUser ? currentUser.id : null,
         ratings: { ...currentRatings },
@@ -394,8 +395,8 @@ function prepareReviewData() {
     };
     
     // Get selected amenities
-    const amenityCheckboxes = form.querySelectorAll('input[name="amenities"]:checked');
-    reviewData.amenities = Array.from(amenityCheckboxes).map(cb => cb.value);
+    var amenityCheckboxes = form.querySelectorAll('input[name="amenities"]:checked');
+    reviewData.amenities = Array.from(amenityCheckboxes).map(function(cb) { return cb.value; });
     
     return reviewData;
 }
@@ -406,12 +407,12 @@ async function submitReviewWithPhotos(reviewData) {
     
     // Simulate photo upload process
     if (reviewData.photos.length > 0) {
-        for (let i = 0; i < reviewData.photos.length; i++) {
-            const photo = reviewData.photos[i];
+        for (var i = 0; i < reviewData.photos.length; i++) {
+            var photo = reviewData.photos[i];
             console.log(`📷 Uploading photo ${i + 1}/${reviewData.photos.length}: ${photo.name}`);
             
             // Simulate upload delay
-            await new Promise(resolve => setTimeout(resolve, 500));
+            await new Promise(function(resolve) { setTimeout(resolve, 500); });
             
             // In a real implementation, you would upload to a server here
             // For now, we'll just store the photo data locally
@@ -420,7 +421,7 @@ async function submitReviewWithPhotos(reviewData) {
     }
     
     // Store review data (in a real app, this would go to a server)
-    const reviews = JSON.parse(localStorage.getItem('gtgotg_reviews') || '[]');
+    var reviews = JSON.parse(localStorage.getItem('gtgotg_reviews') || '[]');
     reviews.push(reviewData);
     localStorage.setItem('gtgotg_reviews', JSON.stringify(reviews));
     
@@ -429,25 +430,25 @@ async function submitReviewWithPhotos(reviewData) {
 
 // Update business with new review
 function updateBusinessWithReview(reviewData) {
-    const business = sampleBusinesses.find(b => b.id === reviewData.businessId);
+    var business = sampleBusinesses.find(function(b) { return b.id === reviewData.businessId; });
     if (!business) return;
     
     // Update review count
     business.reviewCount = (business.reviewCount || 0) + 1;
     
     // Update ratings (simple average for demo)
-    const totalReviews = business.reviewCount;
-    Object.keys(reviewData.ratings).forEach(key => {
+    var totalReviews = business.reviewCount;
+    Object.keys(reviewData.ratings).forEach(function(key) {
         if (reviewData.ratings[key] > 0) {
-            const currentRating = business.ratings[key] || 0;
-            const newRating = reviewData.ratings[key];
+            var currentRating = business.ratings[key] || 0;
+            var newRating = reviewData.ratings[key];
             business.ratings[key] = ((currentRating * (totalReviews - 1)) + newRating) / totalReviews;
         }
     });
     
     // Update amenities based on review
     if (reviewData.amenities.length > 0) {
-        business.amenities = [...new Set([...business.amenities, ...reviewData.amenities])];
+        business.amenities = Array.from(new Set(business.amenities.concat(reviewData.amenities)));
     }
     
     // Update bathroom types
@@ -476,37 +477,37 @@ function resetReviewForm() {
     };
     
     // Reset rating displays
-    Object.keys(currentRatings).forEach(type => {
-        const display = document.getElementById(`${type}RatingDisplay`);
+    Object.keys(currentRatings).forEach(function(type) {
+        var display = document.getElementById(type + 'RatingDisplay');
         if (display) display.textContent = '0/10';
         
-        const stars = document.querySelectorAll(`[data-rating="${type}"] .star`);
-        stars.forEach(star => star.classList.remove('active'));
+        var stars = document.querySelectorAll('[data-rating="' + type + '"] .star');
+        stars.forEach(function(star) { star.classList.remove('active'); });
     });
     
     // Reset bathroom selection
     selectedBathroomType = null;
     isWheelchairAccessible = false;
     
-    document.querySelectorAll('.bathroom-symbol-btn').forEach(btn => {
+    document.querySelectorAll('.bathroom-symbol-btn').forEach(function(btn) {
         btn.classList.remove('selected');
     });
     
-    const wheelchairBtn = document.querySelector('.wheelchair-btn');
+    var wheelchairBtn = document.querySelector('.wheelchair-btn');
     if (wheelchairBtn) {
         wheelchairBtn.classList.remove('selected');
         wheelchairBtn.dataset.accessible = 'false';
     }
     
     // Reset photos
-    selectedPhotos.forEach(photo => {
+    selectedPhotos.forEach(function(photo) {
         URL.revokeObjectURL(photo.url);
     });
     selectedPhotos = [];
     updatePhotoPreview();
     
     // Reset form fields
-    const form = document.getElementById('reviewForm');
+    var form = document.getElementById('reviewForm');
     if (form) {
         form.reset();
     }
@@ -516,8 +517,8 @@ function resetReviewForm() {
 
 // Show loading state
 function showLoadingState(loading) {
-    const submitBtn = document.querySelector('#reviewForm button[type="submit"]');
-    const form = document.getElementById('reviewForm');
+    var submitBtn = document.querySelector('#reviewForm button[type="submit"]');
+    var form = document.getElementById('reviewForm');
     
     if (loading) {
         if (submitBtn) {
@@ -543,12 +544,12 @@ function updateUserBadge() {
     if (!currentUser) return;
     
     // Get user's review count
-    const reviews = JSON.parse(localStorage.getItem('gtgotg_reviews') || '[]');
-    const userReviews = reviews.filter(r => r.userId === currentUser.id);
-    const reviewCount = userReviews.length;
+    var reviews = JSON.parse(localStorage.getItem('gtgotg_reviews') || '[]');
+    var userReviews = reviews.filter(function(r) { return r.userId === currentUser.id; });
+    var reviewCount = userReviews.length;
     
     // Update badge based on review count
-    let newBadge = 'Reviewer';
+    var newBadge = 'Reviewer';
     if (reviewCount >= 25) newBadge = 'Expert';
     else if (reviewCount >= 20) newBadge = 'Platinum';
     else if (reviewCount >= 15) newBadge = 'Gold';
@@ -561,8 +562,8 @@ function updateUserBadge() {
         showNotification(`Congratulations! You've earned the ${newBadge} badge!`, 'success');
         
         // Update stored user data
-        const users = JSON.parse(localStorage.getItem('gtgotg_users') || '[]');
-        const userIndex = users.findIndex(u => u.id === currentUser.id);
+        var users = JSON.parse(localStorage.getItem('gtgotg_users') || '[]');
+        var userIndex = users.findIndex(function(u) { return u.id === currentUser.id; });
         if (userIndex !== -1) {
             users[userIndex].badge = newBadge;
             localStorage.setItem('gtgotg_users', JSON.stringify(users));
@@ -572,13 +573,13 @@ function updateUserBadge() {
 
 // Enhanced openReviewModal function
 function openReviewModal(businessId) {
-    const business = sampleBusinesses.find(b => b.id === businessId);
+    var business = sampleBusinesses.find(function(b) { return b.id === businessId; });
     if (!business) return;
     
     currentBusinessForReview = businessId;
     
     // Update modal title
-    const titleElement = document.getElementById('businessNameDisplay');
+    var titleElement = document.getElementById('businessNameDisplay');
     if (titleElement) {
         titleElement.textContent = `Rate ${business.name}`;
     }
@@ -593,9 +594,11 @@ function openReviewModal(businessId) {
 }
 
 // Initialize when DOM is ready
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', function() {
     console.log('🔧 Initializing enhanced review system...');
-    setTimeout(initializeEnhancedReviewSystem, 500);
+    setTimeout(function() {
+        initializeEnhancedReviewSystem();
+    }, 500);
 });
 
 // Export functions for global use
