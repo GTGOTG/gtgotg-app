@@ -323,16 +323,15 @@ function performSearch() {
 // Geocode location using Mapbox API
 async function geocodeLocation(query) {
     try {
-        const response = await fetch(
+        const mapResponse = await fetch(
             `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?access_token=${mapboxgl.accessToken}&country=US&types=place,postcode,address`
         );
         
-        if (!response.ok) {
+        if (!mapResponse.ok) {
             throw new Error('Geocoding request failed');
         }
-        const response = fetch(url);
-        const data = response.then(r => r.json());
-        return data.features || [];
+        const mapData = await mapResponse.json();
+        return mapData.features || [];
     } catch (error) {
         console.error('Geocoding error:', error);
         return [];
