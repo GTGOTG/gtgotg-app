@@ -39,6 +39,7 @@
                     </div>
                 </div>
                 <nav class="nav">
+                    <button class="btn btn-secondary" onclick="showModal('addBusinessModal')">+ Add Business</button>
                     <button class="btn btn-secondary" onclick="showModal('loginModal')">Login</button>
                     <button class="btn btn-primary" onclick="showModal('registerModal')">Sign Up</button>
                     <button class="btn btn-admin" onclick="showModal('adminModal')" style="display: none;" id="adminBtn">Admin</button>
@@ -467,6 +468,177 @@
                     <div class="form-actions">
                         <button type="button" class="btn btn-secondary" onclick="closeModal('reviewModal')">Cancel</button>
                         <button type="submit" class="btn btn-primary">Submit Review</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div id="claimBusinessModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Claim Your Business</h4>
+                <button class="modal-close" onclick="closeModal('claimBusinessModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="claimBusinessForm" onsubmit="handleBusinessClaim(event)">
+                    <input type="hidden" id="claimBusinessId" name="businessId">
+                    
+                    <div class="form-group">
+                        <label for="claimBusinessName">Business Name:</label>
+                        <input type="text" id="claimBusinessName" name="businessName" required readonly>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="claimOwnerName">Your Name:</label>
+                        <input type="text" id="claimOwnerName" name="ownerName" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="claimOwnerTitle">Your Title/Position:</label>
+                        <input type="text" id="claimOwnerTitle" name="ownerTitle" placeholder="e.g., Manager, Owner" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="claimBusinessPhone">Business Phone:</label>
+                        <input type="tel" id="claimBusinessPhone" name="businessPhone" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="claimVerificationMethod">Verification Method:</label>
+                        <select id="claimVerificationMethod" name="verificationMethod" required>
+                            <option value="">Select verification method</option>
+                            <option value="phone">Phone verification</option>
+                            <option value="email">Email verification</option>
+                            <option value="document">Business document upload</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="claimAdditionalInfo">Additional Information:</label>
+                        <textarea id="claimAdditionalInfo" name="additionalInfo" placeholder="Any additional information to help verify your claim..."></textarea>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('claimBusinessModal')">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Submit Claim</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Business Modal -->
+    <div id="addBusinessModal" class="modal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h4 class="modal-title">Add Your Business</h4>
+                <button class="modal-close" onclick="closeModal('addBusinessModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="addBusinessForm" onsubmit="handleAddBusiness(event)">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="addBusinessName">Business Name:</label>
+                            <input type="text" id="addBusinessName" name="businessName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="addBusinessCategory">Category:</label>
+                            <select id="addBusinessCategory" name="category" required>
+                                <option value="">Select category</option>
+                                <option value="gas-station">Gas Station</option>
+                                <option value="restaurant">Restaurant</option>
+                                <option value="coffee-shop">Coffee Shop</option>
+                                <option value="rest-area">Rest Area</option>
+                                <option value="retail">Retail Store</option>
+                                <option value="hotel">Hotel</option>
+                                <option value="park">Park</option>
+                                <option value="hospital">Hospital</option>
+                                <option value="library">Library</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="addBusinessAddress">Address:</label>
+                        <input type="text" id="addBusinessAddress" name="address" required>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="addBusinessPhone">Phone:</label>
+                            <input type="tel" id="addBusinessPhone" name="phone" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="addBusinessWebsite">Website (optional):</label>
+                            <input type="url" id="addBusinessWebsite" name="website">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Available Bathroom Types:</label>
+                        <div class="bathroom-types">
+                            <label class="bathroom-type-btn">
+                                <input type="checkbox" name="bathroomTypes" value="mens">
+                                <span>🚹 Men's</span>
+                            </label>
+                            <label class="bathroom-type-btn">
+                                <input type="checkbox" name="bathroomTypes" value="womens">
+                                <span>🚺 Women's</span>
+                            </label>
+                            <label class="bathroom-type-btn">
+                                <input type="checkbox" name="bathroomTypes" value="neutral">
+                                <span>🚻 Neutral</span>
+                            </label>
+                            <label class="bathroom-type-btn">
+                                <input type="checkbox" name="bathroomTypes" value="accessible">
+                                <span>♿ Accessible</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Available Amenities:</label>
+                        <div class="amenities-grid">
+                            <label class="amenity-item">
+                                <input type="checkbox" name="amenities" value="toilet-paper">
+                                <span class="amenity-label">Toilet Paper</span>
+                            </label>
+                            <label class="amenity-item">
+                                <input type="checkbox" name="amenities" value="soap">
+                                <span class="amenity-label">Soap</span>
+                            </label>
+                            <label class="amenity-item">
+                                <input type="checkbox" name="amenities" value="paper-towels">
+                                <span class="amenity-label">Paper Towels</span>
+                            </label>
+                            <label class="amenity-item">
+                                <input type="checkbox" name="amenities" value="hand-dryer">
+                                <span class="amenity-label">Hand Dryer</span>
+                            </label>
+                            <label class="amenity-item">
+                                <input type="checkbox" name="amenities" value="baby-changing">
+                                <span class="amenity-label">Baby Changing Table</span>
+                            </label>
+                            <label class="amenity-item">
+                                <input type="checkbox" name="amenities" value="ada-compliant">
+                                <span class="amenity-label">ADA Compliant</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="addBusinessHours">Business Hours:</label>
+                        <textarea id="addBusinessHours" name="hours" placeholder="e.g., Mon-Fri: 9AM-9PM, Sat-Sun: 10AM-8PM"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="addBusinessDescription">Description (optional):</label>
+                        <textarea id="addBusinessDescription" name="description" placeholder="Brief description of your business and restroom facilities..."></textarea>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('addBusinessModal')">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Add Business</button>
                     </div>
                 </form>
             </div>
