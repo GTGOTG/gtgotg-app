@@ -18,7 +18,14 @@ var activeFilters = {
 };
 
 // Mapbox configuration - Using a demo token (replace with your own)
-mapboxgl.accessToken = 'pk.eyJ1IjoiZ3Rnb3RnLWRlbW8iLCJhIjoiY2x0ZXN0MTIzNDU2Nzg5MCJ9.demo_token_replace_with_real_one';
+// mapboxgl.accessToken = 'pk.eyJ1IjoiZ3Rnb3RnLWRlbW8iLCJhIjoiY2x0ZXN0MTIzNDU2Nzg5MCJ9.demo_token_replace_with_real_one';
+
+// Check if Mapbox token is available, otherwise show fallback
+if (typeof mapboxgl !== 'undefined') {
+    // You need to replace this with your actual Mapbox public access token
+    // Get one from: https://account.mapbox.com/access-tokens/
+    mapboxgl.accessToken = 'YOUR_MAPBOX_ACCESS_TOKEN_HERE';
+}
 
 // Sample business data with enhanced information
 var sampleBusinesses = [
@@ -248,6 +255,23 @@ document.addEventListener('DOMContentLoaded', function() {
 // Initialize Mapbox map
 function initializeMap() {
     try {
+        // Check if we have a valid Mapbox token
+        if (!mapboxgl.accessToken || mapboxgl.accessToken === 'YOUR_MAPBOX_ACCESS_TOKEN_HERE') {
+            console.warn('⚠️ No valid Mapbox token provided. Map will show fallback message.');
+            document.getElementById('map').innerHTML = `
+                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; background: #f8fafc; color: #64748b; font-size: 1.1rem; text-align: center; padding: 2rem;">
+                    <div style="margin-bottom: 1rem; font-size: 2rem;">🗺️</div>
+                    <div style="font-weight: 600; margin-bottom: 0.5rem;">Map Unavailable</div>
+                    <div style="font-size: 0.9rem; max-width: 400px;">
+                        To enable the interactive map, please add your Mapbox access token to the configuration.
+                        <br><br>
+                        Get a free token at: <a href="https://account.mapbox.com/access-tokens/" target="_blank" style="color: #8B5CF6;">mapbox.com</a>
+                    </div>
+                </div>
+            `;
+            return;
+        }
+        
         // Default to Denver, CO if no user location
         var defaultCenter = [-104.9903, 39.7392];
         
