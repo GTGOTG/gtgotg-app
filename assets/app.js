@@ -323,15 +323,15 @@ function performSearch() {
 // Geocode location using Mapbox API
 async function geocodeLocation(query) {
     try {
-        const mapResponse = await fetch(
+        const response = await fetch(
             `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?access_token=${mapboxgl.accessToken}&country=US&types=place,postcode,address`
         );
         
-        if (!mapResponse.ok) {
+        if (!response.ok) {
             throw new Error('Geocoding request failed');
         }
-        const mapData = await mapResponse.json();
-        return mapData.features || [];
+        const data = await response.json();
+        return data.features || [];
     } catch (error) {
         console.error('Geocoding error:', error);
         return [];
@@ -372,33 +372,38 @@ function findNearbyBusinesses(center) {
         // Search for each business type
         for (const businessType of businessTypes) {
             const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(businessType)}.json?` +
-                `proximity=${lng},${lat}&` +
-                `bbox=${lng-0.2},${lat-0.2},${lng+0.2},${lat+0.2}&` +
+                `proximity=${center[0]},${center[1]}&` +
+                `bbox=${center[0]-0.2},${center[1]-0.2},${center[0]+0.2},${center[1]+0.2}&` +
                 `limit=10&` +
-                `access_token=${MAPBOX_TOKEN}`;
+                `access_token=${mapboxgl.accessToken}`;
             
-            const response = await fetch(url);
-            const data = await response.json();
+            const response = fetch(url);
+            const data = response.then(r => r.json());
             
-        data.then(result => {
-            if (result.features) {
-                result.features.forEach(feature => {
-                    const business = createBusinessFromMapboxFeature(feature, businessType, lat, lng);
-                    if (business) {
-                        allBusinesses.push(business);
-                    }
-                });
-            }
-        }).catch(error => {
-            console.error('Error fetching businesses:', error);
-        });
+            data.then(result => {
+                if (result.features) {
+                    result.features.forEach(feature => {
+                        const business = createBusinessFromMapboxFeature(feature, businessType, center[1], center[0]);
+                        if (business) {
+                            allBusinesses.push(business);
+                        }
+                    });
+                }
+            }).catch(error => {
+                console.error('Error fetching businesses:', error);
+            });
+            
+            // Small delay to avoid rate limiting
+            await new Promise(resolve => setTimeout(resolve, 100));
+        }
         
-        // Small delay to avoid rate limiting
-        await new Promise(resolve => setTimeout(resolve, 100));
+        console.log(`✅ Found ${allBusinesses.length} total businesses`);
+        return allBusinesses;
+    } catch (error) {
+        console.error('Error searching businesses:', error);
+        showNotification('Error searching for businesses. Please try again.', 'error');
+        return [];
     }
-    
-    console.log(`✅ Found ${allBusinesses.length} total businesses`);
-    return allBusinesses;
 }
 
 // Create business from Mapbox feature
@@ -502,7 +507,7 @@ async function searchBusinesses(query, lat, lng) {
             `proximity=${lng},${lat}&` +
             `bbox=${lng-0.2},${lat-0.2},${lng+0.2},${lat+0.2}&` +
             `limit=5&` +
-            `access_token=${MAPBOX_TOKEN}`;
+            `access_token=${mapboxgl.accessToken}`;
         
         try {
             const response = await fetch(url);
@@ -526,17 +531,12 @@ async function searchBusinesses(query, lat, lng) {
             // Small delay to avoid rate limiting
             await new Promise(resolve => setTimeout(resolve, 100));
         }
-        
-        console.log(`✅ Found ${allBusinesses.length} real businesses`);
-        
-    } catch (error) {
-        console.error('Error searching businesses:', error);
-        showNotification('Error searching for businesses. Please try again.', 'error');
-        return [];
     }
-    const suggestions = document.getElementById('searchSuggestions');
+    
+    console.log(`✅ Found ${businesses.length} real businesses`);
+    
     // Remove duplicates and sort by distance
-    const uniqueBusinesses = removeDuplicateBusinesses(allBusinesses);
+    const uniqueBusinesses = removeDuplicateBusinesses(businesses);
     return uniqueBusinesses.sort((a, b) => a.distance - b.distance);
 }
 
@@ -680,6 +680,12 @@ function generateBathroomTypes() {
     }
     
     return types;
+}
+
+// Show search suggestions with geocoding
+async function showSearchSuggestions(query) {
+    const suggestions = document.getElementById('searchSuggestions');
+    if (!suggestions) return;
     
     try {
         // Get geocoding suggestions
