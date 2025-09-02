@@ -188,6 +188,22 @@
             </div>
             <div class="modal-body">
                 <form id="loginForm" onsubmit="handleLogin(event)">
+                    <!-- Social Login Options -->
+                    <div class="social-login-section">
+                        <button type="button" class="btn btn-google" onclick="loginWithGoogle()">
+                            <span class="social-icon">🔍</span>
+                            Continue with Google
+                        </button>
+                        <button type="button" class="btn btn-facebook" onclick="loginWithFacebook()">
+                            <span class="social-icon">📘</span>
+                            Continue with Facebook
+                        </button>
+                    </div>
+                    
+                    <div class="login-divider">
+                        <span>or</span>
+                    </div>
+                    
                     <div class="form-group">
                         <label for="loginEmail">Email:</label>
                         <input type="email" id="loginEmail" name="email" required>
@@ -221,6 +237,22 @@
             </div>
             <div class="modal-body">
                 <form id="registerForm" onsubmit="handleRegister(event)">
+                    <!-- Social Registration Options -->
+                    <div class="social-login-section">
+                        <button type="button" class="btn btn-google" onclick="registerWithGoogle()">
+                            <span class="social-icon">🔍</span>
+                            Sign up with Google
+                        </button>
+                        <button type="button" class="btn btn-facebook" onclick="registerWithFacebook()">
+                            <span class="social-icon">📘</span>
+                            Sign up with Facebook
+                        </button>
+                    </div>
+                    
+                    <div class="login-divider">
+                        <span>or</span>
+                    </div>
+                    
                     <div class="form-row">
                         <div class="form-group">
                             <label for="registerFirstName">First Name:</label>

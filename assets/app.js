@@ -1021,6 +1021,91 @@ function logout() {
     showNotification('Logged out successfully', 'info');
 }
 
+// Social login functions
+function loginWithGoogle() {
+    console.log('🔍 Initiating Google login...');
+    
+    // In a real implementation, you would use Google OAuth
+    // For demo purposes, we'll simulate a successful Google login
+    showNotification('Google login would be initiated here. For demo, logging in as test user.', 'info');
+    
+    // Simulate Google user data
+    var googleUser = {
+        id: 'google_' + Date.now(),
+        firstName: 'Google',
+        lastName: 'User',
+        email: 'googleuser@gmail.com',
+        badge: 'Reviewer',
+        loginMethod: 'google',
+        profilePicture: 'https://via.placeholder.com/40/4285f4/ffffff?text=G'
+    };
+    
+    // Store user and login
+    var users = JSON.parse(localStorage.getItem('gtgotg_users') || '[]');
+    var existingUser = users.find(function(u) { return u.email === googleUser.email; });
+    
+    if (!existingUser) {
+        users.push(googleUser);
+        localStorage.setItem('gtgotg_users', JSON.stringify(users));
+        showNotification('Welcome to GTGOTG! Account created with Google.', 'success');
+    } else {
+        googleUser = existingUser;
+        showNotification('Welcome back!', 'success');
+    }
+    
+    currentUser = googleUser;
+    updateUserStatus();
+    closeModal('loginModal');
+    closeModal('registerModal');
+}
+
+function loginWithFacebook() {
+    console.log('📘 Initiating Facebook login...');
+    
+    // In a real implementation, you would use Facebook SDK
+    // For demo purposes, we'll simulate a successful Facebook login
+    showNotification('Facebook login would be initiated here. For demo, logging in as test user.', 'info');
+    
+    // Simulate Facebook user data
+    var facebookUser = {
+        id: 'facebook_' + Date.now(),
+        firstName: 'Facebook',
+        lastName: 'User',
+        email: 'facebookuser@facebook.com',
+        badge: 'Reviewer',
+        loginMethod: 'facebook',
+        profilePicture: 'https://via.placeholder.com/40/1877f2/ffffff?text=F'
+    };
+    
+    // Store user and login
+    var users = JSON.parse(localStorage.getItem('gtgotg_users') || '[]');
+    var existingUser = users.find(function(u) { return u.email === facebookUser.email; });
+    
+    if (!existingUser) {
+        users.push(facebookUser);
+        localStorage.setItem('gtgotg_users', JSON.stringify(users));
+        showNotification('Welcome to GTGOTG! Account created with Facebook.', 'success');
+    } else {
+        facebookUser = existingUser;
+        showNotification('Welcome back!', 'success');
+    }
+    
+    currentUser = facebookUser;
+    updateUserStatus();
+    closeModal('loginModal');
+    closeModal('registerModal');
+}
+
+function registerWithGoogle() {
+    console.log('🔍 Initiating Google registration...');
+    loginWithGoogle(); // Same process for demo
+}
+
+function registerWithFacebook() {
+    console.log('📘 Initiating Facebook registration...');
+    loginWithFacebook(); // Same process for demo
+}
+
 // Show notification
 function showNotification(message, type = 'info') {
     const notification = document.createElement('div');

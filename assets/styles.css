@@ -1201,6 +1201,80 @@ body {
     font-family: 'Courier New', monospace;
 }
 
+/* Social Login Styles */
+.social-login-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.btn-google {
+    background: white;
+    color: #333;
+    border: 2px solid #dadce0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn-google:hover {
+    background: #f8f9fa;
+    border-color: #8B5CF6;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.btn-facebook {
+    background: #1877f2;
+    color: white;
+    border: 2px solid #1877f2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn-facebook:hover {
+    background: #166fe5;
+    border-color: #166fe5;
+    box-shadow: 0 2px 8px rgba(24, 119, 242, 0.3);
+}
+
+.social-icon {
+    font-size: 1.2rem;
+}
+
+.login-divider {
+    text-align: center;
+    margin: 1.5rem 0;
+    position: relative;
+    color: #64748b;
+    font-size: 0.9rem;
+}
+
+.login-divider::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: #e2e8f0;
+    z-index: 1;
+}
+
+.login-divider span {
+    background: white;
+    padding: 0 1rem;
+    position: relative;
+    z-index: 2;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .hero-title {
