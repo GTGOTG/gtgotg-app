@@ -152,7 +152,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // Initialize map
-function initializeMap() {
+async function initializeMap() {
     try {
         map = new mapboxgl.Map({
             container: 'map',
@@ -330,8 +330,8 @@ async function geocodeLocation(query) {
         if (!response.ok) {
             throw new Error('Geocoding request failed');
         }
-        
-        const data = await response.json();
+        const response = fetch(url);
+        const data = response.then(r => r.json());
         return data.features || [];
     } catch (error) {
         console.error('Geocoding error:', error);
@@ -381,14 +381,148 @@ function findNearbyBusinesses(center) {
             const response = await fetch(url);
             const data = await response.json();
             
-            if (data.features) {
-                data.features.forEach(feature => {
+        data.then(result => {
+            if (result.features) {
+                result.features.forEach(feature => {
                     const business = createBusinessFromMapboxFeature(feature, businessType, lat, lng);
                     if (business) {
                         allBusinesses.push(business);
                     }
                 });
             }
+        }).catch(error => {
+            console.error('Error fetching businesses:', error);
+        });
+        
+        // Small delay to avoid rate limiting
+        await new Promise(resolve => setTimeout(resolve, 100));
+    }
+    
+    console.log(`✅ Found ${allBusinesses.length} total businesses`);
+    return allBusinesses;
+}
+
+// Create business from Mapbox feature
+function createBusinessFromMapboxFeature(feature, businessType, lat, lng) {
+    try {
+        const business = {
+            id: Date.now() + Math.random(),
+            name: feature.text || feature.place_name || 'Unknown Business',
+            category: businessType,
+            address: feature.place_name || 'Address not available',
+            coordinates: {
+                lat: feature.center[1],
+                lng: feature.center[0]
+            },
+            distance: calculateDistance(lat, lng, feature.center[1], feature.center[0]),
+            ratings: {
+                overall: Math.random() * 2 + 3, // 3-5 stars
+                cleanliness: Math.random() * 2 + 3,
+                safety: Math.random() * 2 + 3,
+                accessibility: Math.random() * 2 + 3
+            },
+            reviewCount: Math.floor(Math.random() * 50) + 1,
+            amenities: getRandomAmenities(),
+            bathroomTypes: getRandomBathroomTypes(),
+            hours: 'Open 24 hours',
+            phone: '(555) 123-4567'
+        };
+        
+        return business;
+    } catch (error) {
+        console.error('Error creating business from feature:', error);
+        return null;
+    }
+}
+
+// Get random amenities for demo
+function getRandomAmenities() {
+    const allAmenities = ['toilet-paper', 'soap', 'paper-towels', 'hand-dryer', 'baby-changing', 'ada-compliant'];
+    const count = Math.floor(Math.random() * 4) + 2; // 2-5 amenities
+    const shuffled = allAmenities.sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, count);
+}
+
+// Get random bathroom types for demo
+function getRandomBathroomTypes() {
+    const types = ['mens', 'womens'];
+    if (Math.random() > 0.7) types.push('neutral');
+    if (Math.random() > 0.8) types.push('accessible');
+    return types;
+}
+
+// Perform search function
+async function performSearch() {
+    const searchInput = document.getElementById('searchInput');
+    const query = searchInput.value.trim();
+    
+    if (!query) {
+        showNotification('Please enter a search term', 'warning');
+        return;
+    }
+    
+    console.log('🔍 Performing search for:', query);
+    showNotification('Searching for restrooms...', 'info');
+    
+    try {
+        // Use current location or default
+        const location = userLocation || { lat: 40.7128, lng: -74.0060 }; // NYC default
+        
+        // Search for businesses
+        const businesses = await searchBusinesses(query, location.lat, location.lng);
+        
+        // Update current businesses
+        currentBusinesses = businesses;
+        
+        // Render results
+        renderBusinesses(businesses);
+        updateSearchResultsInfo(businesses.length, query);
+        
+        // Update map
+        if (map) {
+            addBusinessesToMap(businesses);
+        }
+        
+        showNotification(`Found ${businesses.length} results`, 'success');
+        
+    } catch (error) {
+        console.error('Search error:', error);
+        showNotification('Search failed. Please try again.', 'error');
+    }
+}
+
+// Search businesses function
+async function searchBusinesses(query, lat, lng) {
+    console.log('🔍 Searching businesses for:', query);
+    
+    const businesses = [];
+    const businessTypes = ['restaurant', 'gas_station', 'convenience_store', 'cafe', 'shopping_mall'];
+    
+    for (const businessType of businessTypes) {
+        const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query + ' ' + businessType)}.json?` +
+            `proximity=${lng},${lat}&` +
+            `bbox=${lng-0.2},${lat-0.2},${lng+0.2},${lat+0.2}&` +
+            `limit=5&` +
+            `access_token=${MAPBOX_TOKEN}`;
+        
+        try {
+            const response = await fetch(url);
+            const data = await response.json();
+            
+            if (data.features) {
+                data.features.forEach(feature => {
+                    const business = createBusinessFromMapboxFeature(feature, businessType, lat, lng);
+                    if (business) {
+                        businesses.push(business);
+                    }
+                });
+            }
+            
+            // Small delay to avoid rate limiting
+            await new Promise(resolve => setTimeout(resolve, 100));
+            
+        } catch (error) {
+            console.error(`Error searching ${businessType}:`, error);
             
             // Small delay to avoid rate limiting
             await new Promise(resolve => setTimeout(resolve, 100));
