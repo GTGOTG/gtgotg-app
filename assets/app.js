@@ -323,8 +323,8 @@ async function searchBusinessesInLocation(coordinates) {
 async function searchMapboxPOI(coordinates, category, limit) {
     const [lng, lat] = coordinates;
     
-    // Use city-level search radius
-    const radius = 0.05; // About 3 miles for focused search
+    // Use a much larger search radius for better results
+    const radius = 0.1; // About 6 miles
     const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(category)}.json?` +
         `proximity=${lng},${lat}&` +
         `bbox=${lng-radius},${lat-radius},${lng+radius},${lat+radius}&` +
@@ -336,18 +336,17 @@ async function searchMapboxPOI(coordinates, category, limit) {
         const response = await fetch(url);
         
         if (!response.ok) {
-            console.log(`⚠️ HTTP ${response.status} for ${category} search`);
-            return [];
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
         
         const data = await response.json();
         
         if (!data.features || data.features.length === 0) {
-            console.log(`📍 No ${category} found in this area`);
+            console.log(`No ${category} businesses found in this area`);
             return [];
         }
         
-        console.log(`✅ Found ${data.features.length} ${category} results`);
+        console.log(`📍 Found ${data.features.length} ${category} results from Mapbox`);
         
         return data.features.map(feature => ({
             id: `mapbox-${feature.id}`,
@@ -365,21 +364,21 @@ async function searchMapboxPOI(coordinates, category, limit) {
             isMapboxPOI: true
         }));
     } catch (error) {
-        console.error(`❌ Error fetching ${category}:`, error);
+        console.error('Error fetching Mapbox POI:', error);
         return [];
     }
 }
 
-// Broader search for when specific searches fail
+// Search Mapbox POI Broad
 async function searchMapboxPOIBroad(coordinates, category, limit) {
     const [lng, lat] = coordinates;
     
-    // Much larger radius for broad search
+    // Use a much larger search radius for better results
     const radius = 0.2; // About 12 miles
     const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(category)}.json?` +
         `proximity=${lng},${lat}&` +
         `bbox=${lng-radius},${lat-radius},${lng+radius},${lat+radius}&` +
-        `types=poi,address&` +
+        `types=poi&` +
         `limit=${limit}&` +
         `access_token=${MAPBOX_TOKEN}`;
     
@@ -387,20 +386,20 @@ async function searchMapboxPOIBroad(coordinates, category, limit) {
         const response = await fetch(url);
         
         if (!response.ok) {
-            console.log(`⚠️ Broad search HTTP ${response.status} for ${category}`);
-            return [];
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
         
         const data = await response.json();
         
         if (!data.features || data.features.length === 0) {
+            console.log(`No ${category} businesses found in this area`);
             return [];
         }
         
-        console.log(`🔍 Broad search found ${data.features.length} ${category} results`);
+        console.log(`📍 Found ${data.features.length} ${category} results from Mapbox`);
         
         return data.features.map(feature => ({
-            id: `mapbox-broad-${feature.id}`,
+            id: `mapbox-${feature.id}`,
             name: feature.text || feature.place_name,
             category: mapCategoryFromMapbox(category),
             address: feature.place_name,
@@ -415,7 +414,7 @@ async function searchMapboxPOIBroad(coordinates, category, limit) {
             isMapboxPOI: true
         }));
     } catch (error) {
-        console.error(`❌ Broad search error for ${category}:`, error);
+        console.error('Error fetching Mapbox POI:', error);
         return [];
     }
 }
@@ -423,73 +422,20 @@ async function searchMapboxPOIBroad(coordinates, category, limit) {
 // Map Mapbox categories to our categories
 function mapCategoryFromMapbox(mapboxCategory) {
     const categoryMap = {
-        // Gas stations
         'gas station': 'gas-station',
-        'shell': 'gas-station',
-        'exxon': 'gas-station',
-        'bp': 'gas-station',
-        'chevron': 'gas-station',
-        'mobil': 'gas-station',
-        'texaco': 'gas-station',
-        'sunoco': 'gas-station',
-        'marathon': 'gas-station',
-        'speedway': 'gas-station',
-        'wawa': 'gas-station',
-        'sheetz': 'gas-station',
-        'pilot': 'gas-station',
-        'flying j': 'gas-station',
-        'loves': 'gas-station',
-        'ta travel center': 'gas-station',
-        'truck stop': 'gas-station',
-        // Restaurants and fast food
         'restaurant': 'restaurant',
-        'mcdonalds': 'restaurant',
-        'burger king': 'restaurant',
-        'subway': 'restaurant',
-        'taco bell': 'restaurant',
-        'kfc': 'restaurant',
-        'pizza hut': 'restaurant',
-        'wendys': 'restaurant',
-        'chipotle': 'restaurant',
-        'panera': 'restaurant',
-        // Coffee shops
         'starbucks': 'coffee-shop',
-        'dunkin': 'coffee-shop',
-        'tim hortons': 'coffee-shop',
-        'coffee': 'coffee-shop',
-        'cafe': 'coffee-shop',
-        // Retail
+        'mcdonalds': 'restaurant',
         'walmart': 'retail',
         'target': 'retail',
-        'costco': 'retail',
-        'home depot': 'retail',
-        'lowes': 'retail',
-        'best buy': 'retail',
-        'mall': 'retail',
-        'shopping': 'retail',
-        'store': 'retail',
-        'convenience': 'gas-station',
-        // Pharmacies
-        'cvs': 'gas-station',
-        'walgreens': 'gas-station',
-        'rite aid': 'gas-station',
-        // Hotels
+        'cvs': 'retail',
+        'walgreens': 'retail',
+        'shopping mall': 'retail',
+        'grocery store': 'retail',
         'hotel': 'hotel',
-        'motel': 'hotel',
-        'marriott': 'hotel',
-        'hilton': 'hotel',
-        // Healthcare
         'hospital': 'hospital',
-        'clinic': 'hospital',
-        // Public facilities
         'library': 'library',
-        'park': 'park',
-        // Rest areas
-        'rest area': 'rest-area',
-        'welcome center': 'rest-area',
-        'visitor center': 'rest-area',
-        'travel plaza': 'rest-area',
-        'service area': 'rest-area'
+        'coffee': 'coffee-shop'
     };
     
     return categoryMap[mapboxCategory] || 'other';
