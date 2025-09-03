@@ -162,31 +162,35 @@ async function searchBusinessesInView() {
 async function searchBusinessesInLocation(coordinates) {
     console.log(`🔍 Searching for businesses at coordinates: ${coordinates}`);
     
-    const categories = [
-        'restaurant',
+    // Use more specific search terms that Mapbox recognizes better
+    const searchTerms = [
         'gas station',
-        'coffee',
+        'restaurant', 
+        'starbucks',
+        'mcdonalds',
+        'walmart',
+        'target',
+        'cvs',
+        'walgreens',
         'hotel',
-        'shopping',
         'hospital',
         'library',
-        'convenience',
-        'fast food',
-        'grocery'
+        'shopping mall',
+        'grocery store'
     ];
     
     let allBusinesses = [];
     
-    for (const category of categories) {
+    for (const searchTerm of searchTerms) {
         try {
-            const businesses = await searchMapboxPOI(coordinates, category, 10);
-            console.log(`Found ${businesses.length} ${category} businesses`);
+            const businesses = await searchMapboxPOI(coordinates, searchTerm, 5);
+            console.log(`Found ${businesses.length} ${searchTerm} businesses`);
             allBusinesses = allBusinesses.concat(businesses);
             
-            // Add small delay to avoid rate limiting
-            await new Promise(resolve => setTimeout(resolve, 200));
+            // Add delay to avoid rate limiting
+            await new Promise(resolve => setTimeout(resolve, 300));
         } catch (error) {
-            console.error(`Error searching ${category}:`, error);
+            console.error(`Error searching ${searchTerm}:`, error);
         }
     }
     
@@ -197,16 +201,10 @@ async function searchBusinessesInLocation(coordinates) {
     
     currentBusinesses = uniqueBusinesses;
     
-    if (currentBusinesses.length === 0) {
-        showNotification('No businesses found in this area. Trying to load sample data...', 'info');
-        // Add sample businesses as fallback for demo purposes
-        currentBusinesses = sampleBusinesses.map(business => ({
-            ...business,
-            coordinates: coordinates,
-            distance: 0.1
-        }));
-    } else {
+    if (currentBusinesses.length > 0) {
         showNotification(`Found ${currentBusinesses.length} businesses in this area`, 'success');
+    } else {
+        showNotification('No businesses found in this area. Try searching a different location or expanding your search radius.', 'warning');
     }
     
     updateMapMarkers();
@@ -218,12 +216,13 @@ async function searchBusinessesInLocation(coordinates) {
 async function searchMapboxPOI(coordinates, category, limit) {
     const [lng, lat] = coordinates;
     
+    // Use a much larger search radius for better results
+    const radius = 0.1; // About 6 miles
     const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(category)}.json?` +
         `proximity=${lng},${lat}&` +
-        `country=US&` +
+        `bbox=${lng-radius},${lat-radius},${lng+radius},${lat+radius}&` +
         `types=poi&` +
         `limit=${limit}&` +
-        `bbox=${lng-0.05},${lat-0.05},${lng+0.05},${lat+0.05}&` +
         `access_token=${MAPBOX_TOKEN}`;
     
     try {
@@ -236,41 +235,7 @@ async function searchMapboxPOI(coordinates, category, limit) {
         const data = await response.json();
         
         if (!data.features || data.features.length === 0) {
-            console.log(`No ${category} businesses found in this area - trying broader search`);
-            
-            // Try a broader search without bbox restriction
-            const broaderUrl = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(category)}.json?` +
-                `proximity=${lng},${lat}&` +
-                `country=US&` +
-                `types=poi&` +
-                `limit=${limit}&` +
-                `access_token=${MAPBOX_TOKEN}`;
-            
-            const broaderResponse = await fetch(broaderUrl);
-            const broaderData = await broaderResponse.json();
-            
-            if (!broaderData.features || broaderData.features.length === 0) {
-                return [];
-            }
-            
-            console.log(`📍 Found ${broaderData.features.length} ${category} results with broader search`);
-            
-            return broaderData.features.map(feature => ({
-                id: `mapbox-${feature.id}`,
-                name: feature.text || feature.place_name,
-                category: mapCategoryFromMapbox(category),
-                address: feature.place_name,
-                coordinates: feature.center,
-                distance: calculateDistance({ lng, lat }, { lng: feature.center[0], lat: feature.center[1] }),
-                phone: feature.properties.phone || 'Not available',
-                hours: 'Hours vary',
-                bathroomTypes: ['mens', 'womens'],
-                amenities: getDefaultAmenities(category),
-                ratings: generateDefaultRatings(),
-                reviewCount: 0,
-                isMapboxPOI: true
-            }));
-            
+            console.log(`No ${category} businesses found in this area`);
             return [];
         }
         
@@ -283,7 +248,7 @@ async function searchMapboxPOI(coordinates, category, limit) {
             address: feature.place_name,
             coordinates: feature.center,
             distance: calculateDistance({ lng, lat }, { lng: feature.center[0], lat: feature.center[1] }),
-            phone: feature.properties.phone || 'Not available',
+            phone: feature.properties?.phone || 'Not available',
             hours: 'Hours vary',
             bathroomTypes: ['mens', 'womens'],
             amenities: getDefaultAmenities(category),
@@ -302,14 +267,18 @@ function mapCategoryFromMapbox(mapboxCategory) {
     const categoryMap = {
         'gas station': 'gas-station',
         'restaurant': 'restaurant',
-        'coffee': 'coffee-shop',
-        'convenience': 'retail',
-        'shopping': 'retail',
-        'grocery': 'retail',
-        'fast food': 'restaurant',
+        'starbucks': 'coffee-shop',
+        'mcdonalds': 'restaurant',
+        'walmart': 'retail',
+        'target': 'retail',
+        'cvs': 'retail',
+        'walgreens': 'retail',
+        'shopping mall': 'retail',
+        'grocery store': 'retail',
         'hotel': 'hotel',
         'hospital': 'hospital',
         'library': 'library',
+        'coffee': 'coffee-shop'
     };
     
     return categoryMap[mapboxCategory] || 'other';
