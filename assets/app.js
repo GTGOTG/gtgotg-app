@@ -252,7 +252,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // Initialize Mapbox map
-async function searchBusinesses(query, userLat, userLon) {
+function initializeMap() {
     console.log('🗺️ Initializing map...');
     
     try {
