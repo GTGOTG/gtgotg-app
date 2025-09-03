@@ -335,11 +335,11 @@ function initializeMap() {
         // Add geolocate control
         if (typeof mapboxgl.GeolocateControl !== 'undefined') {
             var geolocate = new mapboxgl.GeolocateControl({
-                positionOptions: {
-                    enableHighAccuracy: true
-                },
-                trackUserLocation: true,
-                showUserHeading: true
+            positionOptions: {
+                enableHighAccuracy: true
+            },
+            trackUserLocation: true,
+            showUserHeading: true
             });
         
             map.addControl(geolocate);
@@ -724,33 +724,20 @@ function handleSearchInput(event) {
 }
 
 // Generate search suggestions
-async function generateSearchSuggestions(query) {
+function generateSearchSuggestions(query) {
     var suggestions = [];
     
-    try {
-        // Use Mapbox Geocoding API for real-time suggestions
-        var suggestUrl = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?` +
-            `access_token=${MAPBOX_ACCESS_TOKEN}&` +
-            `limit=5&` +
-            `types=place,postcode,address,poi&` +
-            `country=us`;
-        
-        var response = await fetch(suggestUrl);
-        var data = await response.json();
-        
-        if (data.features) {
-            data.features.forEach(function(feature) {
-                suggestions.push({
-                    type: 'location',
-                    main: feature.text || feature.place_name,
-                    subtitle: feature.place_name || feature.text,
-                    data: feature
-                });
+    // Business name suggestions
+    sampleBusinesses.forEach(function(business) {
+        if (business.name.toLowerCase().includes(query)) {
+            suggestions.push({
+                type: 'business',
+                main: business.name,
+                subtitle: business.address,
+                data: business
             });
         }
-    } catch (error) {
-        console.error('Error getting suggestions:', error);
-    }
+    });
     
     // Category suggestions
     var categories = [
@@ -842,98 +829,30 @@ function selectSuggestion(suggestion) {
 }
 
 // Perform search
-async function performSearch() {
+function performSearch() {
     var query = document.getElementById('searchInput').value.toLowerCase().trim();
     
     if (!query) {
-        // Show all businesses in current map view
-        var center = map ? [map.getCenter().lng, map.getCenter().lat] : [-104.9903, 39.7392];
-        await searchBusinessesInArea(center, 'all');
+        currentBusinesses = [...allBusinesses];
         renderBusinesses(currentBusinesses);
         updateSearchResultsInfo(currentBusinesses.length);
         return;
     }
     
-    console.log('🔍 Performing search for:', query);
+    // Filter businesses based on search query
+    var filteredBusinesses = allBusinesses.filter(function(business) {
+        return business.name.toLowerCase().includes(query) ||
+               business.address.toLowerCase().includes(query) ||
+               business.category.toLowerCase().includes(query);
+    });
     
-    try {
-        // First, try to geocode the search query to get location
-        var geocodeUrl = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?` +
-            `access_token=${MAPBOX_ACCESS_TOKEN}&` +
-            `limit=1&` +
-            `types=place,postcode,address`;
-        
-        var geocodeResponse = await fetch(geocodeUrl);
-        var geocodeData = await geocodeResponse.json();
-        
-        var searchCenter;
-        if (geocodeData.features && geocodeData.features.length > 0) {
-            // Found a location, search around it
-            searchCenter = geocodeData.features[0].geometry.coordinates;
-            console.log('📍 Found location for search:', searchCenter);
-            
-            // Move map to search location
-            if (map) {
-                map.flyTo({
-                    center: searchCenter,
-                    zoom: 12
-                });
-            }
-        } else {
-            // No location found, use current map center or default
-            searchCenter = map ? [map.getCenter().lng, map.getCenter().lat] : [-104.9903, 39.7392];
-        }
-        
-        // Search for businesses around the location
-        await searchBusinessesInArea(searchCenter, 'all');
-        
-        // Also search for specific business names
-        await searchSpecificBusiness(query, searchCenter);
-        
-    } catch (error) {
-        console.error('❌ Error performing search:', error);
-        showNotification('Search error. Please try again.', 'error');
-    }
+    currentBusinesses = filteredBusinesses;
+    renderBusinesses(currentBusinesses);
+    updateSearchResultsInfo(currentBusinesses.length, query);
     
     hideSuggestions();
-}
-
-// Search for specific business by name
-async function searchSpecificBusiness(query, center) {
-    try {
-        var searchUrl = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?` +
-            `access_token=${MAPBOX_ACCESS_TOKEN}&` +
-            `proximity=${center[0]},${center[1]}&` +
-            `limit=20&` +
-            `types=poi`;
-        
-        var response = await fetch(searchUrl);
-        var data = await response.json();
-        
-        if (data.features && data.features.length > 0) {
-            var specificBusinesses = convertMapboxResultsToBusinesses(data.features, center);
-            
-            // Merge with existing results, avoiding duplicates
-            specificBusinesses.forEach(function(newBusiness) {
-                var exists = currentBusinesses.find(function(existing) {
-                    return Math.abs(existing.coordinates[0] - newBusiness.coordinates[0]) < 0.001 &&
-                           Math.abs(existing.coordinates[1] - newBusiness.coordinates[1]) < 0.001;
-                });
-                
-                if (!exists) {
-                    currentBusinesses.push(newBusiness);
-                }
-            });
-            
-            // Re-render with updated results
-            addBusinessMarkersToMap(currentBusinesses);
-            renderBusinesses(currentBusinesses);
-            updateSearchResultsInfo(currentBusinesses.length, query);
-        }
-        
-    } catch (error) {
-        console.error('❌ Error searching specific business:', error);
-    }
+    
+    console.log(`🔍 Search performed for: "${query}", found ${filteredBusinesses.length} results`);
 }
 
 // Get current location
@@ -1010,7 +929,7 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
 }
 
 // Apply filters
-async function applyFilters() {
+function applyFilters() {
     var categoryFilter = document.getElementById('categoryFilter').value;
     var distanceFilter = document.getElementById('distanceFilter').value;
     var ratingFilter = document.getElementById('ratingFilter').value;
@@ -1020,18 +939,11 @@ async function applyFilters() {
     activeFilters.distance = distanceFilter;
     activeFilters.rating = ratingFilter;
     
-    // If category changed, search for new businesses
-    if (categoryFilter !== activeFilters.lastCategory) {
-        activeFilters.lastCategory = categoryFilter;
-        var center = map ? [map.getCenter().lng, map.getCenter().lat] : [-104.9903, 39.7392];
-        await searchBusinessesInArea(center, categoryFilter || 'all');
-    }
+    // Start with all businesses
+    var filteredBusinesses = [...allBusinesses];
     
-    // Start with current businesses
-    var filteredBusinesses = [...currentBusinesses];
-    
-    // Apply additional filters to the results
-    if (categoryFilter && !activeFilters.lastCategory) {
+    // Apply category filter
+    if (categoryFilter) {
         filteredBusinesses = filteredBusinesses.filter(function(business) {
             return business.category === categoryFilter;
         });
@@ -1080,7 +992,7 @@ async function applyFilters() {
         }
     });
     
-    // Update display
+    currentBusinesses = filteredBusinesses;
     renderBusinesses(currentBusinesses);
     updateSearchResultsInfo(currentBusinesses.length);
     
