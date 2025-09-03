@@ -156,7 +156,7 @@ async function searchBusinessesInView() {
     } catch (error) {
         console.error('❌ Error searching businesses in view:', error);
     }
- }
+}
  
 // Search for businesses in specific bounds
 async function searchBusinessesInBounds(bounds, center) {
@@ -195,6 +195,10 @@ async function searchBusinessesInBounds(bounds, center) {
     if (currentBusinesses.length === 0) {
         console.log('No businesses found in this area');
     }
+}
+
+// Search Mapbox POI
+async function searchMapboxPOI(center, category, limit) {
     // Use a more specific search with bbox to limit results to the area
     const bbox = [
         center.lng - 0.1, // west
@@ -483,10 +487,6 @@ async function selectSearchSuggestion(placeName, coordinates) {
             lng: coordinates[0],
             lat: coordinates[1]
         });
-    });
-}
-        lng: coordinates[0],
-        lat: coordinates[1]
     });
 }
 
