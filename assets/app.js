@@ -318,48 +318,6 @@ async function searchBusinessesInLocation(coordinates) {
     renderBusinesses(currentBusinesses);
     updateSearchResultsInfo();
 }
-        'target',
-        'cvs',
-        'walgreens',
-        'hotel',
-        'hospital',
-        'library',
-        'shopping mall',
-        'grocery store'
-    ];
-    
-    let allBusinesses = [];
-    
-    for (const searchTerm of searchTerms) {
-        try {
-            const businesses = await searchMapboxPOI(coordinates, searchTerm, 5);
-            console.log(`Found ${businesses.length} ${searchTerm} businesses`);
-            allBusinesses = allBusinesses.concat(businesses);
-            
-            // Add delay to avoid rate limiting
-            await new Promise(resolve => setTimeout(resolve, 300));
-        } catch (error) {
-            console.error(`Error searching ${searchTerm}:`, error);
-        }
-    }
-    
-    // Remove duplicates
-    const uniqueBusinesses = removeDuplicateBusinesses(allBusinesses);
-    
-    console.log(`📊 Found ${uniqueBusinesses.length} unique businesses in this area`);
-    
-    currentBusinesses = uniqueBusinesses;
-    
-    if (currentBusinesses.length > 0) {
-        showNotification(`Found ${currentBusinesses.length} businesses in this area`, 'success');
-    } else {
-        showNotification('No businesses found in this area. Try searching a different location or expanding your search radius.', 'warning');
-    }
-    
-    updateMapMarkers();
-    renderBusinesses(currentBusinesses);
-    updateSearchResultsInfo();
-}
 
 // Search Mapbox POI
 async function searchMapboxPOI(coordinates, category, limit) {
