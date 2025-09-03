@@ -152,14 +152,14 @@ async function searchBusinessesInView() {
         
         console.log('🔍 Searching businesses in current view...');
         
-        await searchBusinessesInBounds(bounds, center);
+        await searchBusinessesInBounds(center);
     } catch (error) {
         console.error('❌ Error searching businesses in view:', error);
     }
 }
  
 // Search for businesses in specific bounds
-async function searchBusinessesInBounds(bounds, center) {
+async function searchBusinessesInBounds(center) {
     const categories = [
         'gas_station',
         'restaurant',
@@ -174,48 +174,61 @@ async function searchBusinessesInBounds(bounds, center) {
     
     let allBusinesses = [];
     
+    console.log(`🔍 Searching for businesses near ${center.lat}, ${center.lng}`);
+    
     for (const category of categories) {
         try {
             const businesses = await searchMapboxPOI(center, category, 10);
+            console.log(`Found ${businesses.length} ${category} businesses`);
             allBusinesses = allBusinesses.concat(businesses);
         } catch (error) {
             console.error(`Error searching ${category}:`, error);
         }
     }
     
-    // Remove duplicates and add sample data
+    // Remove duplicates
     const uniqueBusinesses = removeDuplicateBusinesses(allBusinesses);
-    currentBusinesses = [...uniqueBusinesses, ...sampleBusinesses];
     
-    updateMapMarkers();
-    // Only show businesses from the searched area
+    console.log(`📊 Found ${uniqueBusinesses.length} unique businesses in this area`);
+    
+    // Only show real businesses from the searched area
     currentBusinesses = uniqueBusinesses;
     
-    // If no businesses found, show message but don't add sample data from other locations
+    // If no businesses found in the area, show a helpful message
     if (currentBusinesses.length === 0) {
         console.log('No businesses found in this area');
+        showNotification('No businesses found in this area. Try zooming out or searching a different location.', 'info');
+    } else {
+        showNotification(`Found ${currentBusinesses.length} businesses in this area`, 'success');
     }
+    
+    updateMapMarkers();
+    renderBusinesses(currentBusinesses);
+    updateSearchResultsInfo();
 }
 
 // Search Mapbox POI
 async function searchMapboxPOI(center, category, limit) {
-    // Use a more specific search with bbox to limit results to the area
-    const bbox = [
-        center.lng - 0.1, // west
-        center.lat - 0.1, // south  
-        center.lng + 0.1, // east
-        center.lat + 0.1  // north
-    ];
-    
-    const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${category}.json?` +
+    const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(category)}.json?` +
         `proximity=${center.lng},${center.lat}&` +
-        `bbox=${bbox.join(',')}&` +
+        `country=US&` +
+        `types=poi&` +
         `limit=${limit}&` +
         `access_token=${MAPBOX_TOKEN}`;
     
     try {
         const response = await fetch(url);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
         const data = await response.json();
+        
+        if (!data.features || data.features.length === 0) {
+            console.log(`No ${category} businesses found in this area`);
+            return [];
+        }
         
         return data.features.map(feature => ({
             id: `mapbox-${feature.id}`,
@@ -299,7 +312,7 @@ async function searchNearbyBusinesses() {
     console.log('🔍 Searching for nearby businesses...');
     
     const center = { lng: userLocation[0], lat: userLocation[1] };
-    await searchBusinessesInBounds(null, center);
+    await searchBusinessesInBounds(center);
 }
 
 // Perform search based on user input
@@ -331,7 +344,7 @@ async function performSearch() {
             
             // Wait for map to finish moving, then search for businesses in that specific area
             map.once('moveend', async () => {
-                await searchBusinessesInBounds(null, {
+                await searchBusinessesInBounds({
                     lng: location.coordinates[0],
                     lat: location.coordinates[1]
                 });
@@ -483,7 +496,7 @@ async function selectSearchSuggestion(placeName, coordinates) {
     
     // Wait for map to finish moving, then search for businesses in that specific area
     map.once('moveend', async () => {
-        await searchBusinessesInBounds(null, {
+        await searchBusinessesInBounds({
             lng: coordinates[0],
             lat: coordinates[1]
         });
@@ -1079,21 +1092,15 @@ function showNotification(message, type = 'info') {
 
 // Load initial data
 function loadInitialData() {
-    // Initialize with sample data
-    currentBusinesses = [...sampleBusinesses];
-    
-    // Calculate distances if user location is available
-    if (userLocation) {
-        currentBusinesses.forEach(business => {
-            business.distance = calculateDistance(
-                { lng: userLocation[0], lat: userLocation[1] },
-                { lng: business.coordinates[0], lat: business.coordinates[1] }
-            );
-        });
-    }
-    
+    // Start with empty results - businesses will be loaded when user searches or gets location
+    currentBusinesses = [];
     renderBusinesses(currentBusinesses);
-    updateSearchResultsInfo();
+    
+    // Show helpful message
+    const searchResultsInfo = document.getElementById('searchResultsInfo');
+    if (searchResultsInfo) {
+        searchResultsInfo.textContent = 'Search for a city or use your location to find restrooms';
+    }
     
     console.log('📊 Initial data loaded');
 }
