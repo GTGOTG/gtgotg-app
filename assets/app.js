@@ -162,13 +162,162 @@ async function searchBusinessesInView() {
 async function searchBusinessesInLocation(coordinates) {
     console.log(`🔍 Searching for businesses at coordinates: ${coordinates}`);
     
-    // Use more specific search terms that Mapbox recognizes better
+    // Comprehensive search terms for all business types
     const searchTerms = [
+        // Gas stations and fuel
         'gas station',
-        'restaurant', 
-        'starbucks',
+        'shell',
+        'exxon',
+        'bp',
+        'chevron',
+        'mobil',
+        'texaco',
+        'sunoco',
+        'marathon',
+        'speedway',
+        'wawa',
+        'sheetz',
+        'pilot',
+        'flying j',
+        'loves',
+        'ta travel center',
+        'truck stop',
+        // Fast food chains
         'mcdonalds',
+        'burger king',
+        'subway',
+        'taco bell',
+        'kfc',
+        'pizza hut',
+        'dominos',
+        'wendys',
+        'arbys',
+        'dairy queen',
+        'sonic',
+        'jack in the box',
+        'in n out',
+        'chipotle',
+        'panera',
+        // Coffee shops
+        'starbucks',
+        'dunkin',
+        'tim hortons',
+        'peets coffee',
+        'caribou coffee',
+        'restaurant', 
+        'coffee',
+        'cafe',
+        // Retail stores
         'walmart',
+        'target',
+        'costco',
+        'sams club',
+        'home depot',
+        'lowes',
+        'best buy',
+        'kroger',
+        'safeway',
+        'publix',
+        'whole foods',
+        'trader joes',
+        // Pharmacies
+        'cvs',
+        'walgreens',
+        'rite aid',
+        // Hotels
+        'hotel',
+        'motel',
+        'holiday inn',
+        'marriott',
+        'hilton',
+        'hampton inn',
+        'comfort inn',
+        'best western',
+        'la quinta',
+        'super 8',
+        // Rest areas and travel
+        'rest area',
+        'welcome center',
+        'visitor center',
+        'travel plaza',
+        'service area',
+        // Healthcare
+        'hospital',
+        'urgent care',
+        'clinic',
+        // Public facilities
+        'library',
+        'city hall',
+        'courthouse',
+        'dmv',
+        'post office',
+        'community center',
+        // Parks and recreation
+        'park',
+        'recreation center',
+        'visitor center',
+        // Shopping centers
+        'mall',
+        'shopping center',
+        'plaza',
+        // Entertainment
+        'movie theater',
+        'bowling',
+        'casino'
+    ];
+    
+    let allBusinesses = [];
+    let searchCount = 0;
+    const maxSearches = 20; // Limit to avoid too many API calls
+    
+    for (const searchTerm of searchTerms.slice(0, maxSearches)) {
+        try {
+            const businesses = await searchMapboxPOI(coordinates, searchTerm, 10);
+            if (businesses.length > 0) {
+                console.log(`✅ Found ${businesses.length} ${searchTerm} businesses`);
+                allBusinesses = allBusinesses.concat(businesses);
+                searchCount++;
+            }
+            
+            // Add delay to avoid rate limiting
+            await new Promise(resolve => setTimeout(resolve, 200));
+        } catch (error) {
+            console.error(`❌ Error searching ${searchTerm}:`, error);
+        }
+    }
+    
+    // If still no results, try a broader search
+    if (allBusinesses.length === 0) {
+        console.log('🔍 No specific businesses found, trying broader search...');
+        try {
+            const broadSearches = ['restaurant', 'gas station', 'store', 'hotel'];
+            for (const term of broadSearches) {
+                const businesses = await searchMapboxPOIBroad(coordinates, term, 20);
+                allBusinesses = allBusinesses.concat(businesses);
+                await new Promise(resolve => setTimeout(resolve, 300));
+            }
+        } catch (error) {
+            console.error('❌ Broad search failed:', error);
+        }
+    }
+    
+    // Remove duplicates
+    const uniqueBusinesses = removeDuplicateBusinesses(allBusinesses);
+    
+    console.log(`📊 Found ${uniqueBusinesses.length} unique businesses in this area`);
+    
+    currentBusinesses = uniqueBusinesses;
+    
+    if (currentBusinesses.length > 0) {
+        showNotification(`Found ${currentBusinesses.length} businesses in this area`, 'success');
+    } else {
+        showNotification('No businesses found in this area. This might be a rural location with limited commercial establishments.', 'warning');
+    }
+    
+    updateMapMarkers();
+    renderBusinesses(currentBusinesses);
+    updateSearchResultsInfo();
+}
         'target',
         'cvs',
         'walgreens',
@@ -216,8 +365,8 @@ async function searchBusinessesInLocation(coordinates) {
 async function searchMapboxPOI(coordinates, category, limit) {
     const [lng, lat] = coordinates;
     
-    // Use a much larger search radius for better results
-    const radius = 0.1; // About 6 miles
+    // Use city-level search radius
+    const radius = 0.05; // About 3 miles for focused search
     const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(category)}.json?` +
         `proximity=${lng},${lat}&` +
         `bbox=${lng-radius},${lat-radius},${lng+radius},${lat+radius}&` +
@@ -229,17 +378,18 @@ async function searchMapboxPOI(coordinates, category, limit) {
         const response = await fetch(url);
         
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            console.log(`⚠️ HTTP ${response.status} for ${category} search`);
+            return [];
         }
         
         const data = await response.json();
         
         if (!data.features || data.features.length === 0) {
-            console.log(`No ${category} businesses found in this area`);
+            console.log(`📍 No ${category} found in this area`);
             return [];
         }
         
-        console.log(`📍 Found ${data.features.length} ${category} results from Mapbox`);
+        console.log(`✅ Found ${data.features.length} ${category} results`);
         
         return data.features.map(feature => ({
             id: `mapbox-${feature.id}`,
@@ -257,7 +407,57 @@ async function searchMapboxPOI(coordinates, category, limit) {
             isMapboxPOI: true
         }));
     } catch (error) {
-        console.error('Error fetching Mapbox POI:', error);
+        console.error(`❌ Error fetching ${category}:`, error);
+        return [];
+    }
+}
+
+// Broader search for when specific searches fail
+async function searchMapboxPOIBroad(coordinates, category, limit) {
+    const [lng, lat] = coordinates;
+    
+    // Much larger radius for broad search
+    const radius = 0.2; // About 12 miles
+    const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(category)}.json?` +
+        `proximity=${lng},${lat}&` +
+        `bbox=${lng-radius},${lat-radius},${lng+radius},${lat+radius}&` +
+        `types=poi,address&` +
+        `limit=${limit}&` +
+        `access_token=${MAPBOX_TOKEN}`;
+    
+    try {
+        const response = await fetch(url);
+        
+        if (!response.ok) {
+            console.log(`⚠️ Broad search HTTP ${response.status} for ${category}`);
+            return [];
+        }
+        
+        const data = await response.json();
+        
+        if (!data.features || data.features.length === 0) {
+            return [];
+        }
+        
+        console.log(`🔍 Broad search found ${data.features.length} ${category} results`);
+        
+        return data.features.map(feature => ({
+            id: `mapbox-broad-${feature.id}`,
+            name: feature.text || feature.place_name,
+            category: mapCategoryFromMapbox(category),
+            address: feature.place_name,
+            coordinates: feature.center,
+            distance: calculateDistance({ lng, lat }, { lng: feature.center[0], lat: feature.center[1] }),
+            phone: feature.properties?.phone || 'Not available',
+            hours: 'Hours vary',
+            bathroomTypes: ['mens', 'womens'],
+            amenities: getDefaultAmenities(category),
+            ratings: generateDefaultRatings(),
+            reviewCount: 0,
+            isMapboxPOI: true
+        }));
+    } catch (error) {
+        console.error(`❌ Broad search error for ${category}:`, error);
         return [];
     }
 }
@@ -265,20 +465,73 @@ async function searchMapboxPOI(coordinates, category, limit) {
 // Map Mapbox categories to our categories
 function mapCategoryFromMapbox(mapboxCategory) {
     const categoryMap = {
+        // Gas stations
         'gas station': 'gas-station',
+        'shell': 'gas-station',
+        'exxon': 'gas-station',
+        'bp': 'gas-station',
+        'chevron': 'gas-station',
+        'mobil': 'gas-station',
+        'texaco': 'gas-station',
+        'sunoco': 'gas-station',
+        'marathon': 'gas-station',
+        'speedway': 'gas-station',
+        'wawa': 'gas-station',
+        'sheetz': 'gas-station',
+        'pilot': 'gas-station',
+        'flying j': 'gas-station',
+        'loves': 'gas-station',
+        'ta travel center': 'gas-station',
+        'truck stop': 'gas-station',
+        // Restaurants and fast food
         'restaurant': 'restaurant',
-        'starbucks': 'coffee-shop',
         'mcdonalds': 'restaurant',
+        'burger king': 'restaurant',
+        'subway': 'restaurant',
+        'taco bell': 'restaurant',
+        'kfc': 'restaurant',
+        'pizza hut': 'restaurant',
+        'wendys': 'restaurant',
+        'chipotle': 'restaurant',
+        'panera': 'restaurant',
+        // Coffee shops
+        'starbucks': 'coffee-shop',
+        'dunkin': 'coffee-shop',
+        'tim hortons': 'coffee-shop',
+        'coffee': 'coffee-shop',
+        'cafe': 'coffee-shop',
+        // Retail
         'walmart': 'retail',
         'target': 'retail',
-        'cvs': 'retail',
-        'walgreens': 'retail',
-        'shopping mall': 'retail',
-        'grocery store': 'retail',
+        'costco': 'retail',
+        'home depot': 'retail',
+        'lowes': 'retail',
+        'best buy': 'retail',
+        'mall': 'retail',
+        'shopping': 'retail',
+        'store': 'retail',
+        'convenience': 'gas-station',
+        // Pharmacies
+        'cvs': 'gas-station',
+        'walgreens': 'gas-station',
+        'rite aid': 'gas-station',
+        // Hotels
         'hotel': 'hotel',
+        'motel': 'hotel',
+        'marriott': 'hotel',
+        'hilton': 'hotel',
+        // Healthcare
         'hospital': 'hospital',
+        'clinic': 'hospital',
+        // Public facilities
         'library': 'library',
-        'coffee': 'coffee-shop'
+        'park': 'park',
+        // Rest areas
+        'rest area': 'rest-area',
+        'welcome center': 'rest-area',
+        'visitor center': 'rest-area',
+        'travel plaza': 'rest-area',
+        'service area': 'rest-area'
     };
     
     return categoryMap[mapboxCategory] || 'other';
