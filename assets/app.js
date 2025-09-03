@@ -1,864 +1,458 @@
-// GTGOTG - "Got To Go On The Go" Main Application JavaScript
+// GTGOTG - Got To Go On The Go - Complete Application
 // Copyright © 2025 Jessica Esposito / Colorado Quality LLC. All rights reserved.
 
-console.log('🚽 GTGOTG - Got To Go On The Go - Loading...');
+console.log('🚀 GTGOTG - Got To Go On The Go - Loading...');
 
-// Global variables
-var map;
-var currentUser = null;
-var currentBusinesses = [];
-var allBusinesses = [];
-var userLocation = null;
-var currentBusinessForReview = null;
-var activeFilters = {
-    category: '',
-    distance: '',
-    rating: '',
-    quickFilters: []
-};
+// Mapbox Configuration
+const MAPBOX_TOKEN = 'pk.eyJ1IjoiZ3Rnb3RnIiwiYSI6ImNtNXNkZjBkZjBhcWsya3M4ZGZkZGZkZGYifQ.example'; // Replace with your actual token
+mapboxgl.accessToken = MAPBOX_TOKEN;
 
-// Mapbox configuration - Using a demo token (replace with your own)
-var MAPBOX_ACCESS_TOKEN = 'pk.eyJ1IjoiY29sb3JhZG9xdWFsaXR5bGxjIiwiYSI6ImNtZW4yOG9scTB4ZzgybG9jNTgwZW8wbDAifQ.Vo3vwfNTszwGPkYp4H054Q';
+// Global Variables
+let map;
+let userLocation = null;
+let currentUser = null;
+let currentBusinesses = [];
+let currentBusinessForReview = null;
+let searchMarkers = [];
+let userMarker = null;
+let currentSearchQuery = '';
+let currentSearchBounds = null;
 
-// Real-time search configuration
-var SEARCH_CONFIG = {
-    categories: {
-        'gas-station': 'fuel',
-        'restaurant': 'restaurant',
-        'coffee-shop': 'cafe',
-        'rest-area': 'rest_area',
-        'retail': 'retail',
-        'hotel': 'lodging',
-        'park': 'park',
-        'hospital': 'hospital',
-        'library': 'library'
-    },
-    radius: 50000, // 50km default search radius
-    limit: 50
-};
-
-// Current search state
-var currentSearchBounds = null;
-var searchMarkers = [];
-var isSearching = false;
-
-// Sample business data with enhanced information
-var sampleBusinesses = [
+// Sample businesses for fallback
+const sampleBusinesses = [
     {
-        id: 'bus_001',
-        name: 'Shell Gas Station',
-        category: 'gas-station',
-        address: '123 Main Street, Denver, CO 80202',
+        id: 'sample-1',
+        name: 'Downtown Coffee House',
+        category: 'coffee-shop',
+        address: '123 Main St, Denver, CO 80202',
         phone: '(303) 555-0123',
         coordinates: [-104.9903, 39.7392],
         distance: 0.3,
-        hours: {
-            monday: '6:00 AM - 11:00 PM',
-            tuesday: '6:00 AM - 11:00 PM',
-            wednesday: '6:00 AM - 11:00 PM',
-            thursday: '6:00 AM - 11:00 PM',
-            friday: '6:00 AM - 11:00 PM',
-            saturday: '6:00 AM - 11:00 PM',
-            sunday: '7:00 AM - 10:00 PM'
-        },
-        ratings: {
-            overall: 4.2,
-            cleanliness: 4.0,
-            safety: 4.5,
-            accessibility: 3.8
-        },
-        reviewCount: 23,
+        hours: 'Mon-Fri: 6AM-8PM, Sat-Sun: 7AM-7PM',
+        bathroomTypes: ['mens', 'womens', 'accessible'],
         amenities: ['toilet-paper', 'soap', 'paper-towels', 'hand-dryer'],
-        bathroomTypes: ['mens', 'womens'],
-        isOpen: true,
-        claimed: false,
-        owner: null
+        ratings: { overall: 8.5, cleanliness: 9, safety: 8, accessibility: 9 },
+        reviewCount: 47,
+        isSample: true
     },
     {
-        id: 'bus_002',
-        name: 'Starbucks Coffee',
-        category: 'coffee-shop',
-        address: '456 Broadway, Denver, CO 80203',
-        phone: '(303) 555-0456',
-        coordinates: [-104.9847, 39.7348],
-        distance: 0.7,
-        hours: {
-            monday: '5:30 AM - 9:00 PM',
-            tuesday: '5:30 AM - 9:00 PM',
-            wednesday: '5:30 AM - 9:00 PM',
-            thursday: '5:30 AM - 9:00 PM',
-            friday: '5:30 AM - 9:00 PM',
-            saturday: '6:00 AM - 9:00 PM',
-            sunday: '6:00 AM - 8:00 PM'
-        },
-        ratings: {
-            overall: 4.6,
-            cleanliness: 4.8,
-            safety: 4.7,
-            accessibility: 4.2
-        },
-        reviewCount: 45,
-        amenities: ['toilet-paper', 'soap', 'paper-towels', 'hand-dryer', 'baby-changing'],
-        bathroomTypes: ['neutral', 'accessible'],
-        isOpen: true,
-        claimed: true,
-        owner: 'owner_001'
-    },
-    {
-        id: 'bus_003',
-        name: 'McDonald\'s',
-        category: 'restaurant',
-        address: '789 Colfax Avenue, Denver, CO 80204',
-        phone: '(303) 555-0789',
-        coordinates: [-105.0178, 39.7391],
+        id: 'sample-2',
+        name: 'Highway Rest Stop',
+        category: 'rest-area',
+        address: 'I-25 Mile Marker 210, Colorado Springs, CO',
+        phone: '(719) 555-0456',
+        coordinates: [-104.8214, 38.8339],
         distance: 1.2,
-        hours: {
-            monday: '5:00 AM - 11:00 PM',
-            tuesday: '5:00 AM - 11:00 PM',
-            wednesday: '5:00 AM - 11:00 PM',
-            thursday: '5:00 AM - 11:00 PM',
-            friday: '5:00 AM - 12:00 AM',
-            saturday: '5:00 AM - 12:00 AM',
-            sunday: '6:00 AM - 11:00 PM'
-        },
-        ratings: {
-            overall: 3.8,
-            cleanliness: 3.5,
-            safety: 4.0,
-            accessibility: 4.5
-        },
-        reviewCount: 67,
+        hours: '24/7',
+        bathroomTypes: ['mens', 'womens', 'accessible'],
         amenities: ['toilet-paper', 'soap', 'hand-dryer', 'baby-changing', 'ada-compliant'],
-        bathroomTypes: ['mens', 'womens', 'accessible'],
-        isOpen: true,
-        claimed: false,
-        owner: null
-    },
-    {
-        id: 'bus_004',
-        name: 'Denver Public Library - Central',
-        category: 'library',
-        address: '10 W 14th Ave Pkwy, Denver, CO 80204',
-        phone: '(720) 865-1111',
-        coordinates: [-104.9903, 39.7372],
-        distance: 0.8,
-        hours: {
-            monday: '10:00 AM - 8:00 PM',
-            tuesday: '10:00 AM - 8:00 PM',
-            wednesday: '10:00 AM - 8:00 PM',
-            thursday: '10:00 AM - 8:00 PM',
-            friday: '10:00 AM - 5:00 PM',
-            saturday: '9:00 AM - 5:00 PM',
-            sunday: '1:00 PM - 5:00 PM'
-        },
-        ratings: {
-            overall: 4.7,
-            cleanliness: 4.9,
-            safety: 4.8,
-            accessibility: 4.9
-        },
-        reviewCount: 89,
-        amenities: ['toilet-paper', 'soap', 'paper-towels', 'hand-dryer', 'baby-changing', 'ada-compliant'],
-        bathroomTypes: ['mens', 'womens', 'neutral', 'accessible'],
-        isOpen: true,
-        claimed: true,
-        owner: 'owner_002'
-    },
-    {
-        id: 'bus_005',
-        name: 'Target',
-        category: 'retail',
-        address: '1000 S Colorado Blvd, Denver, CO 80246',
-        phone: '(303) 757-6100',
-        coordinates: [-104.9403, 39.7092],
-        distance: 2.1,
-        hours: {
-            monday: '8:00 AM - 10:00 PM',
-            tuesday: '8:00 AM - 10:00 PM',
-            wednesday: '8:00 AM - 10:00 PM',
-            thursday: '8:00 AM - 10:00 PM',
-            friday: '8:00 AM - 10:00 PM',
-            saturday: '8:00 AM - 10:00 PM',
-            sunday: '8:00 AM - 9:00 PM'
-        },
-        ratings: {
-            overall: 4.3,
-            cleanliness: 4.1,
-            safety: 4.4,
-            accessibility: 4.6
-        },
-        reviewCount: 156,
-        amenities: ['toilet-paper', 'soap', 'paper-towels', 'hand-dryer', 'baby-changing', 'ada-compliant'],
-        bathroomTypes: ['mens', 'womens', 'accessible'],
-        isOpen: true,
-        claimed: false,
-        owner: null
+        ratings: { overall: 7.2, cleanliness: 7, safety: 8, accessibility: 9 },
+        reviewCount: 23,
+        isSample: true
     }
 ];
 
-// Sample users data
-var sampleUsers = [
-    {
-        id: 'user_001',
-        email: 'user@gtgotg.com',
-        password: 'password123',
-        firstName: 'John',
-        lastName: 'Doe',
-        badge: 'Silver',
-        isAdmin: false,
-        joinDate: '2024-01-15',
-        reviewCount: 12
-    },
-    {
-        id: 'admin_001',
-        email: 'admin@gtgotg.com',
-        password: 'admin123',
-        firstName: 'Admin',
-        lastName: 'User',
-        badge: 'Expert',
-        isAdmin: true,
-        joinDate: '2023-12-01',
-        reviewCount: 89
-    },
-    {
-        id: 'owner_001',
-        email: 'owner@starbucks.com',
-        password: 'owner123',
-        firstName: 'Business',
-        lastName: 'Owner',
-        badge: 'Business',
-        isAdmin: false,
-        isBusinessOwner: true,
-        joinDate: '2024-02-01',
-        reviewCount: 5,
-        ownedBusinesses: ['bus_002']
-    },
-    {
-        id: 'owner_002',
-        email: 'owner@library.gov',
-        password: 'library123',
-        firstName: 'Library',
-        lastName: 'Manager',
-        badge: 'Business',
-        isAdmin: false,
-        isBusinessOwner: true,
-        joinDate: '2024-01-20',
-        reviewCount: 3,
-        ownedBusinesses: ['bus_004']
-    }
-];
-
-// Initialize the application
+// Initialize application
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🔧 Initializing GTGOTG application...');
     
-    // Initialize map
     initializeMap();
-    
-    // Load initial data
+    initializeSearch();
+    initializeFilters();
+    initializeAuth();
     loadInitialData();
-    
-    // Set up event listeners
-    setupEventListeners();
-    
-    // Check for saved user session
-    checkUserSession();
     
     console.log('✅ GTGOTG application initialized successfully');
 });
 
 // Initialize Mapbox map
 function initializeMap() {
-    console.log('🗺️ Initializing map...');
-    
-    // Set the access token
-    if (typeof mapboxgl !== 'undefined') {
-        mapboxgl.accessToken = MAPBOX_ACCESS_TOKEN;
-        console.log('🗺️ Mapbox token configured');
-    }
+    console.log('🗺️ Initializing Mapbox map...');
     
     try {
-        // Check if Mapbox GL JS is loaded
-        if (typeof mapboxgl === 'undefined') {
-            console.error('❌ Mapbox GL JS not loaded');
-            document.getElementById('map').innerHTML = `
-                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; background: #f8fafc; color: #64748b; font-size: 1.1rem; text-align: center; padding: 2rem;">
-                    <div style="margin-bottom: 1rem; font-size: 2rem;">🗺️</div>
-                    <div style="font-weight: 600; margin-bottom: 0.5rem;">Map Loading...</div>
-                    <div style="font-size: 0.9rem; max-width: 400px;">
-                        The interactive map is loading. Please wait a moment.
-                    </div>
-                </div>
-            `;
-            return;
-        }
-        
-        // Set the access token
-        // Default to Denver, CO if no user location
-        var defaultCenter = [-104.9903, 39.7392];
-        
-        console.log('🗺️ Creating map with center:', defaultCenter);
-        
         map = new mapboxgl.Map({
             container: 'map',
-            style: 'mapbox://styles/mapbox/streets-v11',
-            center: defaultCenter,
-            zoom: 12,
+            style: 'mapbox://styles/mapbox/streets-v12',
+            center: [-98.5795, 39.8283], // Center of USA
+            zoom: 4,
             attributionControl: false
         });
-        
-        map.on('load', function() {
-            console.log('🗺️ Map loaded successfully');
-            // Load initial businesses around default location
-            searchBusinessesInArea(defaultCenter, 'all');
-            
-            // Set up map event listeners for dynamic searching
-            setupMapEventListeners();
-        });
-        
-        map.on('error', function(e) {
-            console.error('🗺️ Map error:', e);
-            document.getElementById('map').innerHTML = `
-                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; background: #f8fafc; color: #64748b; font-size: 1.1rem; text-align: center; padding: 2rem;">
-                    <div style="margin-bottom: 1rem; font-size: 2rem;">🗺️</div>
-                    <div style="font-weight: 600; margin-bottom: 0.5rem;">Map Unavailable</div>
-                    <div style="font-size: 0.9rem; max-width: 400px;">
-                        Unable to load the map. Please refresh the page.
-                    </div>
-                </div>
-            `;
-        });
-        
-        // Add navigation controls
-        map.addControl(new mapboxgl.NavigationControl());
-        
+
+        map.addControl(new mapboxgl.AttributionControl({
+            compact: true
+        }));
+
+        map.addControl(new mapboxgl.NavigationControl(), 'top-right');
+
         // Add geolocate control
-        if (typeof mapboxgl.GeolocateControl !== 'undefined') {
-            var geolocate = new mapboxgl.GeolocateControl({
+        const geolocate = new mapboxgl.GeolocateControl({
             positionOptions: {
                 enableHighAccuracy: true
             },
             trackUserLocation: true,
             showUserHeading: true
-            });
-        
-            map.addControl(geolocate);
-        
-            // Try to get user location on load
-            geolocate.on('geolocate', function(e) {
-                userLocation = [e.coords.longitude, e.coords.latitude];
-                console.log('📍 User location obtained:', userLocation);
-                updateBusinessDistances();
-            });
-        }
-        
+        });
+
+        map.addControl(geolocate, 'top-right');
+
+        map.on('load', function() {
+            console.log('✅ Map loaded successfully');
+            
+            // Get user location and search for nearby businesses
+            geolocate.trigger();
+            
+            // Search for businesses when map moves
+            map.on('moveend', debounce(searchBusinessesInView, 1000));
+        });
+
+        // Handle geolocate events
+        geolocate.on('geolocate', function(e) {
+            userLocation = [e.coords.longitude, e.coords.latitude];
+            console.log('📍 User location found:', userLocation);
+            searchNearbyBusinesses();
+        });
+
+        geolocate.on('error', function(e) {
+            console.log('❌ Geolocation error:', e);
+            // Default to Denver if geolocation fails
+            userLocation = [-104.9903, 39.7392];
+            map.setCenter(userLocation);
+            map.setZoom(12);
+            searchNearbyBusinesses();
+        });
+
     } catch (error) {
         console.error('❌ Error initializing map:', error);
-        // Show fallback message
-        document.getElementById('map').innerHTML = `
-            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; background: #f8fafc; color: #64748b; font-size: 1.1rem; text-align: center; padding: 2rem;">
-                <div style="margin-bottom: 1rem; font-size: 2rem;">🗺️</div>
-                <div style="font-weight: 600; margin-bottom: 0.5rem;">Map Error</div>
-                <div style="font-size: 0.9rem; max-width: 400px;">
-                    Unable to initialize the map. Please refresh the page.
-                </div>
-            </div>
-        `;
+        showNotification('Map failed to load. Please refresh the page.', 'error');
     }
 }
 
-// Setup map event listeners for dynamic searching
-function setupMapEventListeners() {
+// Search for businesses in current map view
+async function searchBusinessesInView() {
     if (!map) return;
     
-    // Search when map stops moving
-    map.on('moveend', function() {
-        if (!isSearching) {
-            var center = map.getCenter();
-            var category = document.getElementById('categoryFilter').value || 'all';
-            searchBusinessesInArea([center.lng, center.lat], category);
-        }
-    });
+    const bounds = map.getBounds();
+    const center = map.getCenter();
     
-    console.log('🎧 Map event listeners set up');
-}
-
-// Search businesses in area using Mapbox Search API
-async function searchBusinessesInArea(center, category) {
-    if (isSearching) return;
-    
-    isSearching = true;
-    console.log('🔍 Searching businesses in area:', center, 'category:', category);
+    console.log('🔍 Searching businesses in current view...');
     
     try {
-        // Clear existing markers
-        clearSearchMarkers();
+        await searchBusinessesInBounds(bounds, center);
+    } catch (error) {
+        console.error('❌ Error searching businesses in view:', error);
+    }
+}
+
+// Search for businesses in specific bounds
+async function searchBusinessesInBounds(bounds, center) {
+    const categories = [
+        'gas_station',
+        'restaurant',
+        'cafe',
+        'convenience_store',
+        'shopping_mall',
+        'hotel',
+        'hospital',
+        'library',
+        'park'
+    ];
+    
+    let allBusinesses = [];
+    
+    for (const category of categories) {
+        try {
+            const businesses = await searchMapboxPOI(center, category, 10);
+            allBusinesses = allBusinesses.concat(businesses);
+        } catch (error) {
+            console.error(`Error searching ${category}:`, error);
+        }
+    }
+    
+    // Remove duplicates and add sample data
+    const uniqueBusinesses = removeDuplicateBusinesses(allBusinesses);
+    currentBusinesses = [...uniqueBusinesses, ...sampleBusinesses];
+    
+    updateMapMarkers();
+    renderBusinesses(currentBusinesses);
+    updateSearchResultsInfo();
+}
+
+// Search Mapbox POI (Points of Interest)
+async function searchMapboxPOI(center, category, limit = 10) {
+    const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${category}.json?` +
+        `proximity=${center.lng},${center.lat}&` +
+        `limit=${limit}&` +
+        `access_token=${MAPBOX_TOKEN}`;
+    
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
         
-        // Build search query based on category
-        var searchQuery = buildSearchQuery(category);
+        return data.features.map(feature => ({
+            id: `mapbox-${feature.id}`,
+            name: feature.text || feature.place_name,
+            category: mapCategoryFromMapbox(category),
+            address: feature.place_name,
+            coordinates: feature.center,
+            distance: calculateDistance(center, { lng: feature.center[0], lat: feature.center[1] }),
+            phone: feature.properties.phone || 'Not available',
+            hours: 'Hours vary',
+            bathroomTypes: ['mens', 'womens'],
+            amenities: getDefaultAmenities(category),
+            ratings: generateDefaultRatings(),
+            reviewCount: 0,
+            isMapboxPOI: true
+        }));
+    } catch (error) {
+        console.error('Error fetching Mapbox POI:', error);
+        return [];
+    }
+}
+
+// Map Mapbox categories to our categories
+function mapCategoryFromMapbox(mapboxCategory) {
+    const categoryMap = {
+        'gas_station': 'gas-station',
+        'restaurant': 'restaurant',
+        'cafe': 'coffee-shop',
+        'convenience_store': 'retail',
+        'shopping_mall': 'retail',
+        'hotel': 'hotel',
+        'hospital': 'hospital',
+        'library': 'library',
+        'park': 'park'
+    };
+    
+    return categoryMap[mapboxCategory] || 'other';
+}
+
+// Get default amenities based on category
+function getDefaultAmenities(category) {
+    const amenityMap = {
+        'gas_station': ['toilet-paper', 'soap'],
+        'restaurant': ['toilet-paper', 'soap', 'paper-towels'],
+        'cafe': ['toilet-paper', 'soap', 'paper-towels'],
+        'hotel': ['toilet-paper', 'soap', 'paper-towels', 'hand-dryer'],
+        'hospital': ['toilet-paper', 'soap', 'paper-towels', 'hand-dryer', 'ada-compliant'],
+        'library': ['toilet-paper', 'soap', 'paper-towels', 'ada-compliant']
+    };
+    
+    return amenityMap[category] || ['toilet-paper', 'soap'];
+}
+
+// Generate default ratings for new businesses
+function generateDefaultRatings() {
+    return {
+        overall: Math.round((Math.random() * 3 + 6) * 10) / 10, // 6-9 range
+        cleanliness: Math.round((Math.random() * 3 + 6) * 10) / 10,
+        safety: Math.round((Math.random() * 3 + 7) * 10) / 10,
+        accessibility: Math.round((Math.random() * 3 + 6) * 10) / 10
+    };
+}
+
+// Remove duplicate businesses
+function removeDuplicateBusinesses(businesses) {
+    const seen = new Set();
+    return businesses.filter(business => {
+        const key = `${business.name}-${business.address}`;
+        if (seen.has(key)) {
+            return false;
+        }
+        seen.add(key);
+        return true;
+    });
+}
+
+// Search for nearby businesses
+async function searchNearbyBusinesses() {
+    if (!userLocation) return;
+    
+    console.log('🔍 Searching for nearby businesses...');
+    
+    const center = { lng: userLocation[0], lat: userLocation[1] };
+    await searchBusinessesInBounds(null, center);
+}
+
+// Perform search based on user input
+async function performSearch() {
+    const searchInput = document.getElementById('searchInput');
+    const query = searchInput.value.trim();
+    
+    if (!query) {
+        showNotification('Please enter a search term', 'warning');
+        return;
+    }
+    
+    console.log(`🔍 Performing search for: "${query}"`);
+    currentSearchQuery = query;
+    
+    try {
+        // First, geocode the search query to get location
+        const location = await geocodeSearch(query);
         
-        // Search using Mapbox Geocoding API for POI
-        var searchUrl = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(searchQuery)}.json?` +
-            `access_token=${MAPBOX_ACCESS_TOKEN}&` +
-            `proximity=${center[0]},${center[1]}&` +
-            `limit=${SEARCH_CONFIG.limit}&` +
-            `types=poi&` +
-            `bbox=${getBoundingBox(center, 25)}`;
-        
-        console.log('🌐 Making Mapbox search request...');
-        
-        var response = await fetch(searchUrl);
-        var data = await response.json();
-        
-        if (data.features && data.features.length > 0) {
-            console.log(`✅ Found ${data.features.length} businesses`);
+        if (location) {
+            // Move map to the location
+            map.flyTo({
+                center: location.coordinates,
+                zoom: 12,
+                duration: 2000
+            });
             
-            // Convert Mapbox results to our business format
-            var businesses = convertMapboxResultsToBusinesses(data.features, center);
-            
-            // Update current businesses
-            currentBusinesses = businesses;
-            allBusinesses = [...businesses, ...sampleBusinesses]; // Keep sample data too
-            
-            // Add markers to map
-            addBusinessMarkersToMap(businesses);
-            
-            // Render business cards
-            renderBusinesses(currentBusinesses);
-            
-            // Update search results info
-            updateSearchResultsInfo(currentBusinesses.length);
+            // Search for businesses in that area
+            await searchBusinessesInBounds(null, {
+                lng: location.coordinates[0],
+                lat: location.coordinates[1]
+            });
         } else {
-            console.log('ℹ️ No businesses found in this area');
-            // Fall back to sample data
-            currentBusinesses = sampleBusinesses;
-            addBusinessMarkersToMap(sampleBusinesses);
-            renderBusinesses(currentBusinesses);
-            updateSearchResultsInfo(currentBusinesses.length);
+            // If no location found, search current map view
+            await searchBusinessesInView();
         }
         
     } catch (error) {
-        console.error('❌ Error searching businesses:', error);
-        // Fall back to sample data
-        currentBusinesses = sampleBusinesses;
-        addBusinessMarkersToMap(sampleBusinesses);
-        renderBusinesses(currentBusinesses);
-        updateSearchResultsInfo(currentBusinesses.length);
-    } finally {
-        isSearching = false;
+        console.error('❌ Search error:', error);
+        showNotification('Search failed. Please try again.', 'error');
     }
 }
 
-// Build search query based on category
-function buildSearchQuery(category) {
-    if (category === 'all' || !category) {
-        return 'restaurant gas station coffee shop store hotel';
-    }
+// Geocode search query
+async function geocodeSearch(query) {
+    const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?` +
+        `country=US&` +
+        `types=place,postcode,address&` +
+        `access_token=${MAPBOX_TOKEN}`;
     
-    var categoryQueries = {
-        'gas-station': 'gas station fuel',
-        'restaurant': 'restaurant food',
-        'coffee-shop': 'coffee shop cafe starbucks',
-        'rest-area': 'rest area rest stop',
-        'retail': 'store shop retail walmart target',
-        'hotel': 'hotel motel inn',
-        'park': 'park recreation',
-        'hospital': 'hospital medical center',
-        'library': 'library'
-    };
-    
-    return categoryQueries[category] || category;
-}
-
-// Get bounding box for search
-function getBoundingBox(center, radiusKm) {
-    var lat = center[1];
-    var lng = center[0];
-    
-    // Rough conversion: 1 degree ≈ 111 km
-    var latOffset = radiusKm / 111;
-    var lngOffset = radiusKm / (111 * Math.cos(lat * Math.PI / 180));
-    
-    return `${lng - lngOffset},${lat - latOffset},${lng + lngOffset},${lat + latOffset}`;
-}
-
-// Convert Mapbox results to our business format
-function convertMapboxResultsToBusinesses(features, searchCenter) {
-    return features.map(function(feature, index) {
-        var coords = feature.geometry.coordinates;
-        var props = feature.properties;
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
         
-        // Determine category from Mapbox category or text
-        var category = determineBusinessCategory(feature);
+        if (data.features && data.features.length > 0) {
+            const feature = data.features[0];
+            return {
+                name: feature.place_name,
+                coordinates: feature.center
+            };
+        }
         
-        // Calculate distance from search center
-        var distance = calculateDistance(
-            searchCenter[1], searchCenter[0],
-            coords[1], coords[0]
-        );
-        
-        return {
-            id: 'mapbox_' + feature.id || 'mapbox_' + index,
-            name: props.name || feature.text || 'Business',
-            category: category,
-            address: props.address || feature.place_name || 'Address not available',
-            phone: props.tel || 'Phone not available',
-            coordinates: coords,
-            distance: distance,
-            hours: generateDefaultHours(),
-            ratings: generateDefaultRatings(),
-            reviewCount: Math.floor(Math.random() * 50) + 1,
-            amenities: generateDefaultAmenities(category),
-            bathroomTypes: generateDefaultBathroomTypes(),
-            isOpen: true,
-            claimed: false,
-            owner: null,
-            isRealBusiness: true
-        };
-    });
-}
-
-// Determine business category from Mapbox data
-function determineBusinessCategory(feature) {
-    var text = (feature.text || '').toLowerCase();
-    var category = (feature.properties.category || '').toLowerCase();
-    var placeName = (feature.place_name || '').toLowerCase();
-    
-    // Check for specific keywords
-    if (text.includes('gas') || text.includes('fuel') || text.includes('shell') || text.includes('exxon') || text.includes('bp')) {
-        return 'gas-station';
-    }
-    if (text.includes('coffee') || text.includes('starbucks') || text.includes('cafe')) {
-        return 'coffee-shop';
-    }
-    if (text.includes('mcdonald') || text.includes('burger') || text.includes('restaurant') || text.includes('food')) {
-        return 'restaurant';
-    }
-    if (text.includes('walmart') || text.includes('target') || text.includes('store') || text.includes('shop')) {
-        return 'retail';
-    }
-    if (text.includes('hotel') || text.includes('inn') || text.includes('motel')) {
-        return 'hotel';
-    }
-    if (text.includes('hospital') || text.includes('medical')) {
-        return 'hospital';
-    }
-    if (text.includes('library')) {
-        return 'library';
-    }
-    if (text.includes('park')) {
-        return 'park';
-    }
-    
-    // Default to restaurant for POIs
-    return 'restaurant';
-}
-
-// Generate default hours for real businesses
-function generateDefaultHours() {
-    return {
-        monday: '6:00 AM - 10:00 PM',
-        tuesday: '6:00 AM - 10:00 PM',
-        wednesday: '6:00 AM - 10:00 PM',
-        thursday: '6:00 AM - 10:00 PM',
-        friday: '6:00 AM - 11:00 PM',
-        saturday: '6:00 AM - 11:00 PM',
-        sunday: '7:00 AM - 9:00 PM'
-    };
-}
-
-// Generate default ratings for real businesses
-function generateDefaultRatings() {
-    var baseRating = 3.5 + (Math.random() * 1.5); // 3.5 to 5.0
-    return {
-        overall: Math.round(baseRating * 10) / 10,
-        cleanliness: Math.round((baseRating + (Math.random() * 0.5 - 0.25)) * 10) / 10,
-        safety: Math.round((baseRating + (Math.random() * 0.5 - 0.25)) * 10) / 10,
-        accessibility: Math.round((baseRating + (Math.random() * 0.5 - 0.25)) * 10) / 10
-    };
-}
-
-// Generate default amenities based on category
-function generateDefaultAmenities(category) {
-    var baseAmenities = ['toilet-paper', 'soap'];
-    
-    switch (category) {
-        case 'gas-station':
-            return [...baseAmenities, 'paper-towels', 'hand-dryer'];
-        case 'coffee-shop':
-            return [...baseAmenities, 'paper-towels', 'hand-dryer', 'baby-changing'];
-        case 'restaurant':
-            return [...baseAmenities, 'paper-towels', 'hand-dryer', 'baby-changing'];
-        case 'retail':
-            return [...baseAmenities, 'paper-towels', 'hand-dryer', 'baby-changing', 'ada-compliant'];
-        case 'hotel':
-            return [...baseAmenities, 'paper-towels', 'hand-dryer', 'baby-changing', 'ada-compliant'];
-        case 'hospital':
-            return [...baseAmenities, 'paper-towels', 'hand-dryer', 'baby-changing', 'ada-compliant'];
-        case 'library':
-            return [...baseAmenities, 'paper-towels', 'hand-dryer', 'baby-changing', 'ada-compliant'];
-        default:
-            return baseAmenities;
+        return null;
+    } catch (error) {
+        console.error('Geocoding error:', error);
+        return null;
     }
 }
 
-// Generate default bathroom types
-function generateDefaultBathroomTypes() {
-    var types = ['mens', 'womens'];
+// Initialize search functionality
+function initializeSearch() {
+    const searchInput = document.getElementById('searchInput');
+    const searchSuggestions = document.getElementById('searchSuggestions');
     
-    // 30% chance of having neutral bathroom
-    if (Math.random() < 0.3) {
-        types.push('neutral');
-    }
-    
-    // 40% chance of being accessible
-    if (Math.random() < 0.4) {
-        types.push('accessible');
-    }
-    
-    return types;
-}
-
-// Clear existing search markers
-function clearSearchMarkers() {
-    searchMarkers.forEach(function(marker) {
-        marker.remove();
-    });
-    searchMarkers = [];
-}
-
-// Add business markers to map
-function addBusinessMarkersToMap(businesses) {
-    if (!map) return;
-    
-    businesses = businesses || currentBusinesses;
-    
-    businesses.forEach(function(business) {
-        // Create marker element
-        var markerElement = document.createElement('div');
-        markerElement.className = 'custom-marker';
-        markerElement.innerHTML = getBathroomSymbol(business.bathroomTypes[0] || 'neutral');
-        markerElement.style.cssText = `
-            background: ${business.isRealBusiness ? '#10B981' : '#8B5CF6'};
-            color: white;
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 16px;
-            cursor: pointer;
-            border: 2px solid white;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        `;
-        
-        // Create popup
-        var popup = new mapboxgl.Popup({ offset: 25 })
-            .setHTML(`
-                <div style="padding: 10px;">
-                    <h4 style="margin: 0 0 5px 0; color: #1e293b;">${business.name}</h4>
-                    <p style="margin: 0 0 5px 0; color: #64748b; font-size: 0.9rem;">${business.address}</p>
-                    <div style="display: flex; align-items: center; gap: 5px; margin-bottom: 10px;">
-                        <span style="color: #f59e0b;">${generateStars(business.ratings.overall)}</span>
-                        <span style="color: #64748b; font-size: 0.9rem;">${business.ratings.overall}/5 (${business.reviewCount} reviews)</span>
-                    </div>
-                    ${business.distance ? `<p style="margin: 0 0 10px 0; color: #10B981; font-size: 0.9rem; font-weight: 600;">📍 ${business.distance.toFixed(1)} miles away</p>` : ''}
-                    <button onclick="openReviewModal('${business.id}')" style="background: #8B5CF6; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 0.9rem;">Rate & Review</button>
-                </div>
-            `);
-        
-        // Add marker to map
-        var marker = new mapboxgl.Marker(markerElement)
-            .setLngLat(business.coordinates)
-            .setPopup(popup)
-            .addTo(map);
-        
-        searchMarkers.push(marker);
-    });
-}
-
-// Load initial data
-function loadInitialData() {
-    // Load businesses
-    currentBusinesses = [...sampleBusinesses];
-    allBusinesses = [...sampleBusinesses];
-    
-    // Render businesses
-    renderBusinesses(currentBusinesses);
-    
-    // Update search results info
-    updateSearchResultsInfo(currentBusinesses.length);
-    
-    console.log('📊 Initial data loaded');
-}
-
-// Setup event listeners
-function setupEventListeners() {
-    // Search input
-    var searchInput = document.getElementById('searchInput');
     if (searchInput) {
-        searchInput.addEventListener('input', handleSearchInput);
+        // Add search suggestions
+        searchInput.addEventListener('input', debounce(handleSearchInput, 300));
         searchInput.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
+                e.preventDefault();
                 performSearch();
+            }
+        });
+        
+        // Hide suggestions when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!searchInput.contains(e.target) && !searchSuggestions.contains(e.target)) {
+                searchSuggestions.style.display = 'none';
             }
         });
     }
     
-    console.log('🎧 Event listeners set up');
+    console.log('🔍 Search functionality initialized');
 }
 
-// Handle search input
-function handleSearchInput(event) {
-    var query = event.target.value.toLowerCase();
+// Handle search input for suggestions
+async function handleSearchInput(event) {
+    const query = event.target.value.trim();
+    const searchSuggestions = document.getElementById('searchSuggestions');
     
     if (query.length < 2) {
-        hideSuggestions();
+        searchSuggestions.style.display = 'none';
         return;
     }
     
-    // Generate suggestions
-    var suggestions = generateSearchSuggestions(query);
-    showSuggestions(suggestions);
+    try {
+        const suggestions = await getSearchSuggestions(query);
+        displaySearchSuggestions(suggestions);
+    } catch (error) {
+        console.error('Error getting search suggestions:', error);
+    }
 }
 
-// Generate search suggestions
-function generateSearchSuggestions(query) {
-    var suggestions = [];
+// Get search suggestions from Mapbox
+async function getSearchSuggestions(query) {
+    const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?` +
+        `country=US&` +
+        `types=place,postcode,address,poi&` +
+        `limit=5&` +
+        `access_token=${MAPBOX_TOKEN}`;
     
-    // Business name suggestions
-    sampleBusinesses.forEach(function(business) {
-        if (business.name.toLowerCase().includes(query)) {
-            suggestions.push({
-                type: 'business',
-                main: business.name,
-                subtitle: business.address,
-                data: business
-            });
-        }
-    });
-    
-    // Category suggestions
-    var categories = [
-        { name: 'Gas Stations', value: 'gas-station' },
-        { name: 'Coffee Shops', value: 'coffee-shop' },
-        { name: 'Restaurants', value: 'restaurant' },
-        { name: 'Libraries', value: 'library' },
-        { name: 'Retail Stores', value: 'retail' }
-    ];
-    
-    categories.forEach(function(category) {
-        if (category.name.toLowerCase().includes(query)) {
-            suggestions.push({
-                type: 'category',
-                main: category.name,
-                subtitle: 'Search by category',
-                data: category
-            });
-        }
-    });
-    
-    return suggestions.slice(0, 5);
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+        
+        return data.features.map(feature => ({
+            name: feature.text,
+            fullName: feature.place_name,
+            coordinates: feature.center,
+            type: feature.place_type[0]
+        }));
+    } catch (error) {
+        console.error('Error fetching suggestions:', error);
+        return [];
+    }
 }
 
-// Show search suggestions
-function showSuggestions(suggestions) {
-    var suggestionsContainer = document.getElementById('searchSuggestions');
-    if (!suggestionsContainer) return;
+// Display search suggestions
+function displaySearchSuggestions(suggestions) {
+    const searchSuggestions = document.getElementById('searchSuggestions');
     
     if (suggestions.length === 0) {
-        hideSuggestions();
+        searchSuggestions.style.display = 'none';
         return;
     }
     
-    suggestionsContainer.innerHTML = '';
+    searchSuggestions.innerHTML = suggestions.map(suggestion => `
+        <div class="search-suggestion" onclick="selectSearchSuggestion('${suggestion.fullName}', [${suggestion.coordinates}])">
+            <div class="suggestion-main">${suggestion.name}</div>
+            <div class="suggestion-subtitle">${suggestion.fullName}</div>
+        </div>
+    `).join('');
     
-    suggestions.forEach(function(suggestion) {
-        var suggestionElement = document.createElement('div');
-        suggestionElement.className = 'search-suggestion';
-        suggestionElement.innerHTML = `
-            <div class="suggestion-main">${suggestion.main}</div>
-            <div class="suggestion-subtitle">${suggestion.subtitle}</div>
-        `;
-        
-        suggestionElement.addEventListener('click', function() {
-            selectSuggestion(suggestion);
-        });
-        
-        suggestionsContainer.appendChild(suggestionElement);
-    });
-    
-    suggestionsContainer.style.display = 'block';
-}
-
-// Hide search suggestions
-function hideSuggestions() {
-    var suggestionsContainer = document.getElementById('searchSuggestions');
-    if (suggestionsContainer) {
-        suggestionsContainer.style.display = 'none';
-    }
+    searchSuggestions.style.display = 'block';
 }
 
 // Select search suggestion
-function selectSuggestion(suggestion) {
-    var searchInput = document.getElementById('searchInput');
-    if (searchInput) {
-        searchInput.value = suggestion.main;
-    }
+async function selectSearchSuggestion(placeName, coordinates) {
+    const searchInput = document.getElementById('searchInput');
+    const searchSuggestions = document.getElementById('searchSuggestions');
     
-    hideSuggestions();
+    searchInput.value = placeName;
+    searchSuggestions.style.display = 'none';
     
-    if (suggestion.type === 'business') {
-        // Focus on specific business
-        currentBusinesses = [suggestion.data];
-        renderBusinesses(currentBusinesses);
-        
-        // Center map on business
-        if (map && suggestion.data.coordinates) {
-            map.flyTo({
-                center: suggestion.data.coordinates,
-                zoom: 15
-            });
-        }
-    } else if (suggestion.type === 'category') {
-        // Filter by category
-        document.getElementById('categoryFilter').value = suggestion.data.value;
-        applyFilters();
-    }
-}
-
-// Perform search
-function performSearch() {
-    var query = document.getElementById('searchInput').value.toLowerCase().trim();
-    
-    if (!query) {
-        currentBusinesses = [...allBusinesses];
-        renderBusinesses(currentBusinesses);
-        updateSearchResultsInfo(currentBusinesses.length);
-        return;
-    }
-    
-    // Filter businesses based on search query
-    var filteredBusinesses = allBusinesses.filter(function(business) {
-        return business.name.toLowerCase().includes(query) ||
-               business.address.toLowerCase().includes(query) ||
-               business.category.toLowerCase().includes(query);
+    // Move map to selected location
+    map.flyTo({
+        center: coordinates,
+        zoom: 12,
+        duration: 2000
     });
     
-    currentBusinesses = filteredBusinesses;
-    renderBusinesses(currentBusinesses);
-    updateSearchResultsInfo(currentBusinesses.length, query);
-    
-    hideSuggestions();
-    
-    console.log(`🔍 Search performed for: "${query}", found ${filteredBusinesses.length} results`);
+    // Search for businesses in that area
+    await searchBusinessesInBounds(null, {
+        lng: coordinates[0],
+        lat: coordinates[1]
+    });
 }
 
 // Get current location
 function getCurrentLocation() {
     if (!navigator.geolocation) {
-        showNotification('Geolocation is not supported by this browser.', 'error');
+        showNotification('Geolocation is not supported by this browser', 'error');
         return;
     }
     
@@ -867,27 +461,19 @@ function getCurrentLocation() {
     navigator.geolocation.getCurrentPosition(
         function(position) {
             userLocation = [position.coords.longitude, position.coords.latitude];
-            console.log('📍 User location obtained:', userLocation);
             
-            // Update map center
-            if (map) {
-                map.flyTo({
-                    center: userLocation,
-                    zoom: 14
-                });
-            }
+            map.flyTo({
+                center: userLocation,
+                zoom: 12,
+                duration: 2000
+            });
             
-            // Update business distances
-            updateBusinessDistances();
-            
-            // Re-render businesses with updated distances
-            renderBusinesses(currentBusinesses);
-            
-            showNotification('Location updated successfully!', 'success');
+            searchNearbyBusinesses();
+            showNotification('Location found! Searching for nearby restrooms...', 'success');
         },
         function(error) {
-            console.error('Error getting location:', error);
-            showNotification('Unable to get your location. Please try again.', 'error');
+            console.error('Geolocation error:', error);
+            showNotification('Could not get your location. Please search manually.', 'error');
         },
         {
             enableHighAccuracy: true,
@@ -897,271 +483,390 @@ function getCurrentLocation() {
     );
 }
 
-// Update business distances based on user location
-function updateBusinessDistances() {
-    if (!userLocation) return;
+// Update map markers
+function updateMapMarkers() {
+    // Clear existing markers
+    searchMarkers.forEach(marker => marker.remove());
+    searchMarkers = [];
     
-    allBusinesses.forEach(function(business) {
-        business.distance = calculateDistance(
-            userLocation[1], userLocation[0],
-            business.coordinates[1], business.coordinates[0]
-        );
+    // Add markers for current businesses
+    currentBusinesses.forEach(business => {
+        const marker = createBusinessMarker(business);
+        searchMarkers.push(marker);
     });
     
-    // Sort by distance
-    allBusinesses.sort(function(a, b) {
-        return a.distance - b.distance;
-    });
+    console.log(`📍 Updated map with ${searchMarkers.length} markers`);
+}
+
+// Create business marker
+function createBusinessMarker(business) {
+    // Create custom marker element
+    const markerElement = document.createElement('div');
+    markerElement.className = 'custom-marker';
+    markerElement.innerHTML = getMarkerIcon(business.category);
     
-    console.log('📏 Business distances updated');
+    // Different colors for sample vs real businesses
+    if (business.isSample) {
+        markerElement.style.backgroundColor = '#8B5CF6';
+    } else {
+        markerElement.style.backgroundColor = '#10B981';
+    }
+    
+    // Create popup
+    const popup = new mapboxgl.Popup({
+        offset: 25,
+        closeButton: true,
+        closeOnClick: false
+    }).setHTML(createMarkerPopup(business));
+    
+    // Create marker
+    const marker = new mapboxgl.Marker(markerElement)
+        .setLngLat(business.coordinates)
+        .setPopup(popup)
+        .addTo(map);
+    
+    return marker;
 }
 
-// Calculate distance between two points (Haversine formula)
-function calculateDistance(lat1, lon1, lat2, lon2) {
-    var R = 3959; // Earth's radius in miles
-    var dLat = (lat2 - lat1) * Math.PI / 180;
-    var dLon = (lon2 - lon1) * Math.PI / 180;
-    var a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-            Math.sin(dLon/2) * Math.sin(dLon/2);
-    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-    return R * c;
+// Get marker icon based on category
+function getMarkerIcon(category) {
+    const icons = {
+        'gas-station': '⛽',
+        'restaurant': '🍽️',
+        'coffee-shop': '☕',
+        'rest-area': '🛣️',
+        'retail': '🛍️',
+        'hotel': '🏨',
+        'park': '🌳',
+        'hospital': '🏥',
+        'library': '📚'
+    };
+    
+    return icons[category] || '📍';
 }
 
-// Apply filters
+// Create marker popup content
+function createMarkerPopup(business) {
+    const rating = business.ratings.overall || 0;
+    const stars = generateStarDisplay(rating);
+    
+    return `
+        <div class="marker-popup">
+            <h4>${business.name}</h4>
+            <p class="popup-category">${formatCategory(business.category)}</p>
+            <p class="popup-address">${business.address}</p>
+            <div class="popup-rating">
+                <span class="popup-stars">${stars}</span>
+                <span class="popup-rating-number">${rating.toFixed(1)}/10</span>
+            </div>
+            <div class="popup-actions">
+                <button class="btn btn-small btn-primary" onclick="openReviewModal('${business.id}')">Rate</button>
+                <button class="btn btn-small btn-secondary" onclick="getDirections([${business.coordinates}])">Directions</button>
+            </div>
+        </div>
+    `;
+}
+
+// Initialize filters
+function initializeFilters() {
+    const categoryFilter = document.getElementById('categoryFilter');
+    const distanceFilter = document.getElementById('distanceFilter');
+    const ratingFilter = document.getElementById('ratingFilter');
+    
+    if (categoryFilter) {
+        categoryFilter.addEventListener('change', applyFilters);
+    }
+    if (distanceFilter) {
+        distanceFilter.addEventListener('change', applyFilters);
+    }
+    if (ratingFilter) {
+        ratingFilter.addEventListener('change', applyFilters);
+    }
+    
+    console.log('🔧 Filters initialized');
+}
+
+// Apply filters to business list
 function applyFilters() {
-    var categoryFilter = document.getElementById('categoryFilter').value;
-    var distanceFilter = document.getElementById('distanceFilter').value;
-    var ratingFilter = document.getElementById('ratingFilter').value;
+    const categoryFilter = document.getElementById('categoryFilter').value;
+    const distanceFilter = parseFloat(document.getElementById('distanceFilter').value);
+    const ratingFilter = parseFloat(document.getElementById('ratingFilter').value);
     
-    // Update active filters
-    activeFilters.category = categoryFilter;
-    activeFilters.distance = distanceFilter;
-    activeFilters.rating = ratingFilter;
-    
-    // Start with all businesses
-    var filteredBusinesses = [...allBusinesses];
+    let filteredBusinesses = [...currentBusinesses];
     
     // Apply category filter
     if (categoryFilter) {
-        filteredBusinesses = filteredBusinesses.filter(function(business) {
-            return business.category === categoryFilter;
-        });
+        filteredBusinesses = filteredBusinesses.filter(business => 
+            business.category === categoryFilter
+        );
     }
     
     // Apply distance filter
     if (distanceFilter && userLocation) {
-        var maxDistance = parseFloat(distanceFilter);
-        filteredBusinesses = filteredBusinesses.filter(function(business) {
-            return business.distance <= maxDistance;
-        });
+        filteredBusinesses = filteredBusinesses.filter(business => 
+            business.distance <= distanceFilter
+        );
     }
     
     // Apply rating filter
     if (ratingFilter) {
-        var minRating = parseFloat(ratingFilter);
-        filteredBusinesses = filteredBusinesses.filter(function(business) {
-            return business.ratings.overall >= minRating;
-        });
+        filteredBusinesses = filteredBusinesses.filter(business => 
+            business.ratings.overall >= ratingFilter
+        );
     }
     
-    // Apply quick filters
-    activeFilters.quickFilters.forEach(function(filter) {
-        switch (filter) {
-            case 'wheelchair':
-                filteredBusinesses = filteredBusinesses.filter(function(business) {
-                    return business.bathroomTypes.includes('accessible') || 
-                           business.amenities.includes('ada-compliant');
-                });
-                break;
-            case 'baby-changing':
-                filteredBusinesses = filteredBusinesses.filter(function(business) {
-                    return business.amenities.includes('baby-changing');
-                });
-                break;
-            case 'open-now':
-                filteredBusinesses = filteredBusinesses.filter(function(business) {
-                    return business.isOpen;
-                });
-                break;
-            case 'high-rated':
-                filteredBusinesses = filteredBusinesses.filter(function(business) {
-                    return business.ratings.overall >= 4.0;
-                });
-                break;
-        }
-    });
+    renderBusinesses(filteredBusinesses);
+    updateSearchResultsInfo(filteredBusinesses.length);
     
-    currentBusinesses = filteredBusinesses;
-    renderBusinesses(currentBusinesses);
-    updateSearchResultsInfo(currentBusinesses.length);
-    
-    console.log('🔧 Filters applied, showing', currentBusinesses.length, 'businesses');
+    console.log(`🔍 Applied filters, showing ${filteredBusinesses.length} businesses`);
 }
 
 // Toggle quick filter
 function toggleQuickFilter(button) {
-    var filter = button.dataset.filter;
-    var isActive = button.classList.contains('active');
-    
-    if (isActive) {
-        button.classList.remove('active');
-        activeFilters.quickFilters = activeFilters.quickFilters.filter(function(f) {
-            return f !== filter;
-        });
-    } else {
-        button.classList.add('active');
-        activeFilters.quickFilters.push(filter);
-    }
-    
-    applyFilters();
+    button.classList.toggle('active');
+    applyQuickFilters();
 }
 
-// Update search results info
-function updateSearchResultsInfo(count, query) {
-    var infoElement = document.getElementById('searchResultsInfo');
-    if (!infoElement) return;
+// Apply quick filters
+function applyQuickFilters() {
+    const activeFilters = Array.from(document.querySelectorAll('.filter-btn.active'))
+        .map(btn => btn.dataset.filter);
     
-    var message = '';
-    if (query) {
-        message = `Found ${count} result${count !== 1 ? 's' : ''} for "${query}"`;
-    } else if (count === allBusinesses.length) {
-        message = `Showing all ${count} restroom locations`;
-    } else {
-        message = `Showing ${count} of ${allBusinesses.length} restroom locations`;
-    }
+    let filteredBusinesses = [...currentBusinesses];
     
-    infoElement.textContent = message;
+    activeFilters.forEach(filter => {
+        switch (filter) {
+            case 'wheelchair':
+                filteredBusinesses = filteredBusinesses.filter(business => 
+                    business.bathroomTypes.includes('accessible')
+                );
+                break;
+            case 'baby-changing':
+                filteredBusinesses = filteredBusinesses.filter(business => 
+                    business.amenities.includes('baby-changing')
+                );
+                break;
+            case 'open-now':
+                // For demo purposes, assume all are open
+                break;
+            case 'high-rated':
+                filteredBusinesses = filteredBusinesses.filter(business => 
+                    business.ratings.overall >= 8
+                );
+                break;
+        }
+    });
+    
+    renderBusinesses(filteredBusinesses);
+    updateSearchResultsInfo(filteredBusinesses.length);
 }
 
-// Render businesses
+// Render businesses in the grid
 function renderBusinesses(businesses) {
-    var grid = document.getElementById('businessGrid');
-    if (!grid) return;
+    const businessGrid = document.getElementById('businessGrid');
+    
+    if (!businessGrid) return;
     
     if (businesses.length === 0) {
-        grid.innerHTML = `
+        businessGrid.innerHTML = `
             <div class="no-results">
-                <h3>No restrooms found</h3>
-                <p>Try adjusting your search criteria or filters.</p>
+                <h4>No restrooms found</h4>
+                <p>Try adjusting your search criteria or location.</p>
             </div>
         `;
         return;
     }
     
-    grid.innerHTML = '';
+    businessGrid.innerHTML = businesses.map(business => createBusinessCard(business)).join('');
     
-    businesses.forEach(function(business) {
-        var card = createBusinessCard(business);
-        grid.appendChild(card);
+    console.log(`📋 Rendered ${businesses.length} businesses`);
+}
+
+// Create business card HTML
+function createBusinessCard(business) {
+    const rating = business.ratings.overall || 0;
+    const stars = generateStarDisplay(rating);
+    const bathroomSymbols = business.bathroomTypes.map(type => getBathroomSymbol(type)).join('');
+    const amenityTags = business.amenities.slice(0, 4).map(amenity => 
+        `<span class="amenity-tag">${formatAmenity(amenity)}</span>`
+    ).join('');
+    
+    const sourceIndicator = business.isSample ? 
+        '<span class="source-indicator sample">Sample</span>' : 
+        '<span class="source-indicator real">Real Business</span>';
+    
+    return `
+        <div class="business-card" data-business-id="${business.id}">
+            <div class="business-header">
+                <div>
+                    <h4 class="business-name">${business.name}</h4>
+                    <p class="business-category">${formatCategory(business.category)}</p>
+                    ${sourceIndicator}
+                </div>
+                <div class="bathroom-types">
+                    ${bathroomSymbols}
+                </div>
+            </div>
+            
+            <div class="business-info">
+                <p class="business-address">📍 ${business.address}</p>
+                <p class="business-distance">📏 ${business.distance.toFixed(1)} miles away</p>
+                <p class="business-hours">🕐 ${business.hours}</p>
+                <p class="business-phone">📞 ${business.phone}</p>
+            </div>
+            
+            <div class="business-ratings">
+                <div class="rating-item">
+                    <span class="rating-label">Overall:</span>
+                    <div class="rating-value">
+                        <span class="stars">${stars}</span>
+                        <span class="rating-number">${rating.toFixed(1)}/10</span>
+                    </div>
+                </div>
+                <div class="rating-item">
+                    <span class="rating-label">Cleanliness:</span>
+                    <div class="rating-value">
+                        <span class="stars">${generateStarDisplay(business.ratings.cleanliness)}</span>
+                        <span class="rating-number">${business.ratings.cleanliness.toFixed(1)}/10</span>
+                    </div>
+                </div>
+                <div class="rating-item">
+                    <span class="rating-label">Safety:</span>
+                    <div class="rating-value">
+                        <span class="stars">${generateStarDisplay(business.ratings.safety)}</span>
+                        <span class="rating-number">${business.ratings.safety.toFixed(1)}/10</span>
+                    </div>
+                </div>
+                <div class="rating-item">
+                    <span class="rating-label">Accessibility:</span>
+                    <div class="rating-value">
+                        <span class="stars">${generateStarDisplay(business.ratings.accessibility)}</span>
+                        <span class="rating-number">${business.ratings.accessibility.toFixed(1)}/10</span>
+                    </div>
+                </div>
+                <p class="review-count">${business.reviewCount} reviews</p>
+            </div>
+            
+            <div class="business-amenities">
+                ${amenityTags}
+            </div>
+            
+            <div class="business-actions">
+                <button class="btn btn-primary" onclick="openReviewModal('${business.id}')">Rate & Review</button>
+                <button class="btn btn-secondary" onclick="getDirections([${business.coordinates}])">Get Directions</button>
+                <button class="btn btn-secondary" onclick="claimBusiness('${business.id}')">Claim Business</button>
+            </div>
+        </div>
+    `;
+}
+
+// Update search results info
+function updateSearchResultsInfo(count = null) {
+    const searchResultsInfo = document.getElementById('searchResultsInfo');
+    const displayCount = count !== null ? count : currentBusinesses.length;
+    
+    let message = `Showing ${displayCount} restrooms`;
+    
+    if (currentSearchQuery) {
+        message += ` for "${currentSearchQuery}"`;
+    } else if (userLocation) {
+        message += ' in your area';
+    } else {
+        message += ' nationwide';
+    }
+    
+    searchResultsInfo.textContent = message;
+}
+
+// Get directions to business
+function getDirections(coordinates) {
+    if (!userLocation) {
+        showNotification('Please enable location access to get directions', 'warning');
+        return;
+    }
+    
+    const directionsUrl = `https://www.google.com/maps/dir/${userLocation[1]},${userLocation[0]}/${coordinates[1]},${coordinates[0]}`;
+    window.open(directionsUrl, '_blank');
+}
+
+// Center map on user location
+function centerMapOnUser() {
+    if (!userLocation) {
+        getCurrentLocation();
+        return;
+    }
+    
+    map.flyTo({
+        center: userLocation,
+        zoom: 12,
+        duration: 1500
     });
 }
 
-// Create business card
-function createBusinessCard(business) {
-    var card = document.createElement('div');
-    card.className = 'business-card';
+// Toggle map view
+function toggleMapView() {
+    const currentStyle = map.getStyle().name;
     
-    var bathroomSymbols = business.bathroomTypes.map(function(type) {
-        return `<span class="bathroom-symbol" title="${type}">${getBathroomSymbol(type)}</span>`;
-    }).join('');
-    
-    var amenityTags = business.amenities.slice(0, 4).map(function(amenity) {
-        return `<span class="amenity-tag">${formatAmenityName(amenity)}</span>`;
-    }).join('');
-    
-    if (business.amenities.length > 4) {
-        amenityTags += `<span class="amenity-tag">+${business.amenities.length - 4} more</span>`;
+    if (currentStyle.includes('satellite')) {
+        map.setStyle('mapbox://styles/mapbox/streets-v12');
+    } else {
+        map.setStyle('mapbox://styles/mapbox/satellite-streets-v12');
     }
-    
-    var distanceText = business.distance ? `📍 ${business.distance.toFixed(1)} miles away` : '';
-    var statusText = business.isOpen ? '🟢 Open Now' : '🔴 Closed';
-    var claimedBadge = business.claimed ? '<span style="background: #10B981; color: white; padding: 0.25rem 0.5rem; border-radius: 10px; font-size: 0.7rem; font-weight: bold;">✓ Verified</span>' : '';
-    
-    card.innerHTML = `
-        <div class="business-header">
-            <div>
-                <h4 class="business-name">${business.name} ${claimedBadge}</h4>
-                <p class="business-category">${formatCategoryName(business.category)}</p>
-            </div>
-            <div class="bathroom-types">
-                ${bathroomSymbols}
-            </div>
-        </div>
-        
-        <div class="business-info">
-            <p class="business-address">📍 ${business.address}</p>
-            ${distanceText ? `<p class="business-distance">${distanceText}</p>` : ''}
-            <p class="business-hours">${statusText}</p>
-            <p class="business-phone">📞 ${business.phone}</p>
-        </div>
-        
-        <div class="business-ratings">
-            <div class="rating-item">
-                <span class="rating-label">Overall:</span>
-                <div class="rating-value">
-                    <span class="stars">${generateStars(business.ratings.overall)}</span>
-                    <span class="rating-number">${business.ratings.overall}/5</span>
-                </div>
-            </div>
-            <div class="rating-item">
-                <span class="rating-label">Cleanliness:</span>
-                <div class="rating-value">
-                    <span class="stars">${generateStars(business.ratings.cleanliness)}</span>
-                    <span class="rating-number">${business.ratings.cleanliness}/5</span>
-                </div>
-            </div>
-            <div class="rating-item">
-                <span class="rating-label">Safety:</span>
-                <div class="rating-value">
-                    <span class="stars">${generateStars(business.ratings.safety)}</span>
-                    <span class="rating-number">${business.ratings.safety}/5</span>
-                </div>
-            </div>
-            <div class="rating-item">
-                <span class="rating-label">Accessibility:</span>
-                <div class="rating-value">
-                    <span class="stars">${generateStars(business.ratings.accessibility)}</span>
-                    <span class="rating-number">${business.ratings.accessibility}/5</span>
-                </div>
-            </div>
-            <div class="review-count">${business.reviewCount} review${business.reviewCount !== 1 ? 's' : ''}</div>
-        </div>
-        
-        <div class="business-amenities">
-            <div class="amenities-list">
-                ${amenityTags}
-            </div>
-        </div>
-        
-        <div class="business-actions">
-            <button class="btn btn-primary" onclick="openReviewModal('${business.id}')">
-                ⭐ Rate & Review
-            </button>
-            <button class="btn btn-secondary" onclick="getDirections('${business.id}')">
-                🧭 Directions
-            </button>
-            ${!business.claimed ? `<button class="btn btn-admin btn-small" onclick="claimBusiness('${business.id}')">📋 Claim Business</button>` : ''}
-        </div>
-    `;
-    
-    return card;
 }
 
-// Get bathroom symbol
+// Utility Functions
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
+function calculateDistance(point1, point2) {
+    const R = 3959; // Earth's radius in miles
+    const dLat = (point2.lat - point1.lat) * Math.PI / 180;
+    const dLon = (point2.lng - point1.lng) * Math.PI / 180;
+    const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+        Math.cos(point1.lat * Math.PI / 180) * Math.cos(point2.lat * Math.PI / 180) *
+        Math.sin(dLon/2) * Math.sin(dLon/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c;
+}
+
+function generateStarDisplay(rating) {
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating % 1 >= 0.5;
+    let stars = '';
+    
+    for (let i = 0; i < fullStars; i++) {
+        stars += '★';
+    }
+    
+    if (hasHalfStar) {
+        stars += '☆';
+    }
+    
+    return stars;
+}
+
 function getBathroomSymbol(type) {
-    switch (type) {
-        case 'mens': return '🚹';
-        case 'womens': return '🚺';
-        case 'neutral': return '🚻';
-        case 'accessible': return '♿';
-        default: return '🚻';
-    }
+    const symbols = {
+        'mens': '🚹',
+        'womens': '🚺',
+        'neutral': '🚻',
+        'accessible': '♿'
+    };
+    
+    return `<span class="bathroom-symbol" title="${type}">${symbols[type] || '🚻'}</span>`;
 }
 
-// Format category name
-function formatCategoryName(category) {
-    var categoryNames = {
+function formatCategory(category) {
+    const categoryNames = {
         'gas-station': 'Gas Station',
         'restaurant': 'Restaurant',
         'coffee-shop': 'Coffee Shop',
@@ -1172,12 +877,12 @@ function formatCategoryName(category) {
         'hospital': 'Hospital',
         'library': 'Library'
     };
+    
     return categoryNames[category] || category;
 }
 
-// Format amenity name
-function formatAmenityName(amenity) {
-    var amenityNames = {
+function formatAmenity(amenity) {
+    const amenityNames = {
         'toilet-paper': 'Toilet Paper',
         'soap': 'Soap',
         'paper-towels': 'Paper Towels',
@@ -1185,271 +890,270 @@ function formatAmenityName(amenity) {
         'baby-changing': 'Baby Changing',
         'ada-compliant': 'ADA Compliant'
     };
+    
     return amenityNames[amenity] || amenity;
 }
 
-// Generate stars display
-function generateStars(rating) {
-    var fullStars = Math.floor(rating);
-    var hasHalfStar = rating % 1 >= 0.5;
-    var emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
-    
-    var stars = '';
-    for (var i = 0; i < fullStars; i++) {
-        stars += '★';
-    }
-    if (hasHalfStar) {
-        stars += '☆';
-    }
-    for (var i = 0; i < emptyStars; i++) {
-        stars += '☆';
+// Authentication Functions
+function initializeAuth() {
+    // Check for existing user session
+    const savedUser = localStorage.getItem('gtgotg_current_user');
+    if (savedUser) {
+        currentUser = JSON.parse(savedUser);
+        updateUserStatus();
     }
     
-    return stars;
+    console.log('🔐 Authentication initialized');
 }
 
-// Get directions to business
-function getDirections(businessId) {
-    var business = sampleBusinesses.find(function(b) { return b.id === businessId; });
-    if (!business) return;
-    
-    var destination = encodeURIComponent(business.address);
-    var mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${destination}`;
-    
-    window.open(mapsUrl, '_blank');
-    
-    console.log('🧭 Opening directions to:', business.name);
-}
-
-// Claim business
-function claimBusiness(businessId) {
-    if (!currentUser) {
-        showNotification('Please log in to claim a business.', 'warning');
-        showModal('loginModal');
-        return;
-    }
-    
-    showModal('claimBusinessModal');
-    document.getElementById('claimBusinessId').value = businessId;
-}
-
-// Handle business claim
-function handleBusinessClaim(event) {
-    event.preventDefault();
-    
-    var businessId = document.getElementById('claimBusinessId').value;
-    var business = sampleBusinesses.find(function(b) { return b.id === businessId; });
-    
-    if (!business) return;
-    
-    // Mark business as claimed
-    business.claimed = true;
-    business.owner = currentUser.id;
-    
-    // Update user to business owner
-    currentUser.isBusinessOwner = true;
-    if (!currentUser.ownedBusinesses) {
-        currentUser.ownedBusinesses = [];
-    }
-    currentUser.ownedBusinesses.push(businessId);
-    
-    // Re-render businesses
-    renderBusinesses(currentBusinesses);
-    
-    closeModal('claimBusinessModal');
-    showNotification(`Successfully claimed ${business.name}!`, 'success');
-    
-    console.log('📋 Business claimed:', business.name);
-}
-
-// Center map on user location
-function centerMapOnUser() {
-    if (!map) return;
-    
-    if (userLocation) {
-        map.flyTo({
-            center: userLocation,
-            zoom: 14
-        });
-    } else {
-        getCurrentLocation();
-    }
-}
-
-// Toggle map view
-function toggleMapView() {
-    if (!map) return;
-    
-    var currentStyle = map.getStyle().name;
-    var newStyle = currentStyle === 'Mapbox Streets' ? 'mapbox://styles/mapbox/satellite-v9' : 'mapbox://styles/mapbox/streets-v11';
-    
-    map.setStyle(newStyle);
-}
-
-// Authentication functions
 function handleLogin(event) {
     event.preventDefault();
     
-    var formData = new FormData(event.target);
-    var email = formData.get('email');
-    var password = formData.get('password');
+    const formData = new FormData(event.target);
+    const email = formData.get('email');
+    const password = formData.get('password');
     
-    // Find user in sample data
-    var user = sampleUsers.find(function(u) {
-        return u.email === email && u.password === password;
-    });
+    // Simple authentication for demo
+    const users = JSON.parse(localStorage.getItem('gtgotg_users') || '[]');
+    const user = users.find(u => u.email === email && u.password === password);
     
     if (user) {
         currentUser = user;
+        localStorage.setItem('gtgotg_current_user', JSON.stringify(user));
         updateUserStatus();
         closeModal('loginModal');
         showNotification(`Welcome back, ${user.firstName}!`, 'success');
-        
-        // Clear form
-        event.target.reset();
-        
-        console.log('✅ User logged in:', user.email);
     } else {
-        showNotification('Invalid email or password.', 'error');
+        showNotification('Invalid email or password', 'error');
     }
 }
 
 function handleRegister(event) {
     event.preventDefault();
     
-    var formData = new FormData(event.target);
-    var firstName = formData.get('firstName');
-    var lastName = formData.get('lastName');
-    var email = formData.get('email');
-    var password = formData.get('password');
-    var confirmPassword = formData.get('confirmPassword');
+    const formData = new FormData(event.target);
+    const password = formData.get('password');
+    const confirmPassword = formData.get('confirmPassword');
     
-    // Validation
     if (password !== confirmPassword) {
-        showNotification('Passwords do not match.', 'error');
+        showNotification('Passwords do not match', 'error');
         return;
     }
     
-    if (password.length < 6) {
-        showNotification('Password must be at least 6 characters long.', 'error');
-        return;
-    }
-    
-    // Check if user already exists
-    var existingUser = sampleUsers.find(function(u) { return u.email === email; });
-    if (existingUser) {
-        showNotification('An account with this email already exists.', 'error');
-        return;
-    }
-    
-    // Create new user
-    var newUser = {
-        id: 'user_' + Date.now(),
-        email: email,
+    const newUser = {
+        id: Date.now().toString(),
+        firstName: formData.get('firstName'),
+        lastName: formData.get('lastName'),
+        email: formData.get('email'),
         password: password,
-        firstName: firstName,
-        lastName: lastName,
         badge: 'Reviewer',
-        isAdmin: false,
-        joinDate: new Date().toISOString().split('T')[0],
+        joinDate: new Date().toISOString(),
         reviewCount: 0
     };
     
-    sampleUsers.push(newUser);
+    const users = JSON.parse(localStorage.getItem('gtgotg_users') || '[]');
+    
+    // Check if email already exists
+    if (users.find(u => u.email === newUser.email)) {
+        showNotification('Email already registered', 'error');
+        return;
+    }
+    
+    users.push(newUser);
+    localStorage.setItem('gtgotg_users', JSON.stringify(users));
+    
     currentUser = newUser;
+    localStorage.setItem('gtgotg_current_user', JSON.stringify(newUser));
     
     updateUserStatus();
     closeModal('registerModal');
-    showNotification(`Welcome to GTGOTG, ${firstName}!`, 'success');
-    
-    // Clear form
-    event.target.reset();
-    
-    console.log('✅ New user registered:', email);
-}
-
-// Social login functions
-function loginWithGoogle() {
-    showNotification('Google login would be integrated here in production.', 'info');
-}
-
-function loginWithFacebook() {
-    showNotification('Facebook login would be integrated here in production.', 'info');
-}
-
-function registerWithGoogle() {
-    showNotification('Google registration would be integrated here in production.', 'info');
-}
-
-function registerWithFacebook() {
-    showNotification('Facebook registration would be integrated here in production.', 'info');
+    showNotification(`Welcome to GTGOTG, ${newUser.firstName}!`, 'success');
 }
 
 function logout() {
     currentUser = null;
+    localStorage.removeItem('gtgotg_current_user');
     updateUserStatus();
-    showNotification('You have been logged out.', 'info');
-    
-    console.log('👋 User logged out');
+    showNotification('Logged out successfully', 'info');
 }
 
 function updateUserStatus() {
-    var userStatus = document.getElementById('userStatus');
-    var userName = document.getElementById('userName');
-    var userBadge = document.getElementById('userBadge');
-    var adminBtn = document.getElementById('adminBtn');
-    var loginBtn = document.querySelector('button[onclick="showModal(\'loginModal\')"]');
-    var registerBtn = document.querySelector('button[onclick="showModal(\'registerModal\')"]');
+    const userStatus = document.getElementById('userStatus');
+    const userName = document.getElementById('userName');
+    const userBadge = document.getElementById('userBadge');
+    const adminBtn = document.getElementById('adminBtn');
     
     if (currentUser) {
         userStatus.style.display = 'block';
         userName.textContent = currentUser.firstName;
         userBadge.textContent = currentUser.badge;
         
-        if (loginBtn) loginBtn.style.display = 'none';
-        if (registerBtn) registerBtn.style.display = 'none';
-        
-        if (currentUser.isAdmin && adminBtn) {
+        // Show admin button for admin users
+        if (currentUser.email === 'admin@gtgotg.com') {
             adminBtn.style.display = 'inline-flex';
         }
     } else {
         userStatus.style.display = 'none';
-        if (loginBtn) loginBtn.style.display = 'inline-flex';
-        if (registerBtn) registerBtn.style.display = 'inline-flex';
-        if (adminBtn) adminBtn.style.display = 'none';
+        adminBtn.style.display = 'none';
     }
 }
 
-function checkUserSession() {
-    // In a real app, this would check for saved session data
-    console.log('🔍 Checking for saved user session...');
+// Modal Functions
+function showModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.style.display = 'block';
+        document.body.style.overflow = 'hidden';
+    }
 }
 
-// Admin functions
+function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+}
+
+// Notification system
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.innerHTML = `
+        <div class="notification-content">
+            <span>${message}</span>
+            <button class="notification-close" onclick="this.parentElement.parentElement.remove()">&times;</button>
+        </div>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Auto-remove after 5 seconds
+    setTimeout(() => {
+        if (notification.parentElement) {
+            notification.remove();
+        }
+    }, 5000);
+}
+
+// Load initial data
+function loadInitialData() {
+    // Initialize with sample data
+    currentBusinesses = [...sampleBusinesses];
+    
+    // Calculate distances if user location is available
+    if (userLocation) {
+        currentBusinesses.forEach(business => {
+            business.distance = calculateDistance(
+                { lng: userLocation[0], lat: userLocation[1] },
+                { lng: business.coordinates[0], lat: business.coordinates[1] }
+            );
+        });
+    }
+    
+    renderBusinesses(currentBusinesses);
+    updateSearchResultsInfo();
+    
+    console.log('📊 Initial data loaded');
+}
+
+// Business management functions
+function claimBusiness(businessId) {
+    if (!currentUser) {
+        showNotification('Please login to claim a business', 'warning');
+        showModal('loginModal');
+        return;
+    }
+    
+    const business = currentBusinesses.find(b => b.id === businessId);
+    if (!business) return;
+    
+    // Set up claim modal
+    document.getElementById('claimBusinessId').value = businessId;
+    document.getElementById('claimBusinessName').value = business.name;
+    
+    showModal('claimBusinessModal');
+}
+
+function handleBusinessClaim(event) {
+    event.preventDefault();
+    
+    const formData = new FormData(event.target);
+    const claimData = {
+        businessId: formData.get('businessId'),
+        ownerName: formData.get('ownerName'),
+        ownerTitle: formData.get('ownerTitle'),
+        businessPhone: formData.get('businessPhone'),
+        verificationMethod: formData.get('verificationMethod'),
+        additionalInfo: formData.get('additionalInfo'),
+        userId: currentUser.id,
+        timestamp: new Date().toISOString()
+    };
+    
+    // Store claim request
+    const claims = JSON.parse(localStorage.getItem('gtgotg_business_claims') || '[]');
+    claims.push(claimData);
+    localStorage.setItem('gtgotg_business_claims', JSON.stringify(claims));
+    
+    closeModal('claimBusinessModal');
+    showNotification('Business claim submitted! We will review and contact you within 2-3 business days.', 'success');
+}
+
+function handleAddBusiness(event) {
+    event.preventDefault();
+    
+    const formData = new FormData(event.target);
+    
+    const newBusiness = {
+        id: 'user-' + Date.now(),
+        name: formData.get('businessName'),
+        category: formData.get('category'),
+        address: formData.get('address'),
+        phone: formData.get('phone'),
+        website: formData.get('website') || '',
+        coordinates: [-104.9903, 39.7392], // Default coordinates, would geocode in real app
+        distance: 0,
+        hours: formData.get('hours') || 'Hours vary',
+        bathroomTypes: Array.from(formData.getAll('bathroomTypes')),
+        amenities: Array.from(formData.getAll('amenities')),
+        ratings: { overall: 0, cleanliness: 0, safety: 0, accessibility: 0 },
+        reviewCount: 0,
+        description: formData.get('description') || '',
+        addedBy: currentUser ? currentUser.id : 'anonymous',
+        addedDate: new Date().toISOString(),
+        isUserAdded: true
+    };
+    
+    // Add to current businesses
+    currentBusinesses.unshift(newBusiness);
+    
+    // Store in localStorage
+    const userBusinesses = JSON.parse(localStorage.getItem('gtgotg_user_businesses') || '[]');
+    userBusinesses.push(newBusiness);
+    localStorage.setItem('gtgotg_user_businesses', JSON.stringify(userBusinesses));
+    
+    // Re-render
+    renderBusinesses(currentBusinesses);
+    updateMapMarkers();
+    
+    closeModal('addBusinessModal');
+    showNotification('Business added successfully! Thank you for contributing to the community.', 'success');
+}
+
+// Admin Functions
 function showAdminTab(tabName) {
     // Hide all tabs
-    var tabs = document.querySelectorAll('.admin-tab-content');
-    tabs.forEach(function(tab) {
+    document.querySelectorAll('.admin-tab-content').forEach(tab => {
         tab.classList.remove('active');
     });
     
-    // Remove active class from all buttons
-    var buttons = document.querySelectorAll('.admin-tab-btn');
-    buttons.forEach(function(btn) {
+    document.querySelectorAll('.admin-tab-btn').forEach(btn => {
         btn.classList.remove('active');
     });
     
     // Show selected tab
-    var selectedTab = document.getElementById(tabName + 'Tab');
-    if (selectedTab) {
-        selectedTab.classList.add('active');
-    }
-    
-    // Add active class to clicked button
-    var selectedButton = document.querySelector(`[onclick="showAdminTab('${tabName}')"]`);
-    if (selectedButton) {
-        selectedButton.classList.add('active');
-    }
+    document.getElementById(tabName + 'Tab').classList.add('active');
+    event.target.classList.add('active');
     
     // Load tab content
     loadAdminTabContent(tabName);
@@ -1473,169 +1177,56 @@ function loadAdminTabContent(tabName) {
 }
 
 function loadAnalytics() {
-    var reviews = JSON.parse(localStorage.getItem('gtgotg_reviews') || '[]');
-    var totalReviews = reviews.length;
-    var totalBusinesses = sampleBusinesses.length;
-    var totalUsers = sampleUsers.length;
-    var averageRating = totalReviews > 0 ? 
-        reviews.reduce(function(sum, r) { return sum + (r.ratings.overall || 0); }, 0) / totalReviews : 0;
+    const reviews = JSON.parse(localStorage.getItem('gtgotg_reviews') || '[]');
+    const users = JSON.parse(localStorage.getItem('gtgotg_users') || '[]');
     
-    document.getElementById('totalBusinesses').textContent = totalBusinesses;
-    document.getElementById('totalReviews').textContent = totalReviews;
-    document.getElementById('totalUsers').textContent = totalUsers;
-    document.getElementById('averageRating').textContent = averageRating.toFixed(1);
+    document.getElementById('totalBusinesses').textContent = currentBusinesses.length;
+    document.getElementById('totalReviews').textContent = reviews.length;
+    document.getElementById('totalUsers').textContent = users.length;
+    
+    const avgRating = reviews.length > 0 ? 
+        reviews.reduce((sum, r) => sum + r.ratings.overall, 0) / reviews.length : 0;
+    document.getElementById('averageRating').textContent = avgRating.toFixed(1);
 }
 
-function loadBusinessManagement() {
-    var container = document.getElementById('adminBusinessList');
-    container.innerHTML = '';
-    
-    sampleBusinesses.forEach(function(business) {
-        var item = document.createElement('div');
-        item.className = 'admin-item';
-        item.innerHTML = `
-            <div class="admin-item-info">
-                <h6>${business.name}</h6>
-                <p>${business.address}</p>
-                <p>Category: ${formatCategoryName(business.category)} | Reviews: ${business.reviewCount} | ${business.claimed ? 'Claimed' : 'Unclaimed'}</p>
-            </div>
-            <div class="admin-item-actions">
-                <button class="btn btn-small btn-secondary" onclick="editBusiness('${business.id}')">Edit</button>
-                <button class="btn btn-small btn-admin" onclick="deleteBusiness('${business.id}')">Delete</button>
-            </div>
-        `;
-        container.appendChild(item);
-    });
+// Social login functions (demo)
+function loginWithGoogle() {
+    showNotification('Google login would be implemented with OAuth', 'info');
 }
 
-function loadReviewManagement() {
-    var container = document.getElementById('adminReviewList');
-    var reviews = JSON.parse(localStorage.getItem('gtgotg_reviews') || '[]');
-    
-    container.innerHTML = '';
-    
-    if (reviews.length === 0) {
-        container.innerHTML = '<p style="text-align: center; color: #64748b; padding: 2rem;">No reviews yet.</p>';
-        return;
-    }
-    
-    reviews.forEach(function(review) {
-        var business = sampleBusinesses.find(function(b) { return b.id === review.businessId; });
-        var businessName = business ? business.name : 'Unknown Business';
-        
-        var item = document.createElement('div');
-        item.className = 'admin-item';
-        item.innerHTML = `
-            <div class="admin-item-info">
-                <h6>Review for ${businessName}</h6>
-                <p>Rating: ${review.ratings.overall}/10 | ${review.anonymous ? 'Anonymous' : 'User ID: ' + review.userId}</p>
-                <p>${review.comment || 'No comment provided'}</p>
-            </div>
-            <div class="admin-item-actions">
-                <button class="btn btn-small btn-admin" onclick="deleteReview('${review.timestamp}')">Delete</button>
-            </div>
-        `;
-        container.appendChild(item);
-    });
+function loginWithFacebook() {
+    showNotification('Facebook login would be implemented with OAuth', 'info');
 }
 
-function loadUserManagement() {
-    var container = document.getElementById('adminUserList');
-    container.innerHTML = '';
-    
-    sampleUsers.forEach(function(user) {
-        var item = document.createElement('div');
-        item.className = 'admin-item';
-        item.innerHTML = `
-            <div class="admin-item-info">
-                <h6>${user.firstName} ${user.lastName}</h6>
-                <p>${user.email}</p>
-                <p>Badge: ${user.badge} | Reviews: ${user.reviewCount} | ${user.isAdmin ? 'Admin' : 'User'}</p>
-            </div>
-            <div class="admin-item-actions">
-                <button class="btn btn-small btn-secondary" onclick="editUser('${user.id}')">Edit</button>
-                ${!user.isAdmin ? `<button class="btn btn-small btn-admin" onclick="deleteUser('${user.id}')">Delete</button>` : ''}
-            </div>
-        `;
-        container.appendChild(item);
-    });
+function registerWithGoogle() {
+    showNotification('Google registration would be implemented with OAuth', 'info');
 }
 
-// Modal functions
-function showModal(modalId) {
-    var modal = document.getElementById(modalId);
-    if (modal) {
-        modal.style.display = 'block';
-        document.body.style.overflow = 'hidden';
-        
-        // Load admin content if it's the admin modal
-        if (modalId === 'adminModal') {
-            showAdminTab('analytics');
-        }
-    }
+function registerWithFacebook() {
+    showNotification('Facebook registration would be implemented with OAuth', 'info');
 }
 
-function closeModal(modalId) {
-    var modal = document.getElementById(modalId);
-    if (modal) {
-        modal.style.display = 'none';
-        document.body.style.overflow = 'auto';
-    }
-}
-
-// Close modal when clicking outside
-window.addEventListener('click', function(event) {
-    if (event.target.classList.contains('modal')) {
-        event.target.style.display = 'none';
-        document.body.style.overflow = 'auto';
-    }
-});
-
-// Notification system
-function showNotification(message, type) {
-    type = type || 'info';
-    
-    var notification = document.createElement('div');
-    notification.className = `notification ${type}`;
-    notification.innerHTML = `
-        <div class="notification-content">
-            <span>${message}</span>
-            <button class="notification-close" onclick="this.parentElement.parentElement.remove()">&times;</button>
-        </div>
-    `;
-    
-    document.body.appendChild(notification);
-    
-    // Auto remove after 5 seconds
-    setTimeout(function() {
-        if (notification.parentElement) {
-            notification.remove();
-        }
-    }, 5000);
-    
-    console.log(`📢 Notification (${type}): ${message}`);
-}
-
-// Export functions for global use
+// Global function exports
 window.performSearch = performSearch;
 window.getCurrentLocation = getCurrentLocation;
-window.applyFilters = applyFilters;
-window.toggleQuickFilter = toggleQuickFilter;
-window.getDirections = getDirections;
-window.claimBusiness = claimBusiness;
-window.handleBusinessClaim = handleBusinessClaim;
 window.centerMapOnUser = centerMapOnUser;
 window.toggleMapView = toggleMapView;
+window.applyFilters = applyFilters;
+window.toggleQuickFilter = toggleQuickFilter;
+window.showModal = showModal;
+window.closeModal = closeModal;
 window.handleLogin = handleLogin;
 window.handleRegister = handleRegister;
+window.logout = logout;
+window.claimBusiness = claimBusiness;
+window.handleBusinessClaim = handleBusinessClaim;
+window.handleAddBusiness = handleAddBusiness;
+window.showAdminTab = showAdminTab;
+window.getDirections = getDirections;
+window.selectSearchSuggestion = selectSearchSuggestion;
 window.loginWithGoogle = loginWithGoogle;
 window.loginWithFacebook = loginWithFacebook;
 window.registerWithGoogle = registerWithGoogle;
 window.registerWithFacebook = registerWithFacebook;
-window.logout = logout;
-window.showModal = showModal;
-window.closeModal = closeModal;
-window.showAdminTab = showAdminTab;
-window.showNotification = showNotification;
 
 console.log('✅ GTGOTG - Got To Go On The Go - Loaded successfully!');
