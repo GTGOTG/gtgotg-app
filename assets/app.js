@@ -335,11 +335,11 @@ function initializeMap() {
         // Add geolocate control
         if (typeof mapboxgl.GeolocateControl !== 'undefined') {
             var geolocate = new mapboxgl.GeolocateControl({
-            positionOptions: {
-                enableHighAccuracy: true
-            },
-            trackUserLocation: true,
-            showUserHeading: true
+                positionOptions: {
+                    enableHighAccuracy: true
+                },
+                trackUserLocation: true,
+                showUserHeading: true
             });
         
             map.addControl(geolocate);
@@ -676,7 +676,6 @@ function addBusinessMarkersToMap(businesses) {
         
         searchMarkers.push(marker);
     });
-}
 }
 
 // Load initial data
