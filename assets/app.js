@@ -162,156 +162,74 @@ async function searchBusinessesInView() {
 async function searchBusinessesInLocation(coordinates) {
     console.log(`🔍 Searching for businesses at coordinates: ${coordinates}`);
     
-    // Comprehensive search terms for all business types
-    const searchTerms = [
-        // Gas stations and fuel
-        'gas station',
-        'shell',
-        'exxon',
-        'bp',
-        'chevron',
-        'mobil',
-        'texaco',
-        'sunoco',
-        'marathon',
-        'speedway',
-        'wawa',
-        'sheetz',
-        'pilot',
-        'flying j',
-        'loves',
-        'ta travel center',
-        'truck stop',
-        // Fast food chains
-        'mcdonalds',
-        'burger king',
-        'subway',
-        'taco bell',
-        'kfc',
-        'pizza hut',
-        'dominos',
-        'wendys',
-        'arbys',
-        'dairy queen',
-        'sonic',
-        'jack in the box',
-        'in n out',
-        'chipotle',
-        'panera',
-        // Coffee shops
-        'starbucks',
-        'dunkin',
-        'tim hortons',
-        'peets coffee',
-        'caribou coffee',
-        'restaurant', 
-        'coffee',
-        'cafe',
-        // Retail stores
-        'walmart',
-        'target',
-        'costco',
-        'sams club',
-        'home depot',
-        'lowes',
-        'best buy',
-        'kroger',
-        'safeway',
-        'publix',
-        'whole foods',
-        'trader joes',
-        // Pharmacies
-        'cvs',
-        'walgreens',
-        'rite aid',
-        // Hotels
-        'hotel',
-        'motel',
-        'holiday inn',
-        'marriott',
-        'hilton',
-        'hampton inn',
-        'comfort inn',
-        'best western',
-        'la quinta',
-        'super 8',
-        // Rest areas and travel
-        'rest area',
-        'welcome center',
-        'visitor center',
-        'travel plaza',
-        'service area',
-        // Healthcare
-        'hospital',
-        'urgent care',
-        'clinic',
-        // Public facilities
-        'library',
-        'city hall',
-        'courthouse',
-        'dmv',
-        'post office',
-        'community center',
-        // Parks and recreation
-        'park',
-        'recreation center',
-        'visitor center',
-        // Shopping centers
-        'mall',
-        'shopping center',
-        'plaza',
-        // Entertainment
-        'movie theater',
-        'bowling',
-        'casino'
-    ];
+    // Use Mapbox's general POI search without specific categories
+    const [lng, lat] = coordinates;
+    const radius = 0.05; // About 3 miles
     
-    let allBusinesses = [];
-    let searchCount = 0;
-    const maxSearches = 20; // Limit to avoid too many API calls
+    console.log(`🔍 Searching for POI near ${lat}, ${lng} within ${radius} degree radius`);
     
-    for (const searchTerm of searchTerms.slice(0, maxSearches)) {
-        try {
-            const businesses = await searchMapboxPOI(coordinates, searchTerm, 10);
-            if (businesses.length > 0) {
-                console.log(`✅ Found ${businesses.length} ${searchTerm} businesses`);
-                allBusinesses = allBusinesses.concat(businesses);
-                searchCount++;
-            }
+    // Search for general POI in the area
+    const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/poi.json?` +
+        `proximity=${lng},${lat}&` +
+        `bbox=${lng-radius},${lat-radius},${lng+radius},${lat+radius}&` +
+        `types=poi&` +
+        `limit=50&` +
+        `access_token=${MAPBOX_TOKEN}`;
+    
+    try {
+        console.log('🌐 Making Mapbox API request:', url);
+        const response = await fetch(url);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        console.log('📊 Mapbox API response:', data);
+        
+        if (!data.features || data.features.length === 0) {
+            console.log('❌ No POI found in this area');
+            showNotification('No businesses found in this area. This might be a rural location.', 'warning');
+            currentBusinesses = [];
+            renderBusinesses(currentBusinesses);
+            updateSearchResultsInfo();
+            return;
+        }
+        
+        console.log(`✅ Found ${data.features.length} POI from Mapbox`);
+        
+        // Convert Mapbox features to business objects
+        const businesses = data.features.map(feature => {
+            const distance = userLocation ? 
+                calculateDistance(
+                    { lng: userLocation[0], lat: userLocation[1] }, 
+                    { lng: feature.center[0], lat: feature.center[1] }
+                ) : 0;
             
-            // Add delay to avoid rate limiting
-            await new Promise(resolve => setTimeout(resolve, 200));
-        } catch (error) {
-            console.error(`❌ Error searching ${searchTerm}:`, error);
-        }
-    }
-    
-    // If still no results, try a broader search
-    if (allBusinesses.length === 0) {
-        console.log('🔍 No specific businesses found, trying broader search...');
-        try {
-            const broadSearches = ['restaurant', 'gas station', 'store', 'hotel'];
-            for (const term of broadSearches) {
-                const businesses = await searchMapboxPOIBroad(coordinates, term, 20);
-                allBusinesses = allBusinesses.concat(businesses);
-                await new Promise(resolve => setTimeout(resolve, 300));
-            }
-        } catch (error) {
-            console.error('❌ Broad search failed:', error);
-        }
-    }
-    
-    // Remove duplicates
-    const uniqueBusinesses = removeDuplicateBusinesses(allBusinesses);
-    
-    console.log(`📊 Found ${uniqueBusinesses.length} unique businesses in this area`);
-    
-    currentBusinesses = uniqueBusinesses;
-    
-    if (currentBusinesses.length > 0) {
-        showNotification(`Found ${currentBusinesses.length} businesses in this area`, 'success');
-    } else {
-        showNotification('No businesses found in this area. This might be a rural location with limited commercial establishments.', 'warning');
+            return {
+                id: `mapbox-${feature.id}`,
+                name: feature.text || feature.place_name.split(',')[0],
+                category: categorizePOI(feature),
+                address: feature.place_name,
+                coordinates: feature.center,
+                distance: distance,
+                phone: feature.properties?.phone || 'Not available',
+                hours: 'Hours vary',
+                bathroomTypes: ['mens', 'womens'],
+                amenities: getDefaultAmenitiesForPOI(feature),
+                ratings: generateDefaultRatings(),
+                reviewCount: Math.floor(Math.random() * 20),
+                isMapboxPOI: true
+            };
+        });
+        
+        currentBusinesses = businesses;
+        showNotification(`Found ${businesses.length} businesses in this area`, 'success');
+        
+    } catch (error) {
+        console.error('❌ Error fetching businesses:', error);
+        showNotification('Error searching for businesses. Please try again.', 'error');
+        currentBusinesses = [];
     }
     
     updateMapMarkers();
@@ -319,141 +237,6 @@ async function searchBusinessesInLocation(coordinates) {
     updateSearchResultsInfo();
 }
 
-// Search Mapbox POI
-async function searchMapboxPOI(coordinates, category, limit) {
-    const [lng, lat] = coordinates;
-    
-    // Use a much larger search radius for better results
-    const radius = 0.1; // About 6 miles
-    const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(category)}.json?` +
-        `proximity=${lng},${lat}&` +
-        `bbox=${lng-radius},${lat-radius},${lng+radius},${lat+radius}&` +
-        `types=poi&` +
-        `limit=${limit}&` +
-        `access_token=${MAPBOX_TOKEN}`;
-    
-    try {
-        const response = await fetch(url);
-        
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        
-        if (!data.features || data.features.length === 0) {
-            console.log(`No ${category} businesses found in this area`);
-            return [];
-        }
-        
-        console.log(`📍 Found ${data.features.length} ${category} results from Mapbox`);
-        
-        return data.features.map(feature => ({
-            id: `mapbox-${feature.id}`,
-            name: feature.text || feature.place_name,
-            category: mapCategoryFromMapbox(category),
-            address: feature.place_name,
-            coordinates: feature.center,
-            distance: calculateDistance({ lng, lat }, { lng: feature.center[0], lat: feature.center[1] }),
-            phone: feature.properties?.phone || 'Not available',
-            hours: 'Hours vary',
-            bathroomTypes: ['mens', 'womens'],
-            amenities: getDefaultAmenities(category),
-            ratings: generateDefaultRatings(),
-            reviewCount: 0,
-            isMapboxPOI: true
-        }));
-    } catch (error) {
-        console.error('Error fetching Mapbox POI:', error);
-        return [];
-    }
-}
-
-// Search Mapbox POI Broad
-async function searchMapboxPOIBroad(coordinates, category, limit) {
-    const [lng, lat] = coordinates;
-    
-    // Use a much larger search radius for better results
-    const radius = 0.2; // About 12 miles
-    const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(category)}.json?` +
-        `proximity=${lng},${lat}&` +
-        `bbox=${lng-radius},${lat-radius},${lng+radius},${lat+radius}&` +
-        `types=poi&` +
-        `limit=${limit}&` +
-        `access_token=${MAPBOX_TOKEN}`;
-    
-    try {
-        const response = await fetch(url);
-        
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        
-        if (!data.features || data.features.length === 0) {
-            console.log(`No ${category} businesses found in this area`);
-            return [];
-        }
-        
-        console.log(`📍 Found ${data.features.length} ${category} results from Mapbox`);
-        
-        return data.features.map(feature => ({
-            id: `mapbox-${feature.id}`,
-            name: feature.text || feature.place_name,
-            category: mapCategoryFromMapbox(category),
-            address: feature.place_name,
-            coordinates: feature.center,
-            distance: calculateDistance({ lng, lat }, { lng: feature.center[0], lat: feature.center[1] }),
-            phone: feature.properties?.phone || 'Not available',
-            hours: 'Hours vary',
-            bathroomTypes: ['mens', 'womens'],
-            amenities: getDefaultAmenities(category),
-            ratings: generateDefaultRatings(),
-            reviewCount: 0,
-            isMapboxPOI: true
-        }));
-    } catch (error) {
-        console.error('Error fetching Mapbox POI:', error);
-        return [];
-    }
-}
-
-// Map Mapbox categories to our categories
-function mapCategoryFromMapbox(mapboxCategory) {
-    const categoryMap = {
-        'gas station': 'gas-station',
-        'restaurant': 'restaurant',
-        'starbucks': 'coffee-shop',
-        'mcdonalds': 'restaurant',
-        'walmart': 'retail',
-        'target': 'retail',
-        'cvs': 'retail',
-        'walgreens': 'retail',
-        'shopping mall': 'retail',
-        'grocery store': 'retail',
-        'hotel': 'hotel',
-        'hospital': 'hospital',
-        'library': 'library',
-        'coffee': 'coffee-shop'
-    };
-    
-    return categoryMap[mapboxCategory] || 'other';
-}
-
-// Get default amenities based on category
-function getDefaultAmenities(category) {
-    const amenityMap = {
-        'gas station': ['toilet-paper', 'soap'],
-        'restaurant': ['toilet-paper', 'soap', 'paper-towels'],
-        'cafe': ['toilet-paper', 'soap', 'paper-towels'],
-        'hotel': ['toilet-paper', 'soap', 'paper-towels', 'hand-dryer'],
-        'hospital': ['toilet-paper', 'soap', 'paper-towels', 'hand-dryer', 'ada-compliant'],
-        'library': ['toilet-paper', 'soap', 'paper-towels', 'ada-compliant']
-    };
-    
-    return amenityMap[category] || ['toilet-paper', 'soap'];
-}
 
 // Generate default ratings for new businesses
 function generateDefaultRatings() {
@@ -463,6 +246,84 @@ function generateDefaultRatings() {
         safety: Math.round((Math.random() * 3 + 7) * 10) / 10,
         accessibility: Math.round((Math.random() * 3 + 6) * 10) / 10
     };
+}
+
+// Categorize POI based on Mapbox data
+function categorizePOI(feature) {
+    const name = (feature.text || '').toLowerCase();
+    const placeName = (feature.place_name || '').toLowerCase();
+    const category = (feature.properties?.category || '').toLowerCase();
+    
+    // Gas stations
+    if (name.includes('shell') || name.includes('exxon') || name.includes('bp') || 
+        name.includes('chevron') || name.includes('mobil') || name.includes('gas') ||
+        category.includes('gas') || category.includes('fuel')) {
+        return 'gas-station';
+    }
+    
+    // Coffee shops
+    if (name.includes('starbucks') || name.includes('dunkin') || name.includes('coffee') ||
+        name.includes('cafe') || category.includes('coffee')) {
+        return 'coffee-shop';
+    }
+    
+    // Fast food and restaurants
+    if (name.includes('mcdonalds') || name.includes('burger') || name.includes('subway') ||
+        name.includes('taco bell') || name.includes('kfc') || name.includes('pizza') ||
+        name.includes('restaurant') || category.includes('restaurant') || category.includes('food')) {
+        return 'restaurant';
+    }
+    
+    // Retail stores
+    if (name.includes('walmart') || name.includes('target') || name.includes('cvs') ||
+        name.includes('walgreens') || name.includes('store') || name.includes('shop') ||
+        category.includes('retail') || category.includes('store')) {
+        return 'retail';
+    }
+    
+    // Hotels
+    if (name.includes('hotel') || name.includes('motel') || name.includes('inn') ||
+        category.includes('hotel') || category.includes('lodging')) {
+        return 'hotel';
+    }
+    
+    // Healthcare
+    if (name.includes('hospital') || name.includes('clinic') || name.includes('medical') ||
+        category.includes('hospital') || category.includes('medical')) {
+        return 'hospital';
+    }
+    
+    // Libraries and public facilities
+    if (name.includes('library') || name.includes('city hall') || name.includes('courthouse') ||
+        category.includes('library') || category.includes('government')) {
+        return 'library';
+    }
+    
+    // Parks
+    if (name.includes('park') || category.includes('park') || category.includes('recreation')) {
+        return 'park';
+    }
+    
+    // Default to restaurant for any other POI
+    return 'restaurant';
+}
+
+// Get default amenities for POI
+function getDefaultAmenitiesForPOI(feature) {
+    const category = categorizePOI(feature);
+    
+    const amenityMap = {
+        'gas-station': ['toilet-paper', 'soap'],
+        'restaurant': ['toilet-paper', 'soap', 'paper-towels'],
+        'coffee-shop': ['toilet-paper', 'soap', 'paper-towels'],
+        'hotel': ['toilet-paper', 'soap', 'paper-towels', 'hand-dryer'],
+        'hospital': ['toilet-paper', 'soap', 'paper-towels', 'hand-dryer', 'ada-compliant'],
+        'library': ['toilet-paper', 'soap', 'paper-towels', 'ada-compliant'],
+        'retail': ['toilet-paper', 'soap'],
+        'park': ['toilet-paper']
+    };
+    
+    return amenityMap[category] || ['toilet-paper', 'soap'];
 }
 
 // Remove duplicate businesses
