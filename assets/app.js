@@ -159,13 +159,15 @@ async function searchBusinessesInView() {
 }
  
 // Search for businesses in specific bounds
-async function searchBusinessesInBounds(center) {
+async function searchBusinessesInLocation(coordinates) {
+    console.log(`🔍 Searching for businesses at coordinates: ${coordinates}`);
+    
     const categories = [
-        'gas_station',
+        'gas station',
         'restaurant',
         'cafe',
-        'convenience_store',
-        'shopping_mall',
+        'convenience store',
+        'shopping mall',
         'hotel',
         'hospital',
         'library',
@@ -174,13 +176,14 @@ async function searchBusinessesInBounds(center) {
     
     let allBusinesses = [];
     
-    console.log(`🔍 Searching for businesses near ${center.lat}, ${center.lng}`);
-    
     for (const category of categories) {
         try {
-            const businesses = await searchMapboxPOI(center, category, 10);
+            const businesses = await searchMapboxPOI(coordinates, category, 5);
             console.log(`Found ${businesses.length} ${category} businesses`);
             allBusinesses = allBusinesses.concat(businesses);
+            
+            // Add small delay to avoid rate limiting
+            await new Promise(resolve => setTimeout(resolve, 100));
         } catch (error) {
             console.error(`Error searching ${category}:`, error);
         }
@@ -191,13 +194,10 @@ async function searchBusinessesInBounds(center) {
     
     console.log(`📊 Found ${uniqueBusinesses.length} unique businesses in this area`);
     
-    // Only show real businesses from the searched area
     currentBusinesses = uniqueBusinesses;
     
-    // If no businesses found in the area, show a helpful message
     if (currentBusinesses.length === 0) {
-        console.log('No businesses found in this area');
-        showNotification('No businesses found in this area. Try zooming out or searching a different location.', 'info');
+        showNotification('No businesses found in this area. This might be a rural area with limited POI data.', 'info');
     } else {
         showNotification(`Found ${currentBusinesses.length} businesses in this area`, 'success');
     }
@@ -208,12 +208,15 @@ async function searchBusinessesInBounds(center) {
 }
 
 // Search Mapbox POI
-async function searchMapboxPOI(center, category, limit) {
+async function searchMapboxPOI(coordinates, category, limit) {
+    const [lng, lat] = coordinates;
+    
     const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(category)}.json?` +
-        `proximity=${center.lng},${center.lat}&` +
+        `proximity=${lng},${lat}&` +
         `country=US&` +
         `types=poi&` +
         `limit=${limit}&` +
+        `bbox=${lng-0.1},${lat-0.1},${lng+0.1},${lat+0.1}&` +
         `access_token=${MAPBOX_TOKEN}`;
     
     try {
@@ -230,13 +233,15 @@ async function searchMapboxPOI(center, category, limit) {
             return [];
         }
         
+        console.log(`📍 Found ${data.features.length} ${category} results from Mapbox`);
+        
         return data.features.map(feature => ({
             id: `mapbox-${feature.id}`,
             name: feature.text || feature.place_name,
             category: mapCategoryFromMapbox(category),
             address: feature.place_name,
             coordinates: feature.center,
-            distance: calculateDistance(center, { lng: feature.center[0], lat: feature.center[1] }),
+            distance: calculateDistance({ lng, lat }, { lng: feature.center[0], lat: feature.center[1] }),
             phone: feature.properties.phone || 'Not available',
             hours: 'Hours vary',
             bathroomTypes: ['mens', 'womens'],
@@ -254,11 +259,11 @@ async function searchMapboxPOI(center, category, limit) {
 // Map Mapbox categories to our categories
 function mapCategoryFromMapbox(mapboxCategory) {
     const categoryMap = {
-        'gas_station': 'gas-station',
+        'gas station': 'gas-station',
         'restaurant': 'restaurant',
         'cafe': 'coffee-shop',
-        'convenience_store': 'retail',
-        'shopping_mall': 'retail',
+        'convenience store': 'retail',
+        'shopping mall': 'retail',
         'hotel': 'hotel',
         'hospital': 'hospital',
         'library': 'library',
@@ -271,7 +276,7 @@ function mapCategoryFromMapbox(mapboxCategory) {
 // Get default amenities based on category
 function getDefaultAmenities(category) {
     const amenityMap = {
-        'gas_station': ['toilet-paper', 'soap'],
+        'gas station': ['toilet-paper', 'soap'],
         'restaurant': ['toilet-paper', 'soap', 'paper-towels'],
         'cafe': ['toilet-paper', 'soap', 'paper-towels'],
         'hotel': ['toilet-paper', 'soap', 'paper-towels', 'hand-dryer'],
@@ -342,13 +347,9 @@ async function performSearch() {
                 duration: 2000
             });
             
-            // Wait for map to finish moving, then search for businesses in that specific area
-            map.once('moveend', async () => {
-                await searchBusinessesInBounds({
-                    lng: location.coordinates[0],
-                    lat: location.coordinates[1]
-                });
-            });
+            // Search for businesses immediately in the location
+            showNotification('Searching for businesses...', 'info');
+            await searchBusinessesInLocation(location.coordinates);
         } else {
             showNotification(`No location found for "${query}". Please try a different search term.`, 'warning');
         }
@@ -494,13 +495,9 @@ async function selectSearchSuggestion(placeName, coordinates) {
         duration: 2000
     });
     
-    // Wait for map to finish moving, then search for businesses in that specific area
-    map.once('moveend', async () => {
-        await searchBusinessesInBounds({
-            lng: coordinates[0],
-            lat: coordinates[1]
-        });
-    });
+    // Search for businesses immediately in the selected location
+    showNotification('Searching for businesses...', 'info');
+    await searchBusinessesInLocation(coordinates);
 }
 
 // Get current location
