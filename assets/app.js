@@ -158,42 +158,6 @@ async function searchBusinessesInView() {
     }
  }
  
- // Search for businesses in specific bounds
- async function searchBusinessesInBounds(bounds, center) {
-    if (!center) return;
-    
-    const categories = [
-        'gas_station',
-        'restaurant', 
-        'cafe',
-        'convenience_store',
-        'shopping_mall',
-        'hotel',
-        'hospital',
-        'library',
-        'park'
-    ];
-    
-    let allBusinesses = [];
-    
-    for (const category of categories) {
-        try {
-            const businesses = await searchMapboxPOI(center, category, 10);
-            allBusinesses = allBusinesses.concat(businesses);
-        } catch (error) {
-            console.error(`Error searching ${category}:`, error);
-        }
-    }
-    
-    // Remove duplicates and add sample data
-    const uniqueBusinesses = removeDuplicateBusinesses(allBusinesses);
-    currentBusinesses = [...uniqueBusinesses, ...sampleBusinesses];
-    
-    updateMapMarkers();
-    renderBusinesses(currentBusinesses);
-    updateSearchResultsInfo();
-}
-
 // Search for businesses in specific bounds
 async function searchBusinessesInBounds(bounds, center) {
     const categories = [
