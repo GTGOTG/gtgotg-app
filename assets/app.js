@@ -56,11 +56,15 @@ const sampleBusinesses = [
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🔧 Initializing GTGOTG application...');
     
-    initializeMap();
-    initializeSearch();
-    initializeFilters();
-    initializeAuth();
-    loadInitialData();
+    try {
+        initializeMap();
+        initializeSearch();
+        initializeFilters();
+        initializeAuth();
+        loadInitialData();
+    } catch (error) {
+        console.error('❌ Error initializing app:', error);
+    }
     
     console.log('✅ GTGOTG application initialized successfully');
 });
@@ -98,11 +102,22 @@ function initializeMap() {
         map.on('load', function() {
             console.log('✅ Map loaded successfully');
             
-            // Get user location and search for nearby businesses
-            geolocate.trigger();
-            
-            // Search for businesses when map moves
-            map.on('moveend', debounce(searchBusinessesInView, 1000));
+            try {
+                // Get user location and search for nearby businesses
+                if (geolocate && typeof geolocate.trigger === 'function') {
+                    geolocate.trigger();
+                }
+                
+                // Search for businesses when map moves
+                map.on('moveend', debounce(searchBusinessesInView, 1000));
+            } catch (error) {
+                console.error('❌ Error setting up map events:', error);
+                // Fallback to default location
+                userLocation = [-104.9903, 39.7392];
+                map.setCenter(userLocation);
+                map.setZoom(12);
+                searchNearbyBusinesses();
+            }
         });
 
         // Handle geolocate events
@@ -129,18 +144,54 @@ function initializeMap() {
 
 // Search for businesses in current map view
 async function searchBusinessesInView() {
-    if (!map) return;
-    
-    const bounds = map.getBounds();
-    const center = map.getCenter();
-    
-    console.log('🔍 Searching businesses in current view...');
+    if (!map || !map.getBounds) return;
     
     try {
+        const bounds = map.getBounds();
+        const center = map.getCenter();
+        
+        console.log('🔍 Searching businesses in current view...');
+        
         await searchBusinessesInBounds(bounds, center);
     } catch (error) {
         console.error('❌ Error searching businesses in view:', error);
     }
+ }
+ 
+ // Search for businesses in specific bounds
+ async function searchBusinessesInBounds(bounds, center) {
+    if (!center) return;
+    
+    const categories = [
+        'gas_station',
+        'restaurant', 
+        'cafe',
+        'convenience_store',
+        'shopping_mall',
+        'hotel',
+        'hospital',
+        'library',
+        'park'
+    ];
+    
+    let allBusinesses = [];
+    
+    for (const category of categories) {
+        try {
+            const businesses = await searchMapboxPOI(center, category, 10);
+            allBusinesses = allBusinesses.concat(businesses);
+        } catch (error) {
+            console.error(`Error searching ${category}:`, error);
+        }
+    }
+    
+    // Remove duplicates and add sample data
+    const uniqueBusinesses = removeDuplicateBusinesses(allBusinesses);
+    currentBusinesses = [...uniqueBusinesses, ...sampleBusinesses];
+    
+    updateMapMarkers();
+    renderBusinesses(currentBusinesses);
+    updateSearchResultsInfo();
 }
 
 // Search for businesses in specific bounds
@@ -371,6 +422,8 @@ async function handleSearchInput(event) {
     const query = event.target.value.trim();
     const searchSuggestions = document.getElementById('searchSuggestions');
     
+    if (!searchSuggestions) return;
+    
     if (query.length < 2) {
         searchSuggestions.style.display = 'none';
         return;
@@ -381,6 +434,7 @@ async function handleSearchInput(event) {
         displaySearchSuggestions(suggestions);
     } catch (error) {
         console.error('Error getting search suggestions:', error);
+        searchSuggestions.style.display = 'none';
     }
 }
 
@@ -411,6 +465,8 @@ async function getSearchSuggestions(query) {
 // Display search suggestions
 function displaySearchSuggestions(suggestions) {
     const searchSuggestions = document.getElementById('searchSuggestions');
+    
+    if (!searchSuggestions) return;
     
     if (suggestions.length === 0) {
         searchSuggestions.style.display = 'none';
