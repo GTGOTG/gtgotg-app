@@ -152,7 +152,7 @@ async function searchBusinessesInView() {
         
         console.log('🔍 Searching businesses in current view...');
         
-        await searchBusinessesInBounds(center);
+        await searchBusinessesInLocation([center.lng, center.lat]);
     } catch (error) {
         console.error('❌ Error searching businesses in view:', error);
     }
@@ -317,7 +317,7 @@ async function searchNearbyBusinesses() {
     console.log('🔍 Searching for nearby businesses...');
     
     const center = { lng: userLocation[0], lat: userLocation[1] };
-    await searchBusinessesInBounds(center);
+    await searchBusinessesInLocation(userLocation);
 }
 
 // Perform search based on user input
