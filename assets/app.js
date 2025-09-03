@@ -320,8 +320,6 @@ async function performSearch() {
         const location = await geocodeSearch(query);
         
         if (location) {
-            console.log(`📍 Found location: ${location.name} at`, location.coordinates);
-            
             // Move map to the location
             map.flyTo({
                 center: location.coordinates,
@@ -329,15 +327,14 @@ async function performSearch() {
                 duration: 2000
             });
             
-            // Wait for map to finish moving, then search for businesses in that specific area
-            map.once('moveend', async () => {
-                await searchBusinessesInBounds(null, {
-                    lng: location.coordinates[0],
-                    lat: location.coordinates[1]
-                });
+            // Search for businesses in that area
+            await searchBusinessesInBounds(null, {
+                lng: location.coordinates[0],
+                lat: location.coordinates[1]
             });
         } else {
-            showNotification(`No location found for "${query}". Please try a different search term.`, 'warning');
+            // If no location found, search current map view
+            await searchBusinessesInView();
         }
         
     } catch (error) {
@@ -809,7 +806,7 @@ function updateSearchResultsInfo(count = null) {
     let message = `Showing ${displayCount} restrooms`;
     
     if (currentSearchQuery) {
-        message += ` in ${currentSearchQuery}`;
+        message += ` for "${currentSearchQuery}"`;
     } else if (userLocation) {
         message += ' in your area';
     } else {
