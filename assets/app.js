@@ -18,13 +18,7 @@ var activeFilters = {
 };
 
 // Mapbox configuration - Using a demo token (replace with your own)
-mapboxgl.accessToken = 'pk.eyJ1IjoiY29sb3JhZG9xdWFsaXR5bGxjIiwiYSI6ImNtZW4yOG9scTB4ZzgybG9jNTgwZW8wbDAifQ.Vo3vwfNTszwGPkYp4H054Q';
-
-// Check if Mapbox token is available, otherwise show fallback
-if (typeof mapboxgl !== 'undefined') {
-    // Mapbox token is already set above
-    console.log('🗺️ Mapbox token configured');
-}
+// Will be set in initializeMap function
 
 // Sample business data with enhanced information
 var sampleBusinesses = [
@@ -255,6 +249,12 @@ document.addEventListener('DOMContentLoaded', function() {
 function initializeMap() {
     console.log('🗺️ Initializing map...');
     
+    // Set the access token
+    if (typeof mapboxgl !== 'undefined') {
+        mapboxgl.accessToken = 'pk.eyJ1IjoiY29sb3JhZG9xdWFsaXR5bGxjIiwiYSI6ImNtZW4yOG9scTB4ZzgybG9jNTgwZW8wbDAifQ.Vo3vwfNTszwGPkYp4H054Q';
+        console.log('🗺️ Mapbox token configured');
+    }
+    
     try {
         // Check if Mapbox GL JS is loaded
         if (typeof mapboxgl === 'undefined') {
@@ -272,8 +272,6 @@ function initializeMap() {
         }
         
         // Set the access token
-        mapboxgl.accessToken = 'pk.eyJ1IjoiY29sb3JhZG9xdWFsaXR5bGxjIiwiYSI6ImNtZW4yOG9scTB4ZzgybG9jNTgwZW8wbDAifQ.Vo3vwfNTszwGPkYp4H054Q';
-        
         // Default to Denver, CO if no user location
         var defaultCenter = [-104.9903, 39.7392];
         
