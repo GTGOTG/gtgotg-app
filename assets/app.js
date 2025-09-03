@@ -724,20 +724,33 @@ function handleSearchInput(event) {
 }
 
 // Generate search suggestions
-function generateSearchSuggestions(query) {
+async function generateSearchSuggestions(query) {
     var suggestions = [];
     
-    // Business name suggestions
-    sampleBusinesses.forEach(function(business) {
-        if (business.name.toLowerCase().includes(query)) {
-            suggestions.push({
-                type: 'business',
-                main: business.name,
-                subtitle: business.address,
-                data: business
+    try {
+        // Use Mapbox Geocoding API for real-time suggestions
+        var suggestUrl = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?` +
+            `access_token=${MAPBOX_ACCESS_TOKEN}&` +
+            `limit=5&` +
+            `types=place,postcode,address,poi&` +
+            `country=us`;
+        
+        var response = await fetch(suggestUrl);
+        var data = await response.json();
+        
+        if (data.features) {
+            data.features.forEach(function(feature) {
+                suggestions.push({
+                    type: 'location',
+                    main: feature.text || feature.place_name,
+                    subtitle: feature.place_name || feature.text,
+                    data: feature
+                });
             });
         }
-    });
+    } catch (error) {
+        console.error('Error getting suggestions:', error);
+    }
     
     // Category suggestions
     var categories = [
@@ -997,7 +1010,7 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
 }
 
 // Apply filters
-function applyFilters() {
+async function applyFilters() {
     var categoryFilter = document.getElementById('categoryFilter').value;
     var distanceFilter = document.getElementById('distanceFilter').value;
     var ratingFilter = document.getElementById('ratingFilter').value;
@@ -1007,11 +1020,18 @@ function applyFilters() {
     activeFilters.distance = distanceFilter;
     activeFilters.rating = ratingFilter;
     
-    // Start with all businesses
-    var filteredBusinesses = [...allBusinesses];
+    // If category changed, search for new businesses
+    if (categoryFilter !== activeFilters.lastCategory) {
+        activeFilters.lastCategory = categoryFilter;
+        var center = map ? [map.getCenter().lng, map.getCenter().lat] : [-104.9903, 39.7392];
+        await searchBusinessesInArea(center, categoryFilter || 'all');
+    }
     
-    // Apply category filter
-    if (categoryFilter) {
+    // Start with current businesses
+    var filteredBusinesses = [...currentBusinesses];
+    
+    // Apply additional filters to the results
+    if (categoryFilter && !activeFilters.lastCategory) {
         filteredBusinesses = filteredBusinesses.filter(function(business) {
             return business.category === categoryFilter;
         });
@@ -1060,7 +1080,7 @@ function applyFilters() {
         }
     });
     
-    currentBusinesses = filteredBusinesses;
+    // Update display
     renderBusinesses(currentBusinesses);
     updateSearchResultsInfo(currentBusinesses.length);
     
