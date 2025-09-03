@@ -4,7 +4,7 @@
 console.log('🚀 GTGOTG - Got To Go On The Go - Loading...');
 
 // Mapbox Configuration
-const MAPBOX_TOKEN = 'pk.eyJ1IjoiZ3Rnb3RnIiwiYSI6ImNtNXNkZjBkZjBhcWsya3M4ZGZkZGZkZGYifQ.example'; // Replace with your actual token
+const MAPBOX_TOKEN = 'pk.eyJ1IjoiY29sb3JhZG9xdWFsaXR5bGxjIiwiYSI6ImNtZW4yOG9scTB4ZzgybG9jNTgwZW8wbDAifQ.Vo3vwfNTszwGPkYp4H054Q';
 mapboxgl.accessToken = MAPBOX_TOKEN;
 
 // Global Variables
