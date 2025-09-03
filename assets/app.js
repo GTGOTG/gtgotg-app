@@ -252,38 +252,57 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // Initialize Mapbox map
-function initializeMap() {
+async function searchBusinesses(query, userLat, userLon) {
+    console.log('🗺️ Initializing map...');
+    
     try {
-        // Check if we have a valid Mapbox token
-        if (!mapboxgl.accessToken || mapboxgl.accessToken === 'YOUR_MAPBOX_ACCESS_TOKEN_HERE') {
-            console.warn('⚠️ No valid Mapbox token provided. Map will show fallback message.');
+        // Check if Mapbox GL JS is loaded
+        if (typeof mapboxgl === 'undefined') {
+            console.error('❌ Mapbox GL JS not loaded');
             document.getElementById('map').innerHTML = `
                 <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; background: #f8fafc; color: #64748b; font-size: 1.1rem; text-align: center; padding: 2rem;">
                     <div style="margin-bottom: 1rem; font-size: 2rem;">🗺️</div>
-                    <div style="font-weight: 600; margin-bottom: 0.5rem;">Map Unavailable</div>
+                    <div style="font-weight: 600; margin-bottom: 0.5rem;">Map Loading...</div>
                     <div style="font-size: 0.9rem; max-width: 400px;">
-                        To enable the interactive map, please add your Mapbox access token to the configuration.
-                        <br><br>
-                        Get a free token at: <a href="https://account.mapbox.com/access-tokens/" target="_blank" style="color: #8B5CF6;">mapbox.com</a>
+                        The interactive map is loading. Please wait a moment.
                     </div>
                 </div>
             `;
             return;
         }
         
+        // Set the access token
+        mapboxgl.accessToken = 'pk.eyJ1IjoiY29sb3JhZG9xdWFsaXR5bGxjIiwiYSI6ImNtZW4yOG9scTB4ZzgybG9jNTgwZW8wbDAifQ.Vo3vwfNTszwGPkYp4H054Q';
+        
         // Default to Denver, CO if no user location
         var defaultCenter = [-104.9903, 39.7392];
+        
+        console.log('🗺️ Creating map with center:', defaultCenter);
         
         map = new mapboxgl.Map({
             container: 'map',
             style: 'mapbox://styles/mapbox/streets-v11',
             center: defaultCenter,
-            zoom: 12
+            zoom: 12,
+            attributionControl: false
         });
         
         map.on('load', function() {
             console.log('🗺️ Map loaded successfully');
             addBusinessMarkersToMap();
+        });
+        
+        map.on('error', function(e) {
+            console.error('🗺️ Map error:', e);
+            document.getElementById('map').innerHTML = `
+                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; background: #f8fafc; color: #64748b; font-size: 1.1rem; text-align: center; padding: 2rem;">
+                    <div style="margin-bottom: 1rem; font-size: 2rem;">🗺️</div>
+                    <div style="font-weight: 600; margin-bottom: 0.5rem;">Map Unavailable</div>
+                    <div style="font-size: 0.9rem; max-width: 400px;">
+                        Unable to load the map. Please refresh the page.
+                    </div>
+                </div>
+            `;
         });
         
         // Add navigation controls
@@ -310,7 +329,15 @@ function initializeMap() {
     } catch (error) {
         console.error('❌ Error initializing map:', error);
         // Show fallback message
-        document.getElementById('map').innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 100%; background: #f8fafc; color: #64748b; font-size: 1.1rem;">Map temporarily unavailable. Please refresh the page.</div>';
+        document.getElementById('map').innerHTML = `
+            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; background: #f8fafc; color: #64748b; font-size: 1.1rem; text-align: center; padding: 2rem;">
+                <div style="margin-bottom: 1rem; font-size: 2rem;">🗺️</div>
+                <div style="font-weight: 600; margin-bottom: 0.5rem;">Map Error</div>
+                <div style="font-size: 0.9rem; max-width: 400px;">
+                    Unable to initialize the map. Please refresh the page.
+                </div>
+            </div>
+        `;
     }
 }
 
