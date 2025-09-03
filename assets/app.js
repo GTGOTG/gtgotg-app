@@ -307,22 +307,24 @@ function initializeMap() {
         map.addControl(new mapboxgl.NavigationControl());
         
         // Add geolocate control
-        var geolocate = new mapboxgl.GeolocateControl({
+        if (typeof mapboxgl.GeolocateControl !== 'undefined') {
+            var geolocate = new mapboxgl.GeolocateControl({
             positionOptions: {
                 enableHighAccuracy: true
             },
             trackUserLocation: true,
             showUserHeading: true
-        });
+            });
         
-        map.addControl(geolocate);
+            map.addControl(geolocate);
         
-        // Try to get user location on load
-        geolocate.on('geolocate', function(e) {
-            userLocation = [e.coords.longitude, e.coords.latitude];
-            console.log('📍 User location obtained:', userLocation);
-            updateBusinessDistances();
-        });
+            // Try to get user location on load
+            geolocate.on('geolocate', function(e) {
+                userLocation = [e.coords.longitude, e.coords.latitude];
+                console.log('📍 User location obtained:', userLocation);
+                updateBusinessDistances();
+            });
+        }
         
     } catch (error) {
         console.error('❌ Error initializing map:', error);
