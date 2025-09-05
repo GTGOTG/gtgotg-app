@@ -281,9 +281,9 @@ async function searchBusinessesInLocation(coordinates) {
         ];
         
         currentBusinesses = sampleAtLocation;
-        showNotification('No businesses found via API. Showing sample data for this location.', 'warning');
+        showNotification('Unable to connect to business database. Showing sample data for this location.', 'warning');
     } else {
-                coordinates: [lng + (Math.random() - 0.5) * 0.02, lat + (Math.random() - 0.5) * 0.02],
+        currentBusinesses = uniqueBusinesses;
         showNotification(`Found ${currentBusinesses.length} businesses in this area`, 'success');
     }
     
@@ -464,17 +464,20 @@ async function performSearch() {
 async function geocodeSearch(query) {
     console.log(`🌍 Geocoding query: "${query}"`);
     
-    const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?` +
-        `country=US&` +
-        `types=place,postcode,address,locality,neighborhood&` +
-        `limit=1&` +
-        `access_token=${MAPBOX_TOKEN}`;
-    
     try {
+        const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?` +
+            `country=US&` +
+            `types=place,postcode,address,locality,neighborhood&` +
+            `limit=1&` +
+            `access_token=${MAPBOX_TOKEN}`;
+        
+        console.log('Making geocoding request to:', url);
+        
         const response = await fetch(url);
         
         if (!response.ok) {
-            throw new Error(`Geocoding API error: ${response.status}`);
+            console.error(`Geocoding API error: ${response.status} ${response.statusText}`);
+            throw new Error(`Geocoding API error: ${response.status} ${response.statusText}`);
         }
         
         const data = await response.json();
@@ -493,7 +496,18 @@ async function geocodeSearch(query) {
         console.log(`❌ No geocoding results for "${query}"`);
         return null;
     } catch (error) {
-        console.error('❌ Geocoding error:', error);
+        console.error('❌ Geocoding error:', error.message);
+        
+        // Try fallback coordinates for common cities
+        const fallbackCoordinates = getFallbackCoordinates(query);
+        if (fallbackCoordinates) {
+            console.log(`🔄 Using fallback coordinates for "${query}"`);
+            return {
+                name: query,
+                coordinates: fallbackCoordinates
+            };
+        }
+        
         return null;
     }
 }
@@ -986,6 +1000,34 @@ function toggleMapView() {
     } else {
         map.setStyle('mapbox://styles/mapbox/satellite-streets-v12');
     }
+}
+
+// Get fallback coordinates for common cities
+function getFallbackCoordinates(query) {
+    const fallbackCities = {
+        'new york': [-74.0060, 40.7128],
+        'los angeles': [-118.2437, 34.0522],
+        'chicago': [-87.6298, 41.8781],
+        'houston': [-95.3698, 29.7604],
+        'phoenix': [-112.0740, 33.4484],
+        'philadelphia': [-75.1652, 39.9526],
+        'san antonio': [-98.4936, 29.4241],
+        'san diego': [-117.1611, 32.7157],
+        'dallas': [-96.7970, 32.7767],
+        'san jose': [-121.8863, 37.3382],
+        'austin': [-97.7431, 30.2672],
+        'denver': [-104.9903, 39.7392],
+        'seattle': [-122.3321, 47.6062],
+        'boston': [-71.0589, 42.3601],
+        'atlanta': [-84.3880, 33.7490],
+        'miami': [-80.1918, 25.7617],
+        'las vegas': [-115.1398, 36.1699],
+        'portland': [-122.6784, 45.5152],
+        'morgantown': [-79.9553, 39.6295]
+    };
+    
+    const normalizedQuery = query.toLowerCase().trim();
+    return fallbackCities[normalizedQuery] || null;
 }
 
 // Utility Functions
