@@ -207,11 +207,11 @@
                     
                     <div class="form-group">
                         <label for="loginEmail">Email:</label>
-                        <input type="email" id="loginEmail" name="email" required>
+                        <input type="email" id="loginEmail" name="email" autocomplete="email" required>
                     </div>
                     <div class="form-group">
                         <label for="loginPassword">Password:</label>
-                        <input type="password" id="loginPassword" name="password" required>
+                        <input type="password" id="loginPassword" name="password" autocomplete="current-password" required>
                     </div>
                     <div class="form-actions">
                         <button type="button" class="btn btn-secondary" onclick="closeModal('loginModal')">Cancel</button>
@@ -490,22 +490,22 @@
                     
                     <div class="form-group">
                         <label for="claimOwnerName">Your Name:</label>
-                        <input type="text" id="claimOwnerName" name="ownerName" required>
+                        <input type="text" id="claimOwnerName" name="ownerName" autocomplete="name" required>
                     </div>
                     
                     <div class="form-group">
                         <label for="claimOwnerTitle">Your Title/Position:</label>
-                        <input type="text" id="claimOwnerTitle" name="ownerTitle" placeholder="e.g., Manager, Owner" required>
+                        <input type="text" id="claimOwnerTitle" name="ownerTitle" autocomplete="organization-title" placeholder="e.g., Manager, Owner" required>
                     </div>
                     
                     <div class="form-group">
                         <label for="claimBusinessPhone">Business Phone:</label>
-                        <input type="tel" id="claimBusinessPhone" name="businessPhone" required>
+                        <input type="tel" id="claimBusinessPhone" name="businessPhone" autocomplete="tel" required>
                     </div>
                     
                     <div class="form-group">
                         <label for="claimVerificationMethod">Verification Method:</label>
-                        <select id="claimVerificationMethod" name="verificationMethod" required>
+                        <select id="claimVerificationMethod" name="verificationMethod" autocomplete="off" required>
                             <option value="">Select verification method</option>
                             <option value="phone">Phone verification</option>
                             <option value="email">Email verification</option>
@@ -515,7 +515,7 @@
                     
                     <div class="form-group">
                         <label for="claimAdditionalInfo">Additional Information:</label>
-                        <textarea id="claimAdditionalInfo" name="additionalInfo" placeholder="Any additional information to help verify your claim..."></textarea>
+                        <textarea id="claimAdditionalInfo" name="additionalInfo" autocomplete="off" placeholder="Any additional information to help verify your claim..."></textarea>
                     </div>
                     
                     <div class="form-actions">
@@ -539,11 +539,11 @@
                     <div class="form-row">
                         <div class="form-group">
                             <label for="addBusinessName">Business Name:</label>
-                            <input type="text" id="addBusinessName" name="businessName" required>
+                            <input type="text" id="addBusinessName" name="businessName" autocomplete="organization" required>
                         </div>
                         <div class="form-group">
                             <label for="addBusinessCategory">Category:</label>
-                            <select id="addBusinessCategory" name="category" required>
+                            <select id="addBusinessCategory" name="category" autocomplete="off" required>
                                 <option value="">Select category</option>
                                 <option value="gas-station">Gas Station</option>
                                 <option value="restaurant">Restaurant</option>
@@ -560,17 +560,17 @@
                     
                     <div class="form-group">
                         <label for="addBusinessAddress">Address:</label>
-                        <input type="text" id="addBusinessAddress" name="address" required>
+                        <input type="text" id="addBusinessAddress" name="address" autocomplete="street-address" required>
                     </div>
                     
                     <div class="form-row">
                         <div class="form-group">
                             <label for="addBusinessPhone">Phone:</label>
-                            <input type="tel" id="addBusinessPhone" name="phone" required>
+                            <input type="tel" id="addBusinessPhone" name="phone" autocomplete="tel" required>
                         </div>
                         <div class="form-group">
                             <label for="addBusinessWebsite">Website (optional):</label>
-                            <input type="url" id="addBusinessWebsite" name="website">
+                            <input type="url" id="addBusinessWebsite" name="website" autocomplete="url">
                         </div>
                     </div>
                     
@@ -628,12 +628,12 @@
                     
                     <div class="form-group">
                         <label for="addBusinessHours">Business Hours:</label>
-                        <textarea id="addBusinessHours" name="hours" placeholder="e.g., Mon-Fri: 9AM-9PM, Sat-Sun: 10AM-8PM"></textarea>
+                        <textarea id="addBusinessHours" name="hours" autocomplete="off" placeholder="e.g., Mon-Fri: 9AM-9PM, Sat-Sun: 10AM-8PM"></textarea>
                     </div>
                     
                     <div class="form-group">
                         <label for="addBusinessDescription">Description (optional):</label>
-                        <textarea id="addBusinessDescription" name="description" placeholder="Brief description of your business and restroom facilities..."></textarea>
+                        <textarea id="addBusinessDescription" name="description" autocomplete="off" placeholder="Brief description of your business and restroom facilities..."></textarea>
                     </div>
                     
                     <div class="form-actions">
