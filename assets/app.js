@@ -417,6 +417,11 @@ async function searchNearbyBusinesses() {
 // Perform search based on user input
 async function performSearch() {
     const searchInput = document.getElementById('searchInput');
+    if (!searchInput) {
+        console.error('Search input not found');
+        return;
+    }
+    
     const query = searchInput.value.trim();
     
     if (!query) {
@@ -428,6 +433,8 @@ async function performSearch() {
     currentSearchQuery = query;
     
     try {
+        showNotification('Searching...', 'info');
+        
         // First, geocode the search query to get location
         const location = await geocodeSearch(query);
         
@@ -442,7 +449,6 @@ async function performSearch() {
             });
             
             // Search for businesses immediately in the location
-            showNotification('Searching for businesses...', 'info');
             await searchBusinessesInLocation(location.coordinates);
         } else {
             showNotification(`No location found for "${query}". Please try a different search term.`, 'warning');
@@ -456,26 +462,38 @@ async function performSearch() {
 
 // Geocode search query
 async function geocodeSearch(query) {
+    console.log(`🌍 Geocoding query: "${query}"`);
+    
     const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?` +
         `country=US&` +
-        `types=place,postcode,address&` +
+        `types=place,postcode,address,locality,neighborhood&` +
+        `limit=1&` +
         `access_token=${MAPBOX_TOKEN}`;
     
     try {
         const response = await fetch(url);
+        
+        if (!response.ok) {
+            throw new Error(`Geocoding API error: ${response.status}`);
+        }
+        
         const data = await response.json();
+        
+        console.log('Geocoding response:', data);
         
         if (data.features && data.features.length > 0) {
             const feature = data.features[0];
+            console.log(`✅ Geocoded "${query}" to:`, feature.place_name);
             return {
                 name: feature.place_name,
                 coordinates: feature.center
             };
         }
         
+        console.log(`❌ No geocoding results for "${query}"`);
         return null;
     } catch (error) {
-        console.error('Geocoding error:', error);
+        console.error('❌ Geocoding error:', error);
         return null;
     }
 }
@@ -497,10 +515,21 @@ function initializeSearch() {
         
         // Hide suggestions when clicking outside
         document.addEventListener('click', function(e) {
-            if (!searchInput.contains(e.target) && !searchSuggestions.contains(e.target)) {
+            if (searchSuggestions && !searchInput.contains(e.target) && !searchSuggestions.contains(e.target)) {
                 searchSuggestions.style.display = 'none';
             }
         });
+        
+        console.log('🔍 Search input event listeners added');
+    } else {
+        console.error('❌ Search input element not found');
+    }
+    
+    // Make sure search button works
+    const searchBtn = document.querySelector('.search-btn');
+    if (searchBtn) {
+        searchBtn.addEventListener('click', performSearch);
+        console.log('🔍 Search button event listener added');
     }
     
     console.log('🔍 Search functionality initialized');
