@@ -162,74 +162,129 @@ async function searchBusinessesInView() {
 async function searchBusinessesInLocation(coordinates) {
     console.log(`🔍 Searching for businesses at coordinates: ${coordinates}`);
     
-    // Use Mapbox's general POI search without specific categories
     const [lng, lat] = coordinates;
-    const radius = 0.05; // About 3 miles
+    console.log(`🔍 Searching for businesses near ${lat}, ${lng}`);
     
-    console.log(`🔍 Searching for POI near ${lat}, ${lng} within ${radius} degree radius`);
+    // Try multiple search approaches
+    let allBusinesses = [];
     
-    // Search for general POI in the area
-    const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/poi.json?` +
-        `proximity=${lng},${lat}&` +
-        `bbox=${lng-radius},${lat-radius},${lng+radius},${lat+radius}&` +
-        `types=poi&` +
-        `limit=50&` +
-        `access_token=${MAPBOX_TOKEN}`;
+    // 1. Search for specific business types that definitely have restrooms
+    const businessTypes = [
+        'gas station',
+        'restaurant', 
+        'coffee shop',
+        'fast food',
+        'hotel',
+        'shopping mall',
+        'grocery store',
+        'walmart',
+        'target',
+        'mcdonalds',
+        'starbucks',
+        'subway'
+    ];
     
-    try {
-        console.log('🌐 Making Mapbox API request:', url);
-        const response = await fetch(url);
-        
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        console.log('📊 Mapbox API response:', data);
-        
-        if (!data.features || data.features.length === 0) {
-            console.log('❌ No POI found in this area');
-            showNotification('No businesses found in this area. This might be a rural location.', 'warning');
-            currentBusinesses = [];
-            renderBusinesses(currentBusinesses);
-            updateSearchResultsInfo();
-            return;
-        }
-        
-        console.log(`✅ Found ${data.features.length} POI from Mapbox`);
-        
-        // Convert Mapbox features to business objects
-        const businesses = data.features.map(feature => {
-            const distance = userLocation ? 
-                calculateDistance(
-                    { lng: userLocation[0], lat: userLocation[1] }, 
-                    { lng: feature.center[0], lat: feature.center[1] }
-                ) : 0;
+    for (const businessType of businessTypes) {
+        try {
+            console.log(`🔍 Searching for: ${businessType}`);
             
-            return {
-                id: `mapbox-${feature.id}`,
-                name: feature.text || feature.place_name.split(',')[0],
-                category: categorizePOI(feature),
-                address: feature.place_name,
-                coordinates: feature.center,
-                distance: distance,
-                phone: feature.properties?.phone || 'Not available',
-                hours: 'Hours vary',
-                bathroomTypes: ['mens', 'womens'],
-                amenities: getDefaultAmenitiesForPOI(feature),
-                ratings: generateDefaultRatings(),
-                reviewCount: Math.floor(Math.random() * 20),
-                isMapboxPOI: true
-            };
-        });
+            const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(businessType)}.json?` +
+                `proximity=${lng},${lat}&` +
+                `bbox=${lng-0.1},${lat-0.1},${lng+0.1},${lat+0.1}&` +
+                `limit=10&` +
+                `access_token=${MAPBOX_TOKEN}`;
+            
+            const response = await fetch(url);
+            
+            if (response.ok) {
+                const data = await response.json();
+                console.log(`📊 Found ${data.features?.length || 0} results for ${businessType}`);
+                
+                if (data.features && data.features.length > 0) {
+                    const businesses = data.features
+                        .filter(feature => feature.center && feature.text)
+                        .map(feature => ({
+                            id: `mapbox-${feature.id || Math.random()}`,
+                            name: feature.text || feature.place_name.split(',')[0],
+                            category: categorizePOI(feature, businessType),
+                            address: feature.place_name,
+                            coordinates: feature.center,
+                            distance: userLocation ? 
+                                calculateDistance(
+                                    { lng: userLocation[0], lat: userLocation[1] }, 
+                                    { lng: feature.center[0], lat: feature.center[1] }
+                                ) : calculateDistance(
+                                    { lng: lng, lat: lat }, 
+                                    { lng: feature.center[0], lat: feature.center[1] }
+                                ),
+                            phone: feature.properties?.phone || 'Call for info',
+                            hours: 'Hours vary',
+                            bathroomTypes: ['mens', 'womens'],
+                            amenities: getDefaultAmenitiesForPOI(feature, businessType),
+                            ratings: generateDefaultRatings(),
+                            reviewCount: Math.floor(Math.random() * 50) + 5,
+                            isMapboxPOI: true
+                        }));
+                    
+                    allBusinesses.push(...businesses);
+                }
+            }
+            
+            // Small delay to avoid rate limiting
+            await new Promise(resolve => setTimeout(resolve, 100));
+            
+        } catch (error) {
+            console.error(`❌ Error searching for ${businessType}:`, error);
+        }
+    }
+    
+    // Remove duplicates based on name and location
+    const uniqueBusinesses = removeDuplicateBusinesses(allBusinesses);
+    
+    console.log(`✅ Found ${uniqueBusinesses.length} unique businesses total`);
+    
+    if (uniqueBusinesses.length === 0) {
+        console.log('❌ No businesses found, creating sample data for this location');
         
-        currentBusinesses = businesses;
-        showNotification(`Found ${businesses.length} businesses in this area`, 'success');
+        // Create sample businesses positioned at the searched location
+        const sampleAtLocation = [
+            {
+                id: 'sample-local-1',
+                name: 'Local Gas Station',
+                category: 'gas-station',
+                address: `Near ${lat.toFixed(4)}, ${lng.toFixed(4)}`,
+                coordinates: [lng + 0.001, lat + 0.001],
+                distance: 0.1,
+                phone: '(555) 123-4567',
+                hours: '24/7',
+                bathroomTypes: ['mens', 'womens', 'accessible'],
+                amenities: ['toilet-paper', 'soap', 'paper-towels'],
+                ratings: { overall: 7.5, cleanliness: 7, safety: 8, accessibility: 7 },
+                reviewCount: 12,
+                isSample: true
+            },
+            {
+                id: 'sample-local-2',
+                name: 'Downtown Coffee Shop',
+                category: 'coffee-shop',
+                address: `Near ${lat.toFixed(4)}, ${lng.toFixed(4)}`,
+                coordinates: [lng - 0.002, lat + 0.002],
+                distance: 0.2,
+                phone: '(555) 234-5678',
+                hours: 'Mon-Fri: 6AM-8PM',
+                bathroomTypes: ['neutral', 'accessible'],
+                amenities: ['toilet-paper', 'soap', 'hand-dryer'],
+                ratings: { overall: 8.2, cleanliness: 8, safety: 8, accessibility: 9 },
+                reviewCount: 28,
+                isSample: true
+            }
+        ];
         
-    } catch (error) {
-        console.error('❌ Error fetching businesses:', error);
-        showNotification('Error searching for businesses. Please try again.', 'error');
-        currentBusinesses = [];
+        currentBusinesses = sampleAtLocation;
+        showNotification('No businesses found via API. Showing sample data for this location.', 'warning');
+    } else {
+        currentBusinesses = uniqueBusinesses.slice(0, 20); // Limit to 20 results
+        showNotification(`Found ${currentBusinesses.length} businesses in this area`, 'success');
     }
     
     updateMapMarkers();
@@ -249,10 +304,19 @@ function generateDefaultRatings() {
 }
 
 // Categorize POI based on Mapbox data
-function categorizePOI(feature) {
+function categorizePOI(feature, searchTerm = '') {
     const name = (feature.text || '').toLowerCase();
     const placeName = (feature.place_name || '').toLowerCase();
     const category = (feature.properties?.category || '').toLowerCase();
+    const search = searchTerm.toLowerCase();
+    
+    // Use search term to help categorize
+    if (search.includes('gas')) return 'gas-station';
+    if (search.includes('coffee') || search.includes('starbucks')) return 'coffee-shop';
+    if (search.includes('restaurant') || search.includes('mcdonalds') || search.includes('subway')) return 'restaurant';
+    if (search.includes('hotel')) return 'hotel';
+    if (search.includes('mall') || search.includes('shopping')) return 'retail';
+    if (search.includes('walmart') || search.includes('target')) return 'retail';
     
     // Gas stations
     if (name.includes('shell') || name.includes('exxon') || name.includes('bp') || 
@@ -309,7 +373,7 @@ function categorizePOI(feature) {
 }
 
 // Get default amenities for POI
-function getDefaultAmenitiesForPOI(feature) {
+function getDefaultAmenitiesForPOI(feature, searchTerm = '') {
     const category = categorizePOI(feature);
     
     const amenityMap = {
@@ -330,7 +394,8 @@ function getDefaultAmenitiesForPOI(feature) {
 function removeDuplicateBusinesses(businesses) {
     const seen = new Set();
     return businesses.filter(business => {
-        const key = `${business.name}-${business.address}`;
+        // Create a more flexible duplicate key
+        const key = `${business.name.toLowerCase()}-${business.coordinates[0].toFixed(4)}-${business.coordinates[1].toFixed(4)}`;
         if (seen.has(key)) {
             return false;
         }
