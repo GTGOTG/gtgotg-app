@@ -207,12 +207,12 @@ async function searchBusinessesInLocation(coordinates) {
                             id: `mapbox-${feature.id || Math.random()}`,
                             name: feature.text || feature.place_name.split(',')[0],
                             category: categorizePOI(feature, businessType),
-                            address: feature.place_name,
-                            coordinates: feature.center,
+                            address: feature.place_name || `Near ${lat.toFixed(4)}, ${lng.toFixed(4)}`,
+                            coordinates: feature.center || [lng + (Math.random() - 0.5) * 0.01, lat + (Math.random() - 0.5) * 0.01],
                             distance: userLocation ? 
                                 calculateDistance(
-                                    { lng: userLocation[0], lat: userLocation[1] }, 
-                                    { lng: feature.center[0], lat: feature.center[1] }
+                            address: feature.place_name || `Near ${lat.toFixed(4)}, ${lng.toFixed(4)}`,
+                            coordinates: feature.center || [lng + (Math.random() - 0.5) * 0.01, lat + (Math.random() - 0.5) * 0.01],
                                 ) : calculateDistance(
                                     { lng: lng, lat: lat }, 
                                     { lng: feature.center[0], lat: feature.center[1] }
@@ -253,7 +253,7 @@ async function searchBusinessesInLocation(coordinates) {
                 name: 'Local Gas Station',
                 category: 'gas-station',
                 address: `Near ${lat.toFixed(4)}, ${lng.toFixed(4)}`,
-                coordinates: [lng + 0.001, lat + 0.001],
+                coordinates: [lng + (Math.random() - 0.5) * 0.02, lat + (Math.random() - 0.5) * 0.02],
                 distance: 0.1,
                 phone: '(555) 123-4567',
                 hours: '24/7',
@@ -268,7 +268,7 @@ async function searchBusinessesInLocation(coordinates) {
                 name: 'Downtown Coffee Shop',
                 category: 'coffee-shop',
                 address: `Near ${lat.toFixed(4)}, ${lng.toFixed(4)}`,
-                coordinates: [lng - 0.002, lat + 0.002],
+                coordinates: [lng + (Math.random() - 0.5) * 0.02, lat + (Math.random() - 0.5) * 0.02],
                 distance: 0.2,
                 phone: '(555) 234-5678',
                 hours: 'Mon-Fri: 6AM-8PM',
@@ -283,7 +283,7 @@ async function searchBusinessesInLocation(coordinates) {
         currentBusinesses = sampleAtLocation;
         showNotification('No businesses found via API. Showing sample data for this location.', 'warning');
     } else {
-        currentBusinesses = uniqueBusinesses.slice(0, 20); // Limit to 20 results
+                coordinates: [lng + (Math.random() - 0.5) * 0.02, lat + (Math.random() - 0.5) * 0.02],
         showNotification(`Found ${currentBusinesses.length} businesses in this area`, 'success');
     }
     
