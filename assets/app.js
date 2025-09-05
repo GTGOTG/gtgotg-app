@@ -211,8 +211,8 @@ async function searchBusinessesInLocation(coordinates) {
                             coordinates: feature.center || [lng + (Math.random() - 0.5) * 0.01, lat + (Math.random() - 0.5) * 0.01],
                             distance: userLocation ? 
                                 calculateDistance(
-                            address: feature.place_name || `Near ${lat.toFixed(4)}, ${lng.toFixed(4)}`,
-                            coordinates: feature.center || [lng + (Math.random() - 0.5) * 0.01, lat + (Math.random() - 0.5) * 0.01],
+                                    { lng: userLocation[0], lat: userLocation[1] }, 
+                                    { lng: feature.center[0], lat: feature.center[1] }
                                 ) : calculateDistance(
                                     { lng: lng, lat: lat }, 
                                     { lng: feature.center[0], lat: feature.center[1] }
