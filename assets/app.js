@@ -489,7 +489,6 @@ function initializeSearch() {
         // Add search suggestions
         searchInput.addEventListener('input', debounce(handleSearchInput, 300));
         searchInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
                 e.preventDefault();
                 performSearch();
             }
