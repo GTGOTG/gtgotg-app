@@ -191,7 +191,7 @@ async function searchBusinessesInLocation(coordinates) {
             const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(businessType)}.json?` +
                 `proximity=${lng},${lat}&` +
                 `bbox=${lng-0.1},${lat-0.1},${lng+0.1},${lat+0.1}&` +
-                `limit=10&` +
+                `limit=100&` +
                 `access_token=${MAPBOX_TOKEN}`;
             
             const response = await fetch(url);
