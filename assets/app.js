@@ -159,132 +159,33 @@ async function searchBusinessesInView() {
 }
  
 // Search for businesses in specific bounds
-async function searchBusinessesInLocation(coordinates) {
-    console.log(`🔍 Searching for businesses at coordinates: ${coordinates}`);
+async function searchBusinessesInLocation(coordinates, query = '') {
+    console.log(`🔍 Searching for businesses at coordinates: ${coordinates} with query: ${query}`);
     
     const [lng, lat] = coordinates;
-    console.log(`🔍 Searching for businesses near ${lat}, ${lng}`);
     
-    // Try multiple search approaches
-    let allBusinesses = [];
-    
-    // 1. Search for specific business types that definitely have restrooms
-    const businessTypes = [
-        'gas station',
-        'restaurant', 
-        'coffee shop',
-        'fast food',
-        'hotel',
-        'shopping mall',
-        'grocery store',
-        'walmart',
-        'target',
-        'mcdonalds',
-        'starbucks',
-        'subway'
-    ];
-    
-    for (const businessType of businessTypes) {
-        try {
-            console.log(`🔍 Searching for: ${businessType}`);
-            
-            const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(businessType)}.json?` +
-                `proximity=${lng},${lat}&` +
-                `bbox=${lng-0.1},${lat-0.1},${lng+0.1},${lat+0.1}&` +
-                `limit=100&` +
-                `access_token=${MAPBOX_TOKEN}`;
-            
-            const response = await fetch(url);
-            
-            if (response.ok) {
-                const data = await response.json();
-                console.log(`📊 Found ${data.features?.length || 0} results for ${businessType}`);
-                
-                if (data.features && data.features.length > 0) {
-                    const businesses = data.features
-                        .filter(feature => feature.center && feature.text)
-                        .map(feature => ({
-                            id: `mapbox-${feature.id || Math.random()}`,
-                            name: feature.text || feature.place_name.split(',')[0],
-                            category: categorizePOI(feature, businessType),
-                            address: feature.place_name || `Near ${lat.toFixed(4)}, ${lng.toFixed(4)}`,
-                            coordinates: feature.center || [lng + (Math.random() - 0.5) * 0.01, lat + (Math.random() - 0.5) * 0.01],
-                            distance: userLocation ? 
-                                calculateDistance(
-                                    { lng: userLocation[0], lat: userLocation[1] }, 
-                                    { lng: feature.center[0], lat: feature.center[1] }
-                                ) : calculateDistance(
-                                    { lng: lng, lat: lat }, 
-                                    { lng: feature.center[0], lat: feature.center[1] }
-                                ),
-                            phone: feature.properties?.phone || 'Call for info',
-                            hours: 'Hours vary',
-                            bathroomTypes: ['mens', 'womens'],
-                            amenities: getDefaultAmenitiesForPOI(feature, businessType),
-                            ratings: generateDefaultRatings(),
-                            reviewCount: Math.floor(Math.random() * 50) + 5,
-                            isMapboxPOI: true
-                        }));
-                    
-                    allBusinesses.push(...businesses);
-                }
-            }
-            
-            // Small delay to avoid rate limiting
-            await new Promise(resolve => setTimeout(resolve, 100));
-            
-        } catch (error) {
-            console.error(`❌ Error searching for ${businessType}:`, error);
+    try {
+        let url = `/api/businesses?latitude=${lat}&longitude=${lng}`;
+        if (query) {
+            url += `&query=${encodeURIComponent(query)}`;
         }
-    }
-    
-    // Remove duplicates based on name and location
-    const uniqueBusinesses = removeDuplicateBusinesses(allBusinesses);
-    
-    console.log(`✅ Found ${uniqueBusinesses.length} unique businesses total`);
-    
-    if (uniqueBusinesses.length === 0) {
-        console.log('❌ No businesses found, creating sample data for this location');
+
+        const response = await fetch(url);
         
-        // Create sample businesses positioned at the searched location
-        const sampleAtLocation = [
-            {
-                id: 'sample-local-1',
-                name: 'Local Gas Station',
-                category: 'gas-station',
-                address: `Near ${lat.toFixed(4)}, ${lng.toFixed(4)}`,
-                coordinates: [lng + (Math.random() - 0.5) * 0.02, lat + (Math.random() - 0.5) * 0.02],
-                distance: 0.1,
-                phone: '(555) 123-4567',
-                hours: '24/7',
-                bathroomTypes: ['mens', 'womens', 'accessible'],
-                amenities: ['toilet-paper', 'soap', 'paper-towels'],
-                ratings: { overall: 7.5, cleanliness: 7, safety: 8, accessibility: 7 },
-                reviewCount: 12,
-                isSample: true
-            },
-            {
-                id: 'sample-local-2',
-                name: 'Downtown Coffee Shop',
-                category: 'coffee-shop',
-                address: `Near ${lat.toFixed(4)}, ${lng.toFixed(4)}`,
-                coordinates: [lng + (Math.random() - 0.5) * 0.02, lat + (Math.random() - 0.5) * 0.02],
-                distance: 0.2,
-                phone: '(555) 234-5678',
-                hours: 'Mon-Fri: 6AM-8PM',
-                bathroomTypes: ['neutral', 'accessible'],
-                amenities: ['toilet-paper', 'soap', 'hand-dryer'],
-                ratings: { overall: 8.2, cleanliness: 8, safety: 8, accessibility: 9 },
-                reviewCount: 28,
-                isSample: true
-            }
-        ];
-        
-        currentBusinesses = sampleAtLocation;
-        showNotification('Unable to connect to business database. Showing sample data for this location.', 'warning');
-    } else {
-        currentBusinesses = uniqueBusinesses;
-        showNotification(`Found ${currentBusinesses.length} businesses in this area`, 'success');
+        if (response.ok) {
+            const data = await response.json();
+            currentBusinesses = data;
+            console.log(`✅ Found ${currentBusinesses.length} unique businesses total from backend`);
+            showNotification(`Found ${currentBusinesses.length} businesses in this area`, 'success');
+        } else {
+            console.error('❌ Error fetching businesses from backend:', response.statusText);
+            showNotification('Error fetching businesses. Showing sample data.', 'error');
+            currentBusinesses = sampleBusinesses; // Fallback to sample data
+        }
+    } catch (error) {
+        console.error('❌ Error searching businesses:', error);
+        showNotification('Error searching businesses. Showing sample data.', 'error');
+        currentBusinesses = sampleBusinesses; // Fallback to sample data
     }
     
     updateMapMarkers();
@@ -416,47 +317,49 @@ async function searchNearbyBusinesses() {
 
 // Perform search based on user input
 async function performSearch() {
-    const searchInput = document.getElementById('searchInput');
+    const searchInput = document.getElementById("searchInput");
     if (!searchInput) {
-        console.error('Search input not found');
+        console.error("Search input not found");
         return;
     }
     
     const query = searchInput.value.trim();
     
     if (!query) {
-        showNotification('Please enter a search term', 'warning');
+        showNotification("Please enter a search term", "warning");
         return;
     }
     
     console.log(`🔍 Performing search for: "${query}"`);
     currentSearchQuery = query;
     
-    try {
-        showNotification('Searching...', 'info');
-        
-        // First, geocode the search query to get location
-        const location = await geocodeSearch(query);
-        
-        if (location) {
-            console.log(`📍 Found location: ${location.name} at`, location.coordinates);
-            
-            // Move map to the location
-            map.flyTo({
-                center: location.coordinates,
-                zoom: 12,
-                duration: 2000
-            });
-            
-            // Search for businesses immediately in the location
-            await searchBusinessesInLocation(location.coordinates);
-        } else {
-            showNotification(`No location found for "${query}". Please try a different search term.`, 'warning');
+    // Use the new searchBusinessesInLocation with the query
+    if (userLocation) {
+        await searchBusinessesInLocation(userLocation, query);
+    } else {
+        // If user location is not available, try to geocode the query
+        try {
+            const geocodeUrl = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?access_token=${MAPBOX_TOKEN}`;
+            const response = await fetch(geocodeUrl);
+            const data = await response.json();
+            if (data.features && data.features.length > 0) {
+                const [lng, lat] = data.features[0].center;
+                await searchBusinessesInLocation([lng, lat], query);
+            } else {
+                showNotification("Could not find location for your search query. Showing sample data.", "warning");
+                currentBusinesses = sampleBusinesses;
+                updateMapMarkers();
+                renderBusinesses(currentBusinesses);
+                updateSearchResultsInfo();
+            }
+        } catch (error) {
+            console.error("Error geocoding search query:", error);
+            showNotification("Error geocoding search query. Showing sample data.", "error");
+            currentBusinesses = sampleBusinesses;
+            updateMapMarkers();
+            renderBusinesses(currentBusinesses);
+            updateSearchResultsInfo();
         }
-        
-    } catch (error) {
-        console.error('❌ Search error:', error);
-        showNotification('Search failed. Please try again.', 'error');
     }
 }
 
