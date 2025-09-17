@@ -605,11 +605,26 @@
         
         // Initialize map
         function initMap() {
-            map = L.map('map').setView([39.8283, -98.5795], 4); // Center of USA
-            
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap contributors'
-            }).addTo(map);
+            try {
+                // Wait for Leaflet to be fully loaded
+                if (typeof L === 'undefined') {
+                    console.error('Leaflet library not loaded');
+                    setTimeout(initMap, 100);
+                    return;
+                }
+                
+                map = L.map('map').setView([39.8283, -98.5795], 4); // Center of USA
+                
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '© OpenStreetMap contributors'
+                }).addTo(map);
+                
+                console.log('Map initialized successfully');
+            } catch (error) {
+                console.error('Error initializing map:', error);
+                // Fallback: show a message instead of map
+                document.getElementById('map').innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 100%; background: #f0f0f0; color: #666;">Map loading... Please refresh if this persists.</div>';
+            }
         }
 
         // Restroom categories with truck stops priority
@@ -822,64 +837,91 @@
         }
 
         function updateMap(businesses, centerLat, centerLng) {
-            // Clear existing markers
-            markers.forEach(marker => map.removeLayer(marker));
-            markers = [];
-
-            // Set map center and zoom
-            map.setView([centerLat, centerLng], 10);
-
-            // Add markers for businesses
-            businesses.forEach(business => {
-                const coords = business.geometry.coordinates;
-                const props = business.properties;
+            try {
+                if (!map) {
+                    console.warn('Map not initialized, skipping update');
+                    return;
+                }
                 
-                let icon = '🚽';
-                if (business.isTruckStop) icon = '🚛';
-                else if (props.categories?.some(cat => cat.includes('gas_station'))) icon = '⛽';
-                else if (props.categories?.some(cat => cat.includes('restaurant'))) icon = '🍔';
-                else if (props.categories?.some(cat => cat.includes('hotel'))) icon = '🏨';
+                // Clear existing markers
+                markers.forEach(marker => {
+                    try {
+                        map.removeLayer(marker);
+                    } catch (e) {
+                        console.warn('Error removing marker:', e);
+                    }
+                });
+                markers = [];
 
-                const marker = L.marker([coords[1], coords[0]], {
-                    icon: L.divIcon({
-                        html: `<div style="background: white; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border: 2px solid #667eea; font-size: 16px;">${icon}</div>`,
-                        className: 'custom-marker',
-                        iconSize: [30, 30],
-                        iconAnchor: [15, 15]
-                    })
-                }).addTo(map);
+                // Set map center and zoom
+                map.setView([centerLat, centerLng], 10);
 
-                marker.bindPopup(`
-                    <div style="min-width: 200px;">
-                        <h3>${props.name}</h3>
-                        <p>${props.formatted}</p>
-                        <p><strong>Distance:</strong> ${business.distance.toFixed(2)} km</p>
-                        <p><strong>Restroom Probability:</strong> ${business.restroomProbability}%</p>
-                        ${business.isTruckStop ? '<p><strong>🚛 Truck Stop/Rest Area</strong></p>' : ''}
-                        <button onclick="reviewBusiness('${props.name}', '${props.formatted}')" style="background: #667eea; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; margin-top: 10px;">Rate Restroom</button>
-                    </div>
-                `);
+                // Add markers for businesses
+                businesses.forEach(business => {
+                    try {
+                        const coords = business.geometry.coordinates;
+                        const props = business.properties;
+                        
+                        let icon = '🚽';
+                        if (business.isTruckStop) icon = '🚛';
+                        else if (props.categories?.some(cat => cat.includes('gas_station'))) icon = '⛽';
+                        else if (props.categories?.some(cat => cat.includes('restaurant'))) icon = '🍔';
+                        else if (props.categories?.some(cat => cat.includes('hotel'))) icon = '🏨';
 
-                markers.push(marker);
-            });
+                        const marker = L.marker([coords[1], coords[0]], {
+                            icon: L.divIcon({
+                                html: `<div style="background: white; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border: 2px solid #667eea; font-size: 16px;">${icon}</div>`,
+                                className: 'custom-marker',
+                                iconSize: [30, 30],
+                                iconAnchor: [15, 15]
+                            })
+                        }).addTo(map);
+
+                        marker.bindPopup(`
+                            <div style="min-width: 200px;">
+                                <h3>${props.name}</h3>
+                                <p>${props.formatted}</p>
+                                <p><strong>Distance:</strong> ${business.distance.toFixed(2)} km</p>
+                                <p><strong>Restroom Probability:</strong> ${business.restroomProbability}%</p>
+                                ${business.isTruckStop ? '<p><strong>🚛 Truck Stop/Rest Area</strong></p>' : ''}
+                                <button onclick="reviewBusiness('${props.name}', '${props.formatted}')" style="background: #667eea; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; margin-top: 10px;">Rate Restroom</button>
+                            </div>
+                        `);
+
+                        markers.push(marker);
+                    } catch (error) {
+                        console.warn('Error adding marker for business:', business.properties?.name, error);
+                    }
+                });
+                
+                console.log(`Added ${markers.length} markers to map`);
+            } catch (error) {
+                console.error('Error updating map:', error);
+            }
         }
 
         function toggleMapSize() {
-            const mapContainer = document.getElementById('map');
-            const expandText = document.getElementById('expandText');
-            
-            if (mapContainer.classList.contains('expanded')) {
-                mapContainer.classList.remove('expanded');
-                expandText.textContent = '🔍 Expand';
-            } else {
-                mapContainer.classList.add('expanded');
-                expandText.textContent = '📉 Collapse';
+            try {
+                const mapContainer = document.getElementById('map');
+                const expandText = document.getElementById('expandText');
+                
+                if (mapContainer.classList.contains('expanded')) {
+                    mapContainer.classList.remove('expanded');
+                    expandText.textContent = '🔍 Expand';
+                } else {
+                    mapContainer.classList.add('expanded');
+                    expandText.textContent = '📉 Collapse';
+                }
+                
+                // Refresh map after size change
+                setTimeout(() => {
+                    if (map) {
+                        map.invalidateSize();
+                    }
+                }, 300);
+            } catch (error) {
+                console.error('Error toggling map size:', error);
             }
-            
-            // Refresh map after size change
-            setTimeout(() => {
-                map.invalidateSize();
-            }, 300);
         }
 
         function displayResults(businesses, searchLocation) {
@@ -1096,8 +1138,11 @@
 
         // Initialize app
         window.addEventListener('load', () => {
-            initMap();
-            showSuccess('✅ Ready to find restrooms! Truck stops and rest areas prioritized for travelers.');
+            // Wait a bit for all resources to load
+            setTimeout(() => {
+                initMap();
+                showSuccess('✅ Ready to find restrooms! Truck stops and rest areas prioritized for travelers.');
+            }, 500);
         });
 
         // Close modals when clicking outside
