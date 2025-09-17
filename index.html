@@ -4,6 +4,30 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Got To Go On The Go - Find Clean Restrooms</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="shortcut icon" type="image/png" href="favicon.png">
+    
+    <!-- Meta Tags for SEO and Social Sharing -->
+    <meta name="description" content="Find clean, safe restrooms anywhere in the USA. Specializing in truck stops, rest areas, gas stations, and traveler-friendly locations.">
+    <meta name="keywords" content="restroom finder, bathroom locator, truck stops, rest areas, travel, clean restrooms, GTGOTG">
+    <meta name="author" content="GTGOTG Team">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://gtgotg.com">
+    <meta property="og:title" content="Got To Go On The Go - Find Clean Restrooms">
+    <meta property="og:description" content="Find clean, safe restrooms anywhere in the USA. Truck stops, rest areas, and more!">
+    <meta property="og:image" content="thumbnail.png">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://gtgotg.com">
+    <meta property="twitter:title" content="Got To Go On The Go - Find Clean Restrooms">
+    <meta property="twitter:description" content="Find clean, safe restrooms anywhere in the USA. Truck stops, rest areas, and more!">
+    <meta property="twitter:image" content="thumbnail.png">
+    
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         * {
@@ -31,15 +55,41 @@
             color: white;
         }
 
-        .header h1 {
-            font-size: 2.5rem;
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
             margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        .header-logo {
+            height: 80px;
+            width: auto;
+            flex-shrink: 0;
+        }
+
+        .header-text {
+            text-align: left;
+            flex-grow: 1;
+            min-width: 300px;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 2.5rem;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
         }
 
         .header p {
-            font-size: 1.2rem;
+            margin: 0;
             opacity: 0.9;
+        }
+
+        .header-subtitle {
+            font-size: 1rem;
+            opacity: 0.8;
         }
 
         .admin-link {
@@ -431,8 +481,22 @@
                 padding: 10px;
             }
             
+            .header-content {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .header-text {
+                text-align: center;
+                min-width: auto;
+            }
+            
             .header h1 {
                 font-size: 2rem;
+            }
+            
+            .header-logo {
+                height: 60px;
             }
             
             .business-grid {
@@ -450,8 +514,14 @@
         <a href="#" class="admin-link" onclick="showAdminLogin()">🔐 Admin</a>
         
         <div class="header">
-            <h1>🚽 Got To Go On The Go</h1>
-            <p>Find clean, safe restrooms anywhere in the USA - Truck Stops, Rest Areas & More!</p>
+            <div class="header-content">
+                <img src="logo.png" alt="GTGOTG Logo" class="header-logo">
+                <div class="header-text">
+                    <h1>Got To Go On The Go</h1>
+                    <p style="font-size: 1.2rem;">Find clean, safe restrooms anywhere in the USA</p>
+                </div>
+            </div>
+            <p class="header-subtitle">Truck Stops, Rest Areas & More!</p>
         </div>
 
         <div class="main-content">
