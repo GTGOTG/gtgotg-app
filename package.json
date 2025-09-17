@@ -1,0 +1,34 @@
+{
+  "name": "gtgotg-restroom-finder",
+  "version": "1.0.0",
+  "description": "Got To Go On The Go - Smart Restroom Finder for Travelers",
+  "main": "index.html",
+  "scripts": {
+    "start": "serve -s .",
+    "build": "echo 'Static site - no build needed'",
+    "dev": "serve -s . -p 3000"
+  },
+  "keywords": [
+    "restroom",
+    "finder",
+    "travel",
+    "truck-stops",
+    "rest-areas",
+    "bathroom",
+    "reviews"
+  ],
+  "author": "GTGOTG Team",
+  "license": "MIT",
+  "dependencies": {
+    "serve": "^14.2.1"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gtgotg/restroom-finder.git"
+  },
+  "homepage": "https://gtgotg.com"
+}
+
