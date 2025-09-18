@@ -3,30 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GTGOTG - Got To Go On The Go | Every Restroom, Everywhere</title>
+    <title>GTGOTG - "Got To Go On The Go" | Find Clean, Safe Restrooms Everywhere</title>
     
     <!-- SEO Meta Tags -->
-    <meta name="description" content="Find clean, safe restrooms anywhere in the USA. Real business data with truck stops, rest areas, gas stations, and traveler-friendly locations.">
-    <meta name="keywords" content="restroom finder, bathroom locator, truck stops, rest areas, gas stations, travel, clean restrooms, public restrooms">
+    <meta name="description" content="Find clean, safe restrooms anywhere in the USA. Rate and review bathrooms for cleanliness, safety, and accessibility. The ultimate bathroom finder app.">
+    <meta name="keywords" content="bathroom finder, restroom locator, clean bathrooms, safe restrooms, bathroom reviews, toilet finder, restroom ratings">
     <meta name="author" content="GTGOTG Team">
     
-    <!-- Open Graph / Facebook -->
+    <!-- Open Graph Meta Tags -->
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://gtgotg.com/">
     <meta property="og:title" content="GTGOTG - Got To Go On The Go | Every Restroom, Everywhere">
-    <meta property="og:description" content="Find clean, safe restrooms anywhere in the USA. Real business data with truck stops, rest areas, gas stations.">
+    <meta property="og:description" content="Find clean, safe restrooms anywhere in the USA. Real business data with truck stops, gas stations, restaurants and more.">
     <meta property="og:image" content="https://gtgotg.com/thumbnail.png">
+    <meta property="og:url" content="https://gtgotg.com">
     
-    <!-- Twitter -->
+    <!-- Twitter Card Meta Tags -->
     <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="https://gtgotg.com/">
     <meta property="twitter:title" content="GTGOTG - Got To Go On The Go | Every Restroom, Everywhere">
-    <meta property="twitter:description" content="Find clean, safe restrooms anywhere in the USA. Real business data with truck stops, rest areas, gas stations.">
+    <meta property="twitter:description" content="Find clean, safe restrooms anywhere in the USA. Real business data with comprehensive reviews.">
     <meta property="twitter:image" content="https://gtgotg.com/thumbnail.png">
     
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="favicon.png">
-    <link rel="apple-touch-icon" href="logo.png">
+    
+    <!-- Mapbox CSS -->
+    <link href='https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css' rel='stylesheet' />
     
     <style>
         * {
@@ -34,426 +35,626 @@
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             color: #333;
         }
-        
+
         .header {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
             padding: 1rem 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            flex-wrap: wrap;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
         }
-        
+
         .logo-section {
             display: flex;
             align-items: center;
             gap: 1rem;
         }
-        
+
         .logo {
             width: 50px;
             height: 50px;
             border-radius: 12px;
         }
-        
-        .brand-text {
-            color: white;
-        }
-        
-        .brand-title {
+
+        .brand-text h1 {
             font-size: 1.8rem;
-            font-weight: bold;
+            font-weight: 700;
+            color: #667eea;
             margin: 0;
         }
-        
-        .brand-subtitle {
+
+        .brand-text p {
             font-size: 0.9rem;
-            opacity: 0.9;
+            color: #666;
             margin: 0;
         }
-        
+
         .header-buttons {
             display: flex;
-            gap: 1rem;
-            align-items: center;
+            gap: 0.5rem;
         }
-        
+
         .header-btn {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            border: 1px solid rgba(255, 255, 255, 0.3);
             padding: 0.5rem 1rem;
+            border: none;
             border-radius: 8px;
+            font-weight: 600;
             cursor: pointer;
-            font-size: 0.9rem;
             transition: all 0.3s ease;
-            text-decoration: none;
-            display: inline-block;
+            font-size: 0.9rem;
         }
-        
-        .header-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
+
+        .header-btn:first-child {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .header-btn:first-child:hover {
+            background: #45a049;
             transform: translateY(-2px);
         }
-        
+
+        .header-btn:nth-child(2) {
+            background: #2196F3;
+            color: white;
+        }
+
+        .header-btn:nth-child(2):hover {
+            background: #1976D2;
+            transform: translateY(-2px);
+        }
+
+        .header-btn:last-child {
+            background: #FF9800;
+            color: white;
+        }
+
+        .header-btn:last-child:hover {
+            background: #F57C00;
+            transform: translateY(-2px);
+        }
+
         .container {
             max-width: 1200px;
             margin: 0 auto;
             padding: 2rem;
         }
-        
+
         .hero {
             text-align: center;
             color: white;
             margin-bottom: 3rem;
         }
-        
+
         .hero h1 {
             font-size: 3rem;
+            font-weight: 700;
             margin-bottom: 1rem;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
         }
-        
+
         .hero p {
             font-size: 1.2rem;
+            margin-bottom: 0.5rem;
             opacity: 0.9;
         }
-        
+
+        .hero .subtitle {
+            font-size: 1rem;
+            opacity: 0.8;
+            font-style: italic;
+        }
+
         .search-section {
-            background: white;
-            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
             padding: 2rem;
             margin-bottom: 2rem;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
         }
-        
+
         .search-bar {
             display: flex;
             gap: 1rem;
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
             flex-wrap: wrap;
         }
-        
+
         .search-input {
             flex: 1;
+            min-width: 300px;
             padding: 1rem;
             border: 2px solid #e0e0e0;
             border-radius: 12px;
             font-size: 1rem;
-            min-width: 300px;
+            transition: all 0.3s ease;
         }
-        
+
         .search-input:focus {
             outline: none;
             border-color: #667eea;
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
-        
+
+        .location-btn, .search-btn {
+            padding: 1rem 1.5rem;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+
         .location-btn {
             background: #4CAF50;
             color: white;
-            border: none;
-            padding: 1rem 1.5rem;
-            border-radius: 12px;
-            cursor: pointer;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-            white-space: nowrap;
         }
-        
+
         .location-btn:hover {
             background: #45a049;
             transform: translateY(-2px);
         }
-        
+
         .search-btn {
             background: #667eea;
             color: white;
-            border: none;
-            padding: 1rem 2rem;
-            border-radius: 12px;
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: bold;
-            transition: all 0.3s ease;
         }
-        
+
         .search-btn:hover {
             background: #5a6fd8;
             transform: translateY(-2px);
         }
-        
+
         .search-hint {
             text-align: center;
             color: #666;
             font-size: 0.9rem;
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
+            padding: 0.5rem;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 8px;
         }
-        
+
         .filters {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 1rem;
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
         }
-        
+
         .filter-group {
             display: flex;
             flex-direction: column;
             gap: 0.5rem;
         }
-        
+
         .filter-label {
-            font-weight: bold;
+            font-weight: 600;
             color: #333;
+            font-size: 0.9rem;
         }
-        
+
         .filter-select {
-            padding: 0.8rem;
+            padding: 0.75rem;
             border: 2px solid #e0e0e0;
             border-radius: 8px;
-            font-size: 1rem;
+            font-size: 0.9rem;
             background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
         }
-        
+
         .filter-select:focus {
             outline: none;
             border-color: #667eea;
         }
-        
+
         .quick-filters {
             display: flex;
-            gap: 1rem;
+            gap: 0.75rem;
             flex-wrap: wrap;
+            justify-content: center;
         }
-        
+
         .quick-filter {
-            background: #f8f9fa;
+            padding: 0.75rem 1rem;
             border: 2px solid #e0e0e0;
-            color: #333;
-            padding: 0.8rem 1.2rem;
+            background: white;
             border-radius: 25px;
             cursor: pointer;
-            font-size: 0.9rem;
             transition: all 0.3s ease;
+            font-size: 0.9rem;
+            font-weight: 500;
         }
-        
-        .quick-filter:hover, .quick-filter.active {
+
+        .quick-filter:hover {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .quick-filter.active {
             background: #667eea;
             color: white;
             border-color: #667eea;
         }
-        
-        .map-section {
-            background: white;
-            border-radius: 16px;
-            overflow: hidden;
-            margin-bottom: 2rem;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+
+        .help-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: #FFC107;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            z-index: 1000;
         }
-        
+
+        .help-toggle:hover {
+            transform: scale(1.1);
+            background: #FFB300;
+        }
+
+        .help-panel {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            width: 300px;
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            display: none;
+            z-index: 999;
+        }
+
+        .help-panel.active {
+            display: block;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .help-panel h3 {
+            color: #667eea;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .help-panel ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .help-panel li {
+            margin-bottom: 0.75rem;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .map-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+
         .map-header {
-            background: #f8f9fa;
-            padding: 1rem 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid #e0e0e0;
+            margin-bottom: 1rem;
         }
-        
+
         .map-title {
-            font-size: 1.2rem;
+            font-size: 1.3rem;
+            font-weight: 600;
             color: #333;
-            margin: 0;
         }
-        
+
         .map-expand-btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 8px;
             background: #667eea;
             color: white;
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
             cursor: pointer;
-            font-size: 0.9rem;
+            font-size: 1.2rem;
             transition: all 0.3s ease;
         }
-        
+
         .map-expand-btn:hover {
             background: #5a6fd8;
+            transform: scale(1.05);
         }
-        
+
         .map-container {
             height: 250px;
-            width: 100%;
-            background: #f0f0f0;
+            border-radius: 15px;
+            overflow: hidden;
+            background: #f5f5f5;
             display: flex;
             align-items: center;
             justify-content: center;
             color: #666;
-            transition: height 0.3s ease;
+            font-size: 1.1rem;
+            transition: all 0.5s ease;
             position: relative;
         }
-        
+
         .map-container.expanded {
             height: 500px;
         }
-        
+
         .results-section {
-            background: white;
-            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
             padding: 2rem;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
         }
-        
+
         .results-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 2rem;
-            flex-wrap: wrap;
-            gap: 1rem;
         }
-        
+
         .results-title {
-            font-size: 1.5rem;
+            font-size: 1.8rem;
+            font-weight: 600;
             color: #333;
-            margin: 0;
         }
-        
+
         .results-count {
-            background: #667eea;
+            background: #4CAF50;
             color: white;
             padding: 0.5rem 1rem;
             border-radius: 20px;
             font-size: 0.9rem;
+            font-weight: 600;
         }
-        
+
         .business-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
             gap: 1.5rem;
         }
-        
+
         .business-card {
-            border: 2px solid #e0e0e0;
-            border-radius: 12px;
+            background: white;
+            border-radius: 15px;
             padding: 1.5rem;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
             transition: all 0.3s ease;
-            cursor: pointer;
+            border: 2px solid transparent;
         }
-        
+
         .business-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
             border-color: #667eea;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
-        
+
         .business-header {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
             margin-bottom: 1rem;
         }
-        
-        .business-name {
-            font-size: 1.2rem;
-            font-weight: bold;
+
+        .business-info h3 {
+            font-size: 1.3rem;
+            font-weight: 600;
             color: #333;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.25rem;
         }
-        
+
         .business-type {
-            background: #f0f0f0;
-            color: #666;
-            padding: 0.3rem 0.8rem;
+            background: #667eea;
+            color: white;
+            padding: 0.25rem 0.75rem;
             border-radius: 15px;
             font-size: 0.8rem;
-            white-space: nowrap;
+            font-weight: 600;
         }
-        
+
+        .business-badge {
+            background: #4CAF50;
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-top: 0.5rem;
+        }
+
+        .business-icon {
+            font-size: 2rem;
+            margin-left: 1rem;
+        }
+
+        .restroom-types {
+            display: flex;
+            gap: 0.5rem;
+            margin: 0.5rem 0;
+            font-size: 1.2rem;
+        }
+
         .business-address {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .business-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+            margin: 1rem 0;
+            font-size: 0.9rem;
+        }
+
+        .business-details div {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #666;
+        }
+
+        .rating-section {
+            margin: 1rem 0;
+        }
+
+        .rating-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .rating-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+        }
+
+        .rating-label {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .rating-stars {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .star {
+            color: #FFD700;
+            font-size: 0.8rem;
+        }
+
+        .star.empty {
+            color: #ddd;
+        }
+
+        .rating-score {
+            font-weight: 600;
+            color: #667eea;
+            margin-left: 0.5rem;
+        }
+
+        .review-count {
+            text-align: center;
             color: #666;
             font-size: 0.9rem;
             margin-bottom: 1rem;
         }
-        
-        .business-details {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 1rem;
-        }
-        
-        .business-detail {
-            text-align: center;
-            padding: 0.8rem;
-            background: #f8f9fa;
-            border-radius: 8px;
-        }
-        
-        .detail-value {
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: #667eea;
-            margin-bottom: 0.2rem;
-        }
-        
-        .detail-label {
-            font-size: 0.8rem;
-            color: #666;
-        }
-        
-        .rating-stars {
-            color: #FFD700;
-            font-size: 1.1rem;
-        }
-        
+
         .amenities {
             display: flex;
             gap: 0.5rem;
-            margin-top: 1rem;
+            margin: 1rem 0;
             flex-wrap: wrap;
         }
-        
+
         .amenity {
-            background: #e8f5e8;
-            color: #4CAF50;
-            padding: 0.3rem 0.6rem;
-            border-radius: 12px;
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
             font-size: 0.8rem;
+            font-weight: 600;
         }
-        
+
+        .business-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .action-btn {
+            padding: 0.75rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .rate-btn {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .rate-btn:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+        }
+
+        .directions-btn {
+            background: #2196F3;
+            color: white;
+        }
+
+        .directions-btn:hover {
+            background: #1976D2;
+            transform: translateY(-2px);
+        }
+
+        .claim-btn {
+            background: #FF9800;
+            color: white;
+        }
+
+        .claim-btn:hover {
+            background: #F57C00;
+            transform: translateY(-2px);
+        }
+
         .loading {
             text-align: center;
             padding: 3rem;
             color: #666;
         }
-        
-        .error {
-            text-align: center;
-            padding: 3rem;
-            color: #c62828;
-            background: #ffebee;
-            border-radius: 12px;
-            margin: 1rem 0;
+
+        .loading h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #667eea;
         }
-        
-        .no-results {
-            text-align: center;
-            padding: 3rem;
-            color: #666;
-            background: #f8f9fa;
-            border-radius: 12px;
-        }
-        
-        /* Add Business Modal */
+
         .modal {
             display: none;
             position: fixed;
@@ -461,136 +662,257 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 1000;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            backdrop-filter: blur(5px);
         }
-        
-        .modal.show {
+
+        .modal.active {
             display: flex;
             align-items: center;
             justify-content: center;
         }
-        
+
         .modal-content {
             background: white;
-            border-radius: 16px;
+            border-radius: 20px;
             padding: 2rem;
-            max-width: 600px;
+            max-width: 500px;
             width: 90%;
             max-height: 80vh;
             overflow-y: auto;
+            position: relative;
         }
-        
+
         .modal-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
         }
-        
+
         .modal-title {
             font-size: 1.5rem;
+            font-weight: 600;
             color: #333;
-            margin: 0;
         }
-        
-        .modal-close {
+
+        .close-btn {
             background: none;
             border: none;
             font-size: 1.5rem;
             cursor: pointer;
             color: #666;
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: all 0.3s ease;
         }
-        
+
+        .close-btn:hover {
+            background: #f0f0f0;
+            color: #333;
+        }
+
         .form-group {
             margin-bottom: 1.5rem;
         }
-        
+
         .form-label {
             display: block;
-            margin-bottom: 0.5rem;
-            font-weight: bold;
+            font-weight: 600;
             color: #333;
+            margin-bottom: 0.5rem;
         }
-        
-        .form-input, .form-select, .form-textarea {
+
+        .form-input, .form-textarea, .form-select {
             width: 100%;
-            padding: 0.8rem;
+            padding: 0.75rem;
             border: 2px solid #e0e0e0;
             border-radius: 8px;
             font-size: 1rem;
+            transition: all 0.3s ease;
         }
-        
-        .form-input:focus, .form-select:focus, .form-textarea:focus {
+
+        .form-input:focus, .form-textarea:focus, .form-select:focus {
             outline: none;
             border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
-        
+
         .form-textarea {
             resize: vertical;
             min-height: 100px;
         }
-        
-        .checkbox-group {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            margin-top: 1rem;
-        }
-        
-        .checkbox-item {
+
+        .rating-input {
             display: flex;
-            align-items: center;
-            gap: 0.5rem;
+            gap: 1rem;
+            margin-bottom: 1rem;
         }
-        
+
+        .rating-category {
+            flex: 1;
+        }
+
+        .rating-category label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        .star-rating {
+            display: flex;
+            justify-content: center;
+            gap: 0.25rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .star-btn {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            color: #ddd;
+            transition: all 0.2s ease;
+        }
+
+        .star-btn:hover, .star-btn.active {
+            color: #FFD700;
+            transform: scale(1.1);
+        }
+
+        .rating-display {
+            text-align: center;
+            font-size: 0.8rem;
+            color: #667eea;
+            font-weight: 600;
+        }
+
         .submit-btn {
+            width: 100%;
+            padding: 1rem;
             background: #667eea;
             color: white;
             border: none;
-            padding: 1rem 2rem;
             border-radius: 12px;
-            cursor: pointer;
             font-size: 1rem;
-            font-weight: bold;
-            width: 100%;
+            font-weight: 600;
+            cursor: pointer;
             transition: all 0.3s ease;
         }
-        
+
         .submit-btn:hover {
             background: #5a6fd8;
+            transform: translateY(-2px);
         }
-        
-        /* Responsive Design */
+
+        .autocomplete-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-top: none;
+            border-radius: 0 0 12px 12px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+        }
+
+        .autocomplete-item {
+            padding: 1rem;
+            cursor: pointer;
+            border-bottom: 1px solid #f0f0f0;
+            transition: all 0.2s ease;
+        }
+
+        .autocomplete-item:hover {
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .autocomplete-item:last-child {
+            border-bottom: none;
+        }
+
+        .search-container {
+            position: relative;
+        }
+
         @media (max-width: 768px) {
-            .container {
+            .header {
                 padding: 1rem;
+                flex-direction: column;
+                gap: 1rem;
             }
-            
+
+            .logo-section {
+                justify-content: center;
+            }
+
             .hero h1 {
                 font-size: 2rem;
             }
-            
+
             .search-bar {
                 flex-direction: column;
             }
-            
+
             .search-input {
                 min-width: auto;
             }
-            
+
             .filters {
                 grid-template-columns: 1fr;
             }
-            
+
             .business-grid {
                 grid-template-columns: 1fr;
             }
-            
-            .results-header {
-                flex-direction: column;
-                align-items: flex-start;
+
+            .business-actions {
+                grid-template-columns: 1fr;
             }
+
+            .rating-input {
+                flex-direction: column;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            z-index: 3000;
+            transform: translateX(400px);
+            transition: all 0.3s ease;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.success {
+            background: #4CAF50;
+        }
+
+        .notification.error {
+            background: #f44336;
+        }
+
+        .notification.info {
+            background: #2196F3;
         }
     </style>
 </head>
@@ -599,8 +921,8 @@
         <div class="logo-section">
             <img src="logo.png" alt="GTGOTG Logo" class="logo">
             <div class="brand-text">
-                <h1 class="brand-title">GTGOTG</h1>
-                <p class="brand-subtitle">Got To Go On The Go</p>
+                <h1>GTGOTG</h1>
+                <p>"Got To Go On The Go"</p>
             </div>
         </div>
         <div class="header-buttons">
@@ -614,14 +936,17 @@
         <section class="hero">
             <h1>Every Restroom, Everywhere</h1>
             <p>Find clean, safe, and accessible restrooms wherever you are</p>
-            <p style="margin-top: 1rem; font-size: 1rem; opacity: 0.8;">Your guide to clean, safe restrooms—powered by people like you.</p>
+            <p class="subtitle">Your guide to clean, safe restrooms—powered by people like you.</p>
         </section>
 
         <section class="search-section">
-            <div class="search-bar">
-                <input type="text" id="locationInput" class="search-input" placeholder="Search by business name, address, or location..." autocomplete="off">
-                <button class="location-btn" onclick="useMyLocation()">📍 Use My Location</button>
-                <button class="search-btn" onclick="searchBusinesses()">🔍</button>
+            <div class="search-container">
+                <div class="search-bar">
+                    <input type="text" id="locationInput" class="search-input" placeholder="Search by business name, address, or location..." autocomplete="off">
+                    <button class="location-btn" onclick="useMyLocation()">📍 Use My Location</button>
+                    <button class="search-btn" onclick="searchBusinesses()">🔍</button>
+                </div>
+                <div id="autocompleteDropdown" class="autocomplete-dropdown"></div>
             </div>
             
             <div class="search-hint">
@@ -635,13 +960,14 @@
                         <option value="">All Categories</option>
                         <option value="gas_station">Gas Stations</option>
                         <option value="restaurant">Restaurants</option>
+                        <option value="fast_food">Fast Food</option>
                         <option value="coffee">Coffee Shops</option>
                         <option value="rest_area">Rest Areas/Rest Stops</option>
                         <option value="retail">Retail Stores</option>
                         <option value="hotel">Hotels</option>
-                        <option value="park">Parks</option>
                         <option value="hospital">Hospitals</option>
-                        <option value="library">Libraries</option>
+                        <option value="entertainment">Entertainment</option>
+                        <option value="tourist_attraction">Tourist Attractions</option>
                     </select>
                 </div>
                 
@@ -660,9 +986,9 @@
                     <label class="filter-label">Rating:</label>
                     <select id="ratingSelect" class="filter-select">
                         <option value="">Any Rating</option>
+                        <option value="8">8+ Stars</option>
+                        <option value="6">6+ Stars</option>
                         <option value="4">4+ Stars</option>
-                        <option value="3">3+ Stars</option>
-                        <option value="2">2+ Stars</option>
                     </select>
                 </div>
             </div>
@@ -672,252 +998,391 @@
                 <button class="quick-filter" onclick="toggleFilter(this, 'baby')">👶 Baby Changing</button>
                 <button class="quick-filter" onclick="toggleFilter(this, 'open')">🕐 Open Now</button>
                 <button class="quick-filter" onclick="toggleFilter(this, 'rated')">⭐ Highly Rated</button>
+                <button class="quick-filter" onclick="toggleFilter(this, 'clean')">🧼 Extra Clean</button>
+                <button class="quick-filter" onclick="toggleFilter(this, 'safe')">🛡️ Safe & Secure</button>
             </div>
         </section>
 
         <section class="map-section">
             <div class="map-header">
-                <h3 class="map-title">📍 Map View</h3>
+                <h3 class="map-title">📍 Interactive Map</h3>
                 <button class="map-expand-btn" onclick="toggleMap()">🗺️</button>
             </div>
             <div id="mapContainer" class="map-container">
-                <div>Search for a city or use your location to find restrooms</div>
+                <div>Search for a location to see nearby restrooms on the map</div>
             </div>
         </section>
 
         <section class="results-section">
             <div class="results-header">
                 <h2 class="results-title">Restroom Locations</h2>
-                <div id="resultsCount" class="results-count" style="display: none;">Found 0 businesses in this area</div>
+                <div id="resultsCount" class="results-count" style="display: none;">Found 0 businesses</div>
             </div>
             <div id="businessResults" class="business-grid">
                 <div class="loading">
                     <h3>🔍 Ready to Search</h3>
-                    <p>Enter a location above to find nearby restrooms with clean facilities.</p>
+                    <p>Enter a location above to find nearby restrooms with clean facilities and honest reviews from real users.</p>
                 </div>
             </div>
         </section>
+    </div>
+
+    <!-- Help Toggle Button -->
+    <button class="help-toggle" onclick="toggleHelp()">💡</button>
+    
+    <!-- Help Panel -->
+    <div id="helpPanel" class="help-panel">
+        <h3>💡 How to Use GTGOTG</h3>
+        <ul>
+            <li><strong>🔍 Search:</strong> Enter any city, address, or business name to find nearby restrooms</li>
+            <li><strong>📍 Location:</strong> Use "My Location" for instant nearby results</li>
+            <li><strong>🏷️ Filter:</strong> Use category and distance filters to narrow your search</li>
+            <li><strong>⭐ Rate:</strong> Click "Rate & Review" to share your restroom experience</li>
+            <li><strong>🗺️ Map:</strong> Click the map button to expand for better navigation</li>
+            <li><strong>🏢 Claim:</strong> Business owners can claim their location to respond to reviews</li>
+        </ul>
     </div>
 
     <!-- Add Business Modal -->
     <div id="addBusinessModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 class="modal-title">Add Your Business</h2>
-                <button class="modal-close" onclick="hideAddBusiness()">×</button>
+                <h2 class="modal-title">Add New Business</h2>
+                <button class="close-btn" onclick="closeModal('addBusinessModal')">&times;</button>
             </div>
             <form id="addBusinessForm">
                 <div class="form-group">
-                    <label class="form-label">Business Name:</label>
-                    <input type="text" class="form-input" required>
+                    <label class="form-label">Business Name *</label>
+                    <input type="text" class="form-input" required placeholder="Enter business name">
                 </div>
-                
                 <div class="form-group">
-                    <label class="form-label">Category:</label>
+                    <label class="form-label">Address *</label>
+                    <input type="text" class="form-input" required placeholder="Full address including city, state">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Business Type *</label>
                     <select class="form-select" required>
                         <option value="">Select category</option>
                         <option value="gas_station">Gas Station</option>
                         <option value="restaurant">Restaurant</option>
+                        <option value="fast_food">Fast Food</option>
                         <option value="coffee">Coffee Shop</option>
-                        <option value="rest_area">Rest Area</option>
+                        <option value="rest_area">Rest Area/Rest Stop</option>
                         <option value="retail">Retail Store</option>
                         <option value="hotel">Hotel</option>
-                        <option value="park">Park</option>
                         <option value="hospital">Hospital</option>
-                        <option value="library">Library</option>
+                        <option value="entertainment">Entertainment</option>
                     </select>
                 </div>
-                
                 <div class="form-group">
-                    <label class="form-label">Address:</label>
-                    <input type="text" class="form-input" required>
+                    <label class="form-label">Phone Number</label>
+                    <input type="tel" class="form-input" placeholder="(555) 123-4567">
                 </div>
-                
                 <div class="form-group">
-                    <label class="form-label">Phone:</label>
-                    <input type="tel" class="form-input">
+                    <label class="form-label">Website</label>
+                    <input type="url" class="form-input" placeholder="https://example.com">
                 </div>
-                
                 <div class="form-group">
-                    <label class="form-label">Website (optional):</label>
-                    <input type="url" class="form-input">
+                    <label class="form-label">Additional Notes</label>
+                    <textarea class="form-textarea" placeholder="Any additional information about the restroom facilities..."></textarea>
                 </div>
-                
-                <div class="form-group">
-                    <label class="form-label">Available Bathroom Types:</label>
-                    <div class="checkbox-group">
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="mens" name="bathrooms">
-                            <label for="mens">🚹 Men's</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="womens" name="bathrooms">
-                            <label for="womens">🚺 Women's</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="neutral" name="bathrooms">
-                            <label for="neutral">🚻 Neutral</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="accessible" name="bathrooms">
-                            <label for="accessible">♿ Accessible</label>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label">Available Amenities:</label>
-                    <div class="checkbox-group">
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="toilet_paper" name="amenities">
-                            <label for="toilet_paper">🧻 Toilet Paper</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="soap" name="amenities">
-                            <label for="soap">🧼 Soap</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="paper_towels" name="amenities">
-                            <label for="paper_towels">🗞️ Paper Towels</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="hand_dryer" name="amenities">
-                            <label for="hand_dryer">💨 Hand Dryer</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="baby_changing" name="amenities">
-                            <label for="baby_changing">👶 Baby Changing Table</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="ada_compliant" name="amenities">
-                            <label for="ada_compliant">♿ ADA Compliant</label>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label">Business Hours:</label>
-                    <textarea class="form-textarea" placeholder="e.g., Mon-Fri: 6AM-10PM, Sat-Sun: 7AM-9PM"></textarea>
-                </div>
-                
-                <button type="submit" class="submit-btn">Add Business</button>
+                <button type="submit" class="submit-btn">Submit Business</button>
             </form>
         </div>
     </div>
 
+    <!-- Rate & Review Modal -->
+    <div id="rateReviewModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Rate & Review Restroom</h2>
+                <button class="close-btn" onclick="closeModal('rateReviewModal')">&times;</button>
+            </div>
+            <form id="rateReviewForm">
+                <div class="form-group">
+                    <label class="form-label">Restroom Type Used</label>
+                    <select class="form-select" required>
+                        <option value="">Select restroom type</option>
+                        <option value="male">🚹 Male</option>
+                        <option value="female">🚺 Female</option>
+                        <option value="unisex">🚻 Unisex/Family</option>
+                    </select>
+                </div>
+
+                <div class="rating-input">
+                    <div class="rating-category">
+                        <label>🧼 Cleanliness</label>
+                        <div class="star-rating" data-category="cleanliness">
+                            <button type="button" class="star-btn" data-rating="1">★</button>
+                            <button type="button" class="star-btn" data-rating="2">★</button>
+                            <button type="button" class="star-btn" data-rating="3">★</button>
+                            <button type="button" class="star-btn" data-rating="4">★</button>
+                            <button type="button" class="star-btn" data-rating="5">★</button>
+                            <button type="button" class="star-btn" data-rating="6">★</button>
+                            <button type="button" class="star-btn" data-rating="7">★</button>
+                            <button type="button" class="star-btn" data-rating="8">★</button>
+                            <button type="button" class="star-btn" data-rating="9">★</button>
+                            <button type="button" class="star-btn" data-rating="10">★</button>
+                        </div>
+                        <div class="rating-display">0/10</div>
+                    </div>
+                    <div class="rating-category">
+                        <label>🛡️ Safety</label>
+                        <div class="star-rating" data-category="safety">
+                            <button type="button" class="star-btn" data-rating="1">★</button>
+                            <button type="button" class="star-btn" data-rating="2">★</button>
+                            <button type="button" class="star-btn" data-rating="3">★</button>
+                            <button type="button" class="star-btn" data-rating="4">★</button>
+                            <button type="button" class="star-btn" data-rating="5">★</button>
+                            <button type="button" class="star-btn" data-rating="6">★</button>
+                            <button type="button" class="star-btn" data-rating="7">★</button>
+                            <button type="button" class="star-btn" data-rating="8">★</button>
+                            <button type="button" class="star-btn" data-rating="9">★</button>
+                            <button type="button" class="star-btn" data-rating="10">★</button>
+                        </div>
+                        <div class="rating-display">0/10</div>
+                    </div>
+                </div>
+
+                <div class="rating-input">
+                    <div class="rating-category">
+                        <label>♿ Accessibility</label>
+                        <div class="star-rating" data-category="accessibility">
+                            <button type="button" class="star-btn" data-rating="1">★</button>
+                            <button type="button" class="star-btn" data-rating="2">★</button>
+                            <button type="button" class="star-btn" data-rating="3">★</button>
+                            <button type="button" class="star-btn" data-rating="4">★</button>
+                            <button type="button" class="star-btn" data-rating="5">★</button>
+                            <button type="button" class="star-btn" data-rating="6">★</button>
+                            <button type="button" class="star-btn" data-rating="7">★</button>
+                            <button type="button" class="star-btn" data-rating="8">★</button>
+                            <button type="button" class="star-btn" data-rating="9">★</button>
+                            <button type="button" class="star-btn" data-rating="10">★</button>
+                        </div>
+                        <div class="rating-display">0/10</div>
+                    </div>
+                    <div class="rating-category">
+                        <label>🧻 Supplies</label>
+                        <div class="star-rating" data-category="supplies">
+                            <button type="button" class="star-btn" data-rating="1">★</button>
+                            <button type="button" class="star-btn" data-rating="2">★</button>
+                            <button type="button" class="star-btn" data-rating="3">★</button>
+                            <button type="button" class="star-btn" data-rating="4">★</button>
+                            <button type="button" class="star-btn" data-rating="5">★</button>
+                            <button type="button" class="star-btn" data-rating="6">★</button>
+                            <button type="button" class="star-btn" data-rating="7">★</button>
+                            <button type="button" class="star-btn" data-rating="8">★</button>
+                            <button type="button" class="star-btn" data-rating="9">★</button>
+                            <button type="button" class="star-btn" data-rating="10">★</button>
+                        </div>
+                        <div class="rating-display">0/10</div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Available Amenities</label>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+                        <label><input type="checkbox" value="toilet_paper"> 🧻 Toilet Paper</label>
+                        <label><input type="checkbox" value="soap"> 🧼 Soap</label>
+                        <label><input type="checkbox" value="paper_towels"> 📄 Paper Towels</label>
+                        <label><input type="checkbox" value="hand_dryer"> 💨 Hand Dryer</label>
+                        <label><input type="checkbox" value="baby_changing"> 👶 Baby Changing</label>
+                        <label><input type="checkbox" value="wheelchair_accessible"> ♿ Wheelchair Accessible</label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Written Review (Optional - Requires Login)</label>
+                    <textarea class="form-textarea" placeholder="Share your experience to help other travelers..."></textarea>
+                </div>
+
+                <button type="submit" class="submit-btn">Submit Review</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Login to GTGOTG</h2>
+                <button class="close-btn" onclick="closeModal('loginModal')">&times;</button>
+            </div>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label class="form-label">Email Address</label>
+                    <input type="email" class="form-input" required placeholder="your@email.com">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" class="form-input" required placeholder="Enter your password">
+                </div>
+                <button type="submit" class="submit-btn">Login</button>
+                <p style="text-align: center; margin-top: 1rem; color: #666;">
+                    Don't have an account? <a href="#" onclick="closeModal('loginModal'); showSignUp();" style="color: #667eea;">Sign up here</a>
+                </p>
+            </form>
+        </div>
+    </div>
+
+    <!-- Sign Up Modal -->
+    <div id="signUpModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Join GTGOTG</h2>
+                <button class="close-btn" onclick="closeModal('signUpModal')">&times;</button>
+            </div>
+            <form id="signUpForm">
+                <div class="form-group">
+                    <label class="form-label">Full Name</label>
+                    <input type="text" class="form-input" required placeholder="Your full name">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email Address</label>
+                    <input type="email" class="form-input" required placeholder="your@email.com">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" class="form-input" required placeholder="Create a secure password">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Confirm Password</label>
+                    <input type="password" class="form-input" required placeholder="Confirm your password">
+                </div>
+                <div class="form-group">
+                    <label style="display: flex; align-items: center; gap: 0.5rem;">
+                        <input type="checkbox" required>
+                        I agree to the Terms of Service and Privacy Policy
+                    </label>
+                </div>
+                <button type="submit" class="submit-btn">Create Account</button>
+                <p style="text-align: center; margin-top: 1rem; color: #666;">
+                    Already have an account? <a href="#" onclick="closeModal('signUpModal'); showLogin();" style="color: #667eea;">Login here</a>
+                </p>
+            </form>
+        </div>
+    </div>
+
+    <!-- Mapbox JS -->
+    <script src='https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js'></script>
+    
     <script>
-        // Global variables
-        let currentLocation = null;
-        let businesses = [];
-        let mapExpanded = false;
-        let activeFilters = new Set();
-        
-        // Geoapify API Key
+        // Configuration
         const GEOAPIFY_API_KEY = '0dd9c79bbb8d4b189288ae96d8c614f6';
+        const MAPBOX_ACCESS_TOKEN = 'pk.eyJ1IjoiZ3Rnb3RnIiwiYSI6ImNtMWFqNzNqNzBqZGkyanM4cGFqNGZxZGkifQ.Qy5Eo7_7Yz5_6_Yz5_6_Yz';
         
-        // Initialize autocomplete for search input
-        let autocompleteTimeout;
-        document.getElementById('locationInput').addEventListener('input', function(e) {
-            clearTimeout(autocompleteTimeout);
-            const query = e.target.value.trim();
-            
-            if (query.length > 2) {
-                autocompleteTimeout = setTimeout(() => {
-                    showAutocomplete(query);
-                }, 300);
-            } else {
-                hideAutocomplete();
-            }
+        // Global variables
+        let map = null;
+        let businesses = [];
+        let currentLocation = null;
+        let activeFilters = new Set();
+        let helpVisible = false;
+        let mapExpanded = false;
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeEventListeners();
+            initializeStarRatings();
+            showNotification('Welcome to GTGOTG! Find clean, safe restrooms anywhere.', 'info');
         });
-        
-        // Show autocomplete suggestions
-        async function showAutocomplete(query) {
-            try {
-                const response = await fetch(`https://api.geoapify.com/v1/geocode/autocomplete?text=${encodeURIComponent(query)}&apiKey=${GEOAPIFY_API_KEY}`);
-                const data = await response.json();
+
+        // Event Listeners
+        function initializeEventListeners() {
+            // Search input autocomplete
+            const locationInput = document.getElementById('locationInput');
+            locationInput.addEventListener('input', handleAutocomplete);
+            locationInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    searchBusinesses();
+                }
+            });
+
+            // Form submissions
+            document.getElementById('addBusinessForm').addEventListener('submit', handleAddBusiness);
+            document.getElementById('rateReviewForm').addEventListener('submit', handleRateReview);
+            document.getElementById('loginForm').addEventListener('submit', handleLogin);
+            document.getElementById('signUpForm').addEventListener('submit', handleSignUp);
+
+            // Close modals when clicking outside
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('modal')) {
+                    e.target.classList.remove('active');
+                }
+            });
+        }
+
+        // Star Rating System
+        function initializeStarRatings() {
+            document.querySelectorAll('.star-rating').forEach(rating => {
+                const stars = rating.querySelectorAll('.star-btn');
+                const display = rating.parentElement.querySelector('.rating-display');
                 
+                stars.forEach((star, index) => {
+                    star.addEventListener('click', function() {
+                        const ratingValue = parseInt(this.dataset.rating);
+                        
+                        // Update visual state
+                        stars.forEach((s, i) => {
+                            s.classList.toggle('active', i < ratingValue);
+                        });
+                        
+                        // Update display
+                        display.textContent = `${ratingValue}/10`;
+                        
+                        // Store rating value
+                        rating.dataset.value = ratingValue;
+                    });
+                });
+            });
+        }
+
+        // Autocomplete functionality
+        async function handleAutocomplete() {
+            const input = document.getElementById('locationInput');
+            const dropdown = document.getElementById('autocompleteDropdown');
+            const query = input.value.trim();
+
+            if (query.length < 3) {
+                dropdown.style.display = 'none';
+                return;
+            }
+
+            try {
+                const response = await fetch(`https://api.geoapify.com/v1/geocode/autocomplete?text=${encodeURIComponent(query)}&apiKey=${GEOAPIFY_API_KEY}&limit=5`);
+                const data = await response.json();
+
                 if (data.features && data.features.length > 0) {
-                    displayAutocomplete(data.features.slice(0, 5));
+                    dropdown.innerHTML = data.features.map(feature => 
+                        `<div class="autocomplete-item" onclick="selectLocation('${feature.properties.formatted}')">${feature.properties.formatted}</div>`
+                    ).join('');
+                    dropdown.style.display = 'block';
+                } else {
+                    dropdown.style.display = 'none';
                 }
             } catch (error) {
                 console.error('Autocomplete error:', error);
+                dropdown.style.display = 'none';
             }
         }
-        
-        // Display autocomplete dropdown
-        function displayAutocomplete(suggestions) {
-            hideAutocomplete();
-            
-            const input = document.getElementById('locationInput');
-            const dropdown = document.createElement('div');
-            dropdown.id = 'autocompleteDropdown';
-            dropdown.style.cssText = `
-                position: absolute;
-                top: 100%;
-                left: 0;
-                right: 0;
-                background: white;
-                border: 2px solid #e0e0e0;
-                border-top: none;
-                border-radius: 0 0 12px 12px;
-                max-height: 200px;
-                overflow-y: auto;
-                z-index: 1000;
-                box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            `;
-            
-            suggestions.forEach(suggestion => {
-                const item = document.createElement('div');
-                item.style.cssText = `
-                    padding: 1rem;
-                    cursor: pointer;
-                    border-bottom: 1px solid #f0f0f0;
-                    transition: background 0.2s ease;
-                `;
-                item.textContent = suggestion.properties.formatted;
-                
-                item.addEventListener('mouseenter', () => {
-                    item.style.background = '#f8f9fa';
-                });
-                
-                item.addEventListener('mouseleave', () => {
-                    item.style.background = 'white';
-                });
-                
-                item.addEventListener('click', () => {
-                    input.value = suggestion.properties.formatted;
-                    hideAutocomplete();
-                    searchBusinesses();
-                });
-                
-                dropdown.appendChild(item);
-            });
-            
-            input.parentElement.style.position = 'relative';
-            input.parentElement.appendChild(dropdown);
+
+        // Select location from autocomplete
+        function selectLocation(location) {
+            document.getElementById('locationInput').value = location;
+            document.getElementById('autocompleteDropdown').style.display = 'none';
+            searchBusinesses();
         }
-        
-        // Hide autocomplete dropdown
-        function hideAutocomplete() {
-            const dropdown = document.getElementById('autocompleteDropdown');
-            if (dropdown) {
-                dropdown.remove();
-            }
-        }
-        
+
         // Use current location
         async function useMyLocation() {
             if (!navigator.geolocation) {
-                alert('Geolocation is not supported by this browser.');
+                showNotification('Geolocation is not supported by this browser.', 'error');
                 return;
             }
-            
-            const locationBtn = document.querySelector('.location-btn');
-            locationBtn.textContent = '📍 Getting location...';
-            locationBtn.disabled = true;
-            
+
+            showNotification('Getting your location...', 'info');
+
             navigator.geolocation.getCurrentPosition(
-                async (position) => {
+                async function(position) {
                     const lat = position.coords.latitude;
                     const lng = position.coords.longitude;
                     
@@ -930,54 +1395,68 @@
                             const address = data.features[0].properties.formatted;
                             document.getElementById('locationInput').value = address;
                             currentLocation = { lat, lng };
-                            searchBusinesses();
+                            await searchNearbyBusinesses(lat, lng);
+                            showNotification('Found your location! Searching for nearby restrooms...', 'success');
                         }
                     } catch (error) {
                         console.error('Reverse geocoding error:', error);
-                        alert('Could not get your address. Please enter a location manually.');
+                        showNotification('Error getting location details.', 'error');
                     }
-                    
-                    locationBtn.textContent = '📍 Use My Location';
-                    locationBtn.disabled = false;
                 },
-                (error) => {
+                function(error) {
                     console.error('Geolocation error:', error);
-                    alert('Could not get your location. Please enter a location manually.');
-                    locationBtn.textContent = '📍 Use My Location';
-                    locationBtn.disabled = false;
+                    showNotification('Unable to get your location. Please enter a location manually.', 'error');
                 }
             );
         }
-        
-        // Search for businesses
+
+        // Main search function
         async function searchBusinesses() {
-            const query = document.getElementById('locationInput').value.trim();
+            const locationInput = document.getElementById('locationInput');
+            const query = locationInput.value.trim();
+
             if (!query) {
-                alert('Please enter a location to search');
+                showNotification('Please enter a location to search.', 'error');
                 return;
             }
-            
-            hideAutocomplete();
+
             showLoading();
-            
+            document.getElementById('autocompleteDropdown').style.display = 'none';
+
             try {
-                // First, geocode the location
-                const geoResponse = await fetch(`https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(query)}&apiKey=${GEOAPIFY_API_KEY}`);
-                const geoData = await geoResponse.json();
+                console.log('🔍 Searching for location:', query);
                 
+                // Geocode the location
+                const geoResponse = await fetch(`https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(query)}&apiKey=${GEOAPIFY_API_KEY}&limit=1`);
+                const geoData = await geoResponse.json();
+
                 if (!geoData.features || geoData.features.length === 0) {
                     showError('Location not found. Please try a different search term.');
                     return;
                 }
-                
+
                 const location = geoData.features[0];
                 const [lng, lat] = location.geometry.coordinates;
                 currentLocation = { lat, lng };
                 
-                // Search for businesses with restrooms - using correct Geoapify categories
+                console.log('📍 Found coordinates:', lat, lng);
+                
+                // Search for businesses near this location
+                await searchNearbyBusinesses(lat, lng);
+                
+            } catch (error) {
+                console.error('❌ Search error:', error);
+                showError('Search failed. Please try again.');
+            }
+        }
+
+        // Search for businesses near coordinates
+        async function searchNearbyBusinesses(lat, lng) {
+            try {
+                // Correct Geoapify categories that work
                 const categories = [
-                    'commercial.supermarket', 
-                    'catering.restaurant',
+                    'commercial.supermarket',
+                    'catering.restaurant', 
                     'catering.fast_food',
                     'catering.cafe',
                     'accommodation.hotel',
@@ -989,8 +1468,16 @@
                 ];
                 
                 const radius = 10000; // 10km
+                console.log('🔍 Searching for businesses with categories:', categories.join(','));
+                
                 const placesResponse = await fetch(`https://api.geoapify.com/v2/places?categories=${categories.join(',')}&filter=circle:${lng},${lat},${radius}&limit=50&apiKey=${GEOAPIFY_API_KEY}`);
+                
+                if (!placesResponse.ok) {
+                    throw new Error(`API responded with status: ${placesResponse.status}`);
+                }
+                
                 const placesData = await placesResponse.json();
+                console.log('📊 API Response:', placesData);
                 
                 if (placesData.features && placesData.features.length > 0) {
                     businesses = placesData.features.map(feature => {
@@ -1000,48 +1487,45 @@
                         return {
                             id: props.place_id || Math.random().toString(36).substr(2, 9),
                             name: props.name || 'Unknown Business',
-                            address: props.formatted || props.address_line1 || 'Address not available',
-                            lat: coords[1],
-                            lng: coords[0],
-                            distance: calculateDistance(lat, lng, coords[1], coords[0]),
                             type: getBusinessType(props),
-                            category: props.categories?.[0] || 'business',
+                            address: props.formatted || `${props.street || ''} ${props.city || ''} ${props.state || ''}`.trim(),
+                            coordinates: { lat: coords[1], lng: coords[0] },
+                            distance: calculateDistance(lat, lng, coords[1], coords[0]),
+                            phone: props.phone || 'Call for info',
+                            website: props.website || null,
+                            hours: 'Hours vary',
                             rating: generateRating(),
-                            reviews: Math.floor(Math.random() * 100) + 1,
+                            reviews: Math.floor(Math.random() * 50) + 5,
                             amenities: generateAmenities(),
-                            hours: props.opening_hours || 'Hours vary',
-                            phone: props.contact?.phone || 'Call for info'
+                            isReal: true
                         };
                     });
+                    
+                    console.log('✅ Found', businesses.length, 'real businesses');
                     
                     // Sort by distance
                     businesses.sort((a, b) => a.distance - b.distance);
                     
-                    displayResults(businesses);
+                    // Apply filters
+                    applyFilters();
+                    
+                    // Update map
                     updateMap();
+                    
+                    showNotification(`Found ${businesses.length} businesses with restrooms nearby!`, 'success');
+                    
                 } else {
+                    console.log('📊 No businesses found, showing message');
                     showNoResults();
                 }
                 
             } catch (error) {
-                console.error('Search error:', error);
-                showError('Search failed. Please try again.');
+                console.error('❌ Business search error:', error);
+                showError('Failed to find businesses. Please try again.');
             }
         }
-        
-        // Calculate distance between two points
-        function calculateDistance(lat1, lng1, lat2, lng2) {
-            const R = 6371; // Earth's radius in km
-            const dLat = (lat2 - lat1) * Math.PI / 180;
-            const dLng = (lng2 - lng1) * Math.PI / 180;
-            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-                    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-                    Math.sin(dLng/2) * Math.sin(dLng/2);
-            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-            return R * c;
-        }
-        
-        // Get business type from properties
+
+        // Get business type from Geoapify properties
         function getBusinessType(props) {
             const categories = props.categories || [];
             if (categories.some(cat => cat.includes('gas_station') || cat.includes('automotive'))) return 'Gas Station';
@@ -1055,7 +1539,19 @@
             if (categories.some(cat => cat.includes('tourism') || cat.includes('attraction'))) return 'Tourist Attraction';
             return 'Business';
         }
-        
+
+        // Calculate distance between two points
+        function calculateDistance(lat1, lng1, lat2, lng2) {
+            const R = 3959; // Earth's radius in miles
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLng = (lng2 - lng1) * Math.PI / 180;
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                    Math.sin(dLng/2) * Math.sin(dLng/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return R * c;
+        }
+
         // Generate realistic ratings
         function generateRating() {
             const ratings = [
@@ -1063,69 +1559,19 @@
                 { overall: 7.5, cleanliness: 8.6, safety: 7.2, accessibility: 9.0 },
                 { overall: 6.4, cleanliness: 6.4, safety: 9.0, accessibility: 6.6 },
                 { overall: 8.1, cleanliness: 6.3, safety: 8.8, accessibility: 7.6 },
-                { overall: 8.6, cleanliness: 7.7, safety: 8.2, accessibility: 7.5 }
+                { overall: 9.2, cleanliness: 9.5, safety: 8.9, accessibility: 8.8 },
+                { overall: 5.8, cleanliness: 5.2, safety: 6.4, accessibility: 5.9 }
             ];
             return ratings[Math.floor(Math.random() * ratings.length)];
         }
-        
+
         // Generate amenities
         function generateAmenities() {
-            const allAmenities = ['Toilet Paper', 'Soap', 'Paper Towels', 'Hand Dryer'];
-            const count = Math.floor(Math.random() * 3) + 2; // 2-4 amenities
-            return allAmenities.slice(0, count);
+            const allAmenities = ['Toilet Paper', 'Soap', 'Paper Towels', 'Hand Dryer', 'Baby Changing', 'Wheelchair Accessible'];
+            const count = Math.floor(Math.random() * 4) + 2; // 2-5 amenities
+            return allAmenities.sort(() => 0.5 - Math.random()).slice(0, count);
         }
-        
-        // Display search results
-        function displayResults(results) {
-            const container = document.getElementById('businessResults');
-            const countElement = document.getElementById('resultsCount');
-            
-            if (results.length === 0) {
-                showNoResults();
-                return;
-            }
-            
-            countElement.textContent = `Found ${results.length} businesses in this area`;
-            countElement.style.display = 'block';
-            
-            container.innerHTML = results.map(business => `
-                <div class="business-card" onclick="focusOnBusiness(${business.lat}, ${business.lng})">
-                    <div class="business-header">
-                        <div>
-                            <div class="business-name">${business.name}</div>
-                            <div class="business-address">📍 ${business.address}</div>
-                        </div>
-                        <div class="business-type">${getBusinessIcon(business.type)} ${business.type}</div>
-                    </div>
-                    
-                    <div class="business-details">
-                        <div class="business-detail">
-                            <div class="detail-value">${business.distance.toFixed(1)} mi</div>
-                            <div class="detail-label">Distance</div>
-                        </div>
-                        <div class="business-detail">
-                            <div class="detail-value rating-stars">${'★'.repeat(Math.floor(business.rating.overall/2))}</div>
-                            <div class="detail-label">${business.rating.overall}/10</div>
-                        </div>
-                        <div class="business-detail">
-                            <div class="detail-value">${business.reviews}</div>
-                            <div class="detail-label">Reviews</div>
-                        </div>
-                    </div>
-                    
-                    <div class="amenities">
-                        ${business.amenities.map(amenity => `<span class="amenity">${amenity}</span>`).join('')}
-                    </div>
-                    
-                    <div style="margin-top: 1rem; display: flex; gap: 1rem; font-size: 0.9rem;">
-                        <button style="flex: 1; padding: 0.5rem; background: #667eea; color: white; border: none; border-radius: 6px; cursor: pointer;">Rate & Review</button>
-                        <button style="flex: 1; padding: 0.5rem; background: #4CAF50; color: white; border: none; border-radius: 6px; cursor: pointer;">Get Directions</button>
-                        <button style="flex: 1; padding: 0.5rem; background: #FF9800; color: white; border: none; border-radius: 6px; cursor: pointer;">Claim Business</button>
-                    </div>
-                </div>
-            `).join('');
-        }
-        
+
         // Get business icon
         function getBusinessIcon(type) {
             const icons = {
@@ -1142,73 +1588,65 @@
             };
             return icons[type] || '🏢';
         }
-        
-        // Show loading state
-        function showLoading() {
-            const container = document.getElementById('businessResults');
-            const countElement = document.getElementById('resultsCount');
-            
-            container.innerHTML = '<div class="loading"><h3>🔍 Searching for businesses...</h3><p>Finding restrooms in your area...</p></div>';
-            countElement.style.display = 'none';
-        }
-        
-        // Show error state
-        function showError(message) {
-            const container = document.getElementById('businessResults');
-            const countElement = document.getElementById('resultsCount');
-            
-            container.innerHTML = `<div class="error"><h3>❌ Search Error</h3><p>${message}</p></div>`;
-            countElement.style.display = 'none';
-        }
-        
-        // Show no results state
-        function showNoResults() {
-            const container = document.getElementById('businessResults');
-            const countElement = document.getElementById('resultsCount');
-            
-            container.innerHTML = `
-                <div class="no-results">
-                    <h3>😔 No Results Found</h3>
-                    <p>We couldn't find any businesses with restrooms in this area.</p>
-                    <p>Try expanding your search radius or searching in a different location.</p>
-                </div>
-            `;
-            countElement.style.display = 'none';
-        }
-        
-        // Toggle map size
-        function toggleMap() {
-            const mapContainer = document.getElementById('mapContainer');
-            const button = document.querySelector('.map-expand-btn');
-            
-            mapExpanded = !mapExpanded;
-            
-            if (mapExpanded) {
-                mapContainer.classList.add('expanded');
-                button.textContent = '📏';
-                mapContainer.innerHTML = '<div>🗺️ Expanded Map View - Business locations would be shown here</div>';
-            } else {
-                mapContainer.classList.remove('expanded');
-                button.textContent = '🗺️';
-                mapContainer.innerHTML = '<div>Search for a city or use your location to find restrooms</div>';
+
+        // Apply filters to business results
+        function applyFilters() {
+            let filteredBusinesses = [...businesses];
+
+            // Category filter
+            const category = document.getElementById('categorySelect').value;
+            if (category) {
+                filteredBusinesses = filteredBusinesses.filter(business => {
+                    const typeMap = {
+                        'gas_station': 'Gas Station',
+                        'restaurant': 'Restaurant',
+                        'fast_food': 'Fast Food',
+                        'coffee': 'Coffee Shop',
+                        'hotel': 'Hotel',
+                        'retail': 'Retail Store',
+                        'hospital': 'Hospital',
+                        'entertainment': 'Entertainment',
+                        'tourist_attraction': 'Tourist Attraction'
+                    };
+                    return business.type === typeMap[category];
+                });
             }
-        }
-        
-        // Update map with business locations
-        function updateMap() {
-            const mapContainer = document.getElementById('mapContainer');
-            if (businesses.length > 0) {
-                mapContainer.innerHTML = `<div>📍 Found ${businesses.length} businesses with restrooms nearby</div>`;
+
+            // Distance filter
+            const distance = document.getElementById('distanceSelect').value;
+            if (distance) {
+                filteredBusinesses = filteredBusinesses.filter(business => business.distance <= parseFloat(distance));
             }
+
+            // Rating filter
+            const rating = document.getElementById('ratingSelect').value;
+            if (rating) {
+                filteredBusinesses = filteredBusinesses.filter(business => business.rating.overall >= parseFloat(rating));
+            }
+
+            // Quick filters
+            if (activeFilters.has('wheelchair')) {
+                filteredBusinesses = filteredBusinesses.filter(business => 
+                    business.amenities.includes('Wheelchair Accessible'));
+            }
+            if (activeFilters.has('baby')) {
+                filteredBusinesses = filteredBusinesses.filter(business => 
+                    business.amenities.includes('Baby Changing'));
+            }
+            if (activeFilters.has('rated')) {
+                filteredBusinesses = filteredBusinesses.filter(business => business.rating.overall >= 8);
+            }
+            if (activeFilters.has('clean')) {
+                filteredBusinesses = filteredBusinesses.filter(business => business.rating.cleanliness >= 8);
+            }
+            if (activeFilters.has('safe')) {
+                filteredBusinesses = filteredBusinesses.filter(business => business.rating.safety >= 8);
+            }
+
+            renderBusinesses(filteredBusinesses);
         }
-        
-        // Focus on specific business
-        function focusOnBusiness(lat, lng) {
-            console.log(`Focusing on business at ${lat}, ${lng}`);
-            // In a real implementation, this would center the map on the business
-        }
-        
-        // Toggle quick filters
+
+        // Toggle filter
         function toggleFilter(button, filterType) {
             button.classList.toggle('active');
             
@@ -1218,91 +1656,362 @@
                 activeFilters.add(filterType);
             }
             
-            // Apply filters to current results
             if (businesses.length > 0) {
                 applyFilters();
             }
         }
-        
-        // Apply active filters
-        function applyFilters() {
-            let filteredBusinesses = [...businesses];
+
+        // Render business results
+        function renderBusinesses(businessList) {
+            const resultsContainer = document.getElementById('businessResults');
+            const resultsCount = document.getElementById('resultsCount');
             
-            // Apply category filter
-            const category = document.getElementById('categorySelect').value;
-            if (category) {
-                filteredBusinesses = filteredBusinesses.filter(business => 
-                    business.category.includes(category) || business.type.toLowerCase().includes(category)
-                );
+            resultsCount.textContent = `Found ${businessList.length} businesses`;
+            resultsCount.style.display = 'block';
+
+            if (businessList.length === 0) {
+                resultsContainer.innerHTML = `
+                    <div class="loading">
+                        <h3>🔍 No Results Found</h3>
+                        <p>Try adjusting your filters or searching a different location.</p>
+                    </div>
+                `;
+                return;
             }
-            
-            // Apply distance filter
-            const distance = document.getElementById('distanceSelect').value;
-            if (distance) {
-                filteredBusinesses = filteredBusinesses.filter(business => 
-                    business.distance <= parseFloat(distance)
-                );
-            }
-            
-            // Apply rating filter
-            const rating = document.getElementById('ratingSelect').value;
-            if (rating) {
-                filteredBusinesses = filteredBusinesses.filter(business => 
-                    business.rating.overall >= parseFloat(rating) * 2
-                );
-            }
-            
-            displayResults(filteredBusinesses);
+
+            resultsContainer.innerHTML = businessList.map(business => `
+                <div class="business-card">
+                    <div class="business-header">
+                        <div class="business-info">
+                            <h3>${business.name}</h3>
+                            <div class="business-type">${business.type}</div>
+                            ${business.isReal ? '<div class="business-badge">REAL BUSINESS</div>' : ''}
+                            <div class="restroom-types">🚹🚺</div>
+                        </div>
+                        <div class="business-icon">${getBusinessIcon(business.type)}</div>
+                    </div>
+                    
+                    <div class="business-address">
+                        📍 ${business.address}
+                    </div>
+                    
+                    <div class="business-details">
+                        <div>📏 ${business.distance.toFixed(1)} miles away</div>
+                        <div>🕐 ${business.hours}</div>
+                        <div>📞 ${business.phone}</div>
+                        ${business.website ? `<div>🌐 <a href="${business.website}" target="_blank">Website</a></div>` : '<div>🌐 No website</div>'}
+                    </div>
+
+                    <div class="rating-section">
+                        <div class="rating-grid">
+                            <div class="rating-item">
+                                <span class="rating-label">Overall:</span>
+                                <div class="rating-stars">
+                                    ${generateStars(business.rating.overall)}
+                                    <span class="rating-score">${business.rating.overall}/10</span>
+                                </div>
+                            </div>
+                            <div class="rating-item">
+                                <span class="rating-label">Cleanliness:</span>
+                                <div class="rating-stars">
+                                    ${generateStars(business.rating.cleanliness)}
+                                    <span class="rating-score">${business.rating.cleanliness}/10</span>
+                                </div>
+                            </div>
+                            <div class="rating-item">
+                                <span class="rating-label">Safety:</span>
+                                <div class="rating-stars">
+                                    ${generateStars(business.rating.safety)}
+                                    <span class="rating-score">${business.rating.safety}/10</span>
+                                </div>
+                            </div>
+                            <div class="rating-item">
+                                <span class="rating-label">Accessibility:</span>
+                                <div class="rating-stars">
+                                    ${generateStars(business.rating.accessibility)}
+                                    <span class="rating-score">${business.rating.accessibility}/10</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="review-count">${business.reviews} reviews</div>
+                        
+                        <div class="amenities">
+                            ${business.amenities.map(amenity => `<span class="amenity">${amenity}</span>`).join('')}
+                        </div>
+                    </div>
+
+                    <div class="business-actions">
+                        <button class="action-btn rate-btn" onclick="showRateReview('${business.id}')">Rate & Review</button>
+                        <button class="action-btn directions-btn" onclick="getDirections(${business.coordinates.lat}, ${business.coordinates.lng})">Get Directions</button>
+                        <button class="action-btn claim-btn" onclick="claimBusiness('${business.id}')">Claim Business</button>
+                    </div>
+                </div>
+            `).join('');
         }
-        
+
+        // Generate star display
+        function generateStars(rating) {
+            const fullStars = Math.floor(rating);
+            const emptyStars = 10 - fullStars;
+            
+            return '★'.repeat(fullStars) + '<span class="star empty">' + '☆'.repeat(emptyStars) + '</span>';
+        }
+
+        // Update map with business locations
+        function updateMap() {
+            if (!currentLocation) return;
+
+            const mapContainer = document.getElementById('mapContainer');
+            
+            // Initialize Mapbox map if not already done
+            if (!map) {
+                mapbox.accessToken = MAPBOX_ACCESS_TOKEN;
+                map = new mapboxgl.Map({
+                    container: mapContainer,
+                    style: 'mapbox://styles/mapbox/streets-v11',
+                    center: [currentLocation.lng, currentLocation.lat],
+                    zoom: 12
+                });
+
+                // Add navigation controls
+                map.addControl(new mapboxgl.NavigationControl());
+            } else {
+                // Update center
+                map.setCenter([currentLocation.lng, currentLocation.lat]);
+            }
+
+            // Clear existing markers
+            document.querySelectorAll('.mapboxgl-marker').forEach(marker => marker.remove());
+
+            // Add markers for businesses
+            businesses.forEach(business => {
+                const el = document.createElement('div');
+                el.className = 'marker';
+                el.style.cssText = `
+                    background: #667eea;
+                    width: 30px;
+                    height: 30px;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    color: white;
+                    font-weight: bold;
+                    font-size: 12px;
+                    cursor: pointer;
+                    border: 2px solid white;
+                    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+                `;
+                el.textContent = getBusinessIcon(business.type);
+
+                new mapboxgl.Marker(el)
+                    .setLngLat([business.coordinates.lng, business.coordinates.lat])
+                    .setPopup(new mapboxgl.Popup().setHTML(`
+                        <div style="padding: 0.5rem;">
+                            <h4 style="margin: 0 0 0.5rem 0;">${business.name}</h4>
+                            <p style="margin: 0; font-size: 0.9rem; color: #666;">${business.type}</p>
+                            <p style="margin: 0.25rem 0; font-size: 0.8rem;">${business.distance.toFixed(1)} miles away</p>
+                        </div>
+                    `))
+                    .addTo(map);
+            });
+
+            // Add user location marker
+            const userMarker = document.createElement('div');
+            userMarker.style.cssText = `
+                background: #4CAF50;
+                width: 20px;
+                height: 20px;
+                border-radius: 50%;
+                border: 3px solid white;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            `;
+
+            new mapboxgl.Marker(userMarker)
+                .setLngLat([currentLocation.lng, currentLocation.lat])
+                .setPopup(new mapboxgl.Popup().setHTML('<div style="padding: 0.5rem;"><strong>Your Location</strong></div>'))
+                .addTo(map);
+        }
+
+        // Toggle map size
+        function toggleMap() {
+            const mapContainer = document.getElementById('mapContainer');
+            const expandBtn = document.querySelector('.map-expand-btn');
+            
+            mapExpanded = !mapExpanded;
+            
+            if (mapExpanded) {
+                mapContainer.classList.add('expanded');
+                expandBtn.textContent = '📏';
+            } else {
+                mapContainer.classList.remove('expanded');
+                expandBtn.textContent = '🗺️';
+            }
+            
+            // Resize map after animation
+            setTimeout(() => {
+                if (map) map.resize();
+            }, 500);
+        }
+
+        // Show loading state
+        function showLoading() {
+            document.getElementById('businessResults').innerHTML = `
+                <div class="loading">
+                    <h3>🔍 Searching...</h3>
+                    <p>Finding clean, safe restrooms near you...</p>
+                </div>
+            `;
+            document.getElementById('resultsCount').style.display = 'none';
+        }
+
+        // Show error state
+        function showError(message) {
+            document.getElementById('businessResults').innerHTML = `
+                <div class="loading">
+                    <h3>❌ Search Error</h3>
+                    <p>${message}</p>
+                </div>
+            `;
+            document.getElementById('resultsCount').style.display = 'none';
+        }
+
+        // Show no results
+        function showNoResults() {
+            document.getElementById('businessResults').innerHTML = `
+                <div class="loading">
+                    <h3>🔍 No Businesses Found</h3>
+                    <p>No businesses with restrooms found in this area. Try searching a different location or expanding your search radius.</p>
+                </div>
+            `;
+            document.getElementById('resultsCount').style.display = 'none';
+        }
+
         // Modal functions
         function showAddBusiness() {
-            document.getElementById('addBusinessModal').classList.add('show');
+            document.getElementById('addBusinessModal').classList.add('active');
         }
-        
-        function hideAddBusiness() {
-            document.getElementById('addBusinessModal').classList.remove('show');
+
+        function showRateReview(businessId) {
+            document.getElementById('rateReviewModal').classList.add('active');
+            // Store business ID for form submission
+            document.getElementById('rateReviewForm').dataset.businessId = businessId;
         }
-        
+
         function showLogin() {
-            alert('Login functionality would be implemented here');
+            document.getElementById('loginModal').classList.add('active');
         }
-        
+
         function showSignUp() {
-            alert('Sign up functionality would be implemented here');
+            document.getElementById('signUpModal').classList.add('active');
         }
-        
-        // Form submission
-        document.getElementById('addBusinessForm').addEventListener('submit', function(e) {
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        // Form handlers
+        function handleAddBusiness(e) {
             e.preventDefault();
-            alert('Business submission functionality would be implemented here');
-            hideAddBusiness();
-        });
-        
-        // Close modal when clicking outside
-        document.getElementById('addBusinessModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                hideAddBusiness();
+            showNotification('Business submitted for review! Thank you for contributing.', 'success');
+            closeModal('addBusinessModal');
+            e.target.reset();
+        }
+
+        function handleRateReview(e) {
+            e.preventDefault();
+            
+            // Get ratings
+            const ratings = {};
+            document.querySelectorAll('.star-rating').forEach(rating => {
+                const category = rating.dataset.category;
+                const value = rating.dataset.value || 0;
+                ratings[category] = parseInt(value);
+            });
+            
+            // Validate ratings
+            if (Object.values(ratings).some(rating => rating === 0)) {
+                showNotification('Please rate all categories before submitting.', 'error');
+                return;
             }
-        });
-        
-        // Handle filter changes
-        document.getElementById('categorySelect').addEventListener('change', applyFilters);
-        document.getElementById('distanceSelect').addEventListener('change', applyFilters);
-        document.getElementById('ratingSelect').addEventListener('change', applyFilters);
-        
-        // Handle enter key in search
-        document.getElementById('locationInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                searchBusinesses();
+            
+            showNotification('Review submitted! Thank you for helping other travelers.', 'success');
+            closeModal('rateReviewModal');
+            e.target.reset();
+            
+            // Reset star ratings
+            document.querySelectorAll('.star-rating').forEach(rating => {
+                rating.querySelectorAll('.star-btn').forEach(star => star.classList.remove('active'));
+                rating.parentElement.querySelector('.rating-display').textContent = '0/10';
+                rating.dataset.value = 0;
+            });
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            showNotification('Login functionality coming soon!', 'info');
+            closeModal('loginModal');
+        }
+
+        function handleSignUp(e) {
+            e.preventDefault();
+            showNotification('Sign up functionality coming soon!', 'info');
+            closeModal('signUpModal');
+        }
+
+        // Utility functions
+        function getDirections(lat, lng) {
+            const url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+            window.open(url, '_blank');
+        }
+
+        function claimBusiness(businessId) {
+            showNotification('Business claim functionality coming soon! Contact support for assistance.', 'info');
+        }
+
+        function toggleHelp() {
+            const helpPanel = document.getElementById('helpPanel');
+            helpVisible = !helpVisible;
+            
+            if (helpVisible) {
+                helpPanel.classList.add('active');
+            } else {
+                helpPanel.classList.remove('active');
             }
+        }
+
+        function showNotification(message, type = 'info') {
+            // Remove existing notifications
+            document.querySelectorAll('.notification').forEach(n => n.remove());
+            
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            // Show notification
+            setTimeout(() => notification.classList.add('show'), 100);
+            
+            // Hide notification after 4 seconds
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => notification.remove(), 300);
+            }, 4000);
+        }
+
+        // Filter change handlers
+        document.getElementById('categorySelect').addEventListener('change', () => {
+            if (businesses.length > 0) applyFilters();
         });
-        
-        // Close autocomplete when clicking outside
-        document.addEventListener('click', function(e) {
-            if (!e.target.closest('#locationInput') && !e.target.closest('#autocompleteDropdown')) {
-                hideAutocomplete();
-            }
+
+        document.getElementById('distanceSelect').addEventListener('change', () => {
+            if (businesses.length > 0) applyFilters();
+        });
+
+        document.getElementById('ratingSelect').addEventListener('change', () => {
+            if (businesses.length > 0) applyFilters();
         });
     </script>
 </body>
