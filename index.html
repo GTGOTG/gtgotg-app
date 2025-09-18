@@ -974,18 +974,18 @@
                 const [lng, lat] = location.geometry.coordinates;
                 currentLocation = { lat, lng };
                 
-                // Search for businesses with restrooms
+                // Search for businesses with restrooms - using correct Geoapify categories
                 const categories = [
-                    'commercial.gas_station',
                     'commercial.supermarket', 
                     'catering.restaurant',
                     'catering.fast_food',
                     'catering.cafe',
                     'accommodation.hotel',
-                    'commercial.shopping_mall',
                     'healthcare.hospital',
-                    'entertainment',
-                    'tourism.attraction'
+                    'entertainment.cinema',
+                    'tourism.attraction',
+                    'commercial.shopping_mall',
+                    'service.automotive.gas_station'
                 ];
                 
                 const radius = 10000; // 10km
@@ -1044,12 +1044,15 @@
         // Get business type from properties
         function getBusinessType(props) {
             const categories = props.categories || [];
-            if (categories.some(cat => cat.includes('gas_station'))) return 'Gas Station';
+            if (categories.some(cat => cat.includes('gas_station') || cat.includes('automotive'))) return 'Gas Station';
             if (categories.some(cat => cat.includes('restaurant'))) return 'Restaurant';
+            if (categories.some(cat => cat.includes('fast_food'))) return 'Fast Food';
             if (categories.some(cat => cat.includes('cafe'))) return 'Coffee Shop';
-            if (categories.some(cat => cat.includes('hotel'))) return 'Hotel';
-            if (categories.some(cat => cat.includes('supermarket'))) return 'Retail Store';
-            if (categories.some(cat => cat.includes('hospital'))) return 'Hospital';
+            if (categories.some(cat => cat.includes('hotel') || cat.includes('accommodation'))) return 'Hotel';
+            if (categories.some(cat => cat.includes('supermarket') || cat.includes('shopping'))) return 'Retail Store';
+            if (categories.some(cat => cat.includes('hospital') || cat.includes('healthcare'))) return 'Hospital';
+            if (categories.some(cat => cat.includes('cinema') || cat.includes('entertainment'))) return 'Entertainment';
+            if (categories.some(cat => cat.includes('tourism') || cat.includes('attraction'))) return 'Tourist Attraction';
             return 'Business';
         }
         
@@ -1128,10 +1131,13 @@
             const icons = {
                 'Gas Station': '⛽',
                 'Restaurant': '🍽️',
+                'Fast Food': '🍔',
                 'Coffee Shop': '☕',
                 'Hotel': '🏨',
                 'Retail Store': '🛍️',
                 'Hospital': '🏥',
+                'Entertainment': '🎬',
+                'Tourist Attraction': '🎯',
                 'Business': '🏢'
             };
             return icons[type] || '🏢';
