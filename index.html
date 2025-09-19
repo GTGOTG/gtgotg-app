@@ -197,6 +197,11 @@
             cursor: pointer;
             transition: all 0.3s ease;
             font-size: 1rem;
+            min-height: 48px; /* Minimum touch target size for mobile */
+            min-width: 48px;
+            touch-action: manipulation; /* Improve touch responsiveness */
+            -webkit-tap-highlight-color: rgba(0,0,0,0.1); /* Better touch feedback */
+            user-select: none; /* Prevent text selection on touch */
         }
 
         .location-btn {
@@ -824,14 +829,20 @@
         }
 
         .autocomplete-item {
-            padding: 1rem;
+            padding: 12px 16px;
             cursor: pointer;
-            border-bottom: 1px solid #f0f0f0;
-            transition: all 0.2s ease;
+            border-bottom: 1px solid #eee;
+            transition: background-color 0.2s ease;
+            min-height: 44px; /* Minimum touch target for mobile */
+            display: flex;
+            align-items: center;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: rgba(0,0,0,0.1);
+            user-select: none;
         }
 
-        .autocomplete-item:hover {
-            background: rgba(102, 126, 234, 0.1);
+        .autocomplete-item:hover, .autocomplete-item:active {
+            background-color: #f5f5f5;
         }
 
         .autocomplete-item:last-child {
@@ -943,8 +954,8 @@
             <div class="search-container">
                 <div class="search-bar">
                     <input type="text" id="locationInput" class="search-input" placeholder="Search by business name, address, or location..." autocomplete="off">
-                    <button class="location-btn" onclick="useMyLocation()">📍 Use My Location</button>
-                    <button class="search-btn" onclick="searchBusinesses()">🔍</button>
+                    <button id="locationBtn" class="location-btn">📍 Use My Location</button>
+                    <button id="searchBtn" class="search-btn">🔍</button>
                 </div>
                 <div id="autocompleteDropdown" class="autocomplete-dropdown"></div>
             </div>
@@ -1293,8 +1304,31 @@
             locationInput.addEventListener('input', handleAutocomplete);
             locationInput.addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') {
+                    e.preventDefault();
                     searchBusinesses();
                 }
+            });
+
+            // Search button - multiple event types for better mobile support
+            const searchBtn = document.getElementById('searchBtn');
+            searchBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                searchBusinesses();
+            });
+            searchBtn.addEventListener('touchend', function(e) {
+                e.preventDefault();
+                searchBusinesses();
+            });
+
+            // Location button - multiple event types for better mobile support  
+            const locationBtn = document.getElementById('locationBtn');
+            locationBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                useMyLocation();
+            });
+            locationBtn.addEventListener('touchend', function(e) {
+                e.preventDefault();
+                useMyLocation();
             });
 
             // Form submissions
@@ -1353,8 +1387,21 @@
 
                 if (data.features && data.features.length > 0) {
                     dropdown.innerHTML = data.features.map(feature => 
-                        `<div class="autocomplete-item" onclick="selectLocation('${feature.properties.formatted}')">${feature.properties.formatted}</div>`
+                        `<div class="autocomplete-item" data-location="${feature.properties.formatted}">${feature.properties.formatted}</div>`
                     ).join('');
+                    
+                    // Add event listeners to autocomplete items for better mobile support
+                    dropdown.querySelectorAll('.autocomplete-item').forEach(item => {
+                        item.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            selectLocation(this.dataset.location);
+                        });
+                        item.addEventListener('touchend', function(e) {
+                            e.preventDefault();
+                            selectLocation(this.dataset.location);
+                        });
+                    });
+                    
                     dropdown.style.display = 'block';
                 } else {
                     dropdown.style.display = 'none';
