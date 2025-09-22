@@ -874,7 +874,7 @@
     
     <script>
         // API Configuration
-        const GEOAPIFY_API_KEY = 'b18185a16b55494a821919450cb26dc7';
+        const GEOAPIFY_API_KEY = 'fdb6a068a51e4a58ad7a479281da68b5';
         const MAPBOX_TOKEN = 'pk.eyJ1IjoiZ3Rnb3RnIiwiYSI6ImNsejJ4eGF6ZjBhZGYya3M4ZWJqNXVkNGsifQ.example'; // You'll need to provide this
         
         // Global Variables
@@ -1021,7 +1021,22 @@
 
             try {
                 console.log('🔍 Autocomplete search for:', query);
-                const response = await fetch(`https://api.geoapify.com/v1/geocode/autocomplete?text=${encodeURIComponent(query)}&apiKey=${GEOAPIFY_API_KEY}&limit=5`);
+                
+                // THE FIX: Ensure HTTPS and proper error handling
+                const url = `https://api.geoapify.com/v1/geocode/autocomplete?text=${encodeURIComponent(query)}&apiKey=${GEOAPIFY_API_KEY}&limit=5`;
+                const response = await fetch(url, {
+                    method: 'GET'
+                });
+
+                // Improved Error Handling
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    console.error("API Error Response:", errorData);
+                    dropdown.style.display = 'none';
+                    showNotification(`Search error: ${errorData.message || 'Could not fetch location suggestions.'}`, 'error');
+                    return;
+                }
+
                 const data = await response.json();
 
                 if (data.features && data.features.length > 0) {
@@ -1047,8 +1062,10 @@
                     dropdown.style.display = 'none';
                 }
             } catch (error) {
-                console.error('❌ Autocomplete error:', error);
+                // This catches network errors (like the original "Failed to fetch")
+                console.error('❌ Network or Fetch Error:', error);
                 dropdown.style.display = 'none';
+                showNotification('Location search failed. Please check your connection and try again.', 'error');
             }
         }
 
