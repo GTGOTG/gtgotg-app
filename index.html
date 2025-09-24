@@ -1184,19 +1184,15 @@
             console.log('🎯 Searching businesses near:', lat, lng);
             
             try {
-                // Categories that typically have public restrooms
+                // Categories that typically have public restrooms - using basic Geoapify category names
                 const categories = [
-                    'service.automotive.gas_station',      // Gas stations - always have restrooms
                     'catering.restaurant',                 // Restaurants - customer restrooms
                     'catering.fast_food',                  // Fast food - public restrooms
                     'catering.cafe',                       // Coffee shops - customer restrooms
                     'accommodation.hotel',                 // Hotels - lobby restrooms
                     'commercial.supermarket',              // Grocery stores - customer restrooms
-                    'commercial.shopping_mall',            // Shopping centers - public restrooms
-                    'commercial.department_store',         // Department stores - customer restrooms
                     'healthcare.hospital',                 // Hospitals - public restrooms
-                    'leisure.park',                        // Parks - often have facilities
-                    'public_transport.station'             // Transit stations - public facilities
+                    'tourism.attraction'                   // Tourist attractions
                 ];
                 
                 const radius = 10000; // 10km
@@ -1267,7 +1263,7 @@
 
         // Get business type from categories
         function getBusinessType(categories) {
-            if (categories.includes('service.automotive.gas_station')) return 'Gas Station';
+            if (categories.includes('commercial.gas')) return 'Gas Station';
             if (categories.includes('catering.restaurant')) return 'Restaurant';
             if (categories.includes('catering.fast_food')) return 'Fast Food';
             if (categories.includes('catering.cafe')) return 'Coffee Shop';
@@ -1275,7 +1271,9 @@
             if (categories.includes('commercial.supermarket')) return 'Grocery Store';
             if (categories.includes('commercial.shopping_mall')) return 'Shopping Center';
             if (categories.includes('healthcare.hospital')) return 'Hospital';
-            if (categories.includes('leisure.park')) return 'Park';
+            if (categories.includes('commercial.convenience_store')) return 'Convenience Store';
+            if (categories.includes('tourism.attraction')) return 'Tourist Attraction';
+            if (categories.includes('entertainment.culture')) return 'Cultural Venue';
             return 'Business';
         }
 
@@ -1283,7 +1281,7 @@
         function getBusinessAmenities(categories) {
             const amenities = ['Toilet Paper', 'Soap'];
             
-            if (categories.includes('service.automotive.gas_station')) {
+            if (categories.includes('commercial.gas')) {
                 amenities.push('Paper Towels', '24/7 Access');
             }
             if (categories.includes('catering.restaurant') || categories.includes('catering.fast_food')) {
@@ -1291,6 +1289,9 @@
             }
             if (categories.includes('accommodation.hotel')) {
                 amenities.push('Wheelchair Accessible', 'Baby Changing');
+            }
+            if (categories.includes('commercial.convenience_store')) {
+                amenities.push('Quick Access');
             }
             
             return amenities;
