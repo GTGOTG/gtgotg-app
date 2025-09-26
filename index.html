@@ -883,6 +883,60 @@
         let currentLocation = null;
         let markers = [];
 
+        // Restroom categories with truck stops priority
+        const restroomCategories = {
+            truck_stops: [
+                'automotive.fuel',
+                'tourism.attraction.rest_area',
+                'commercial.fuel',
+                'highway.services'
+            ],
+            gas_stations: [
+                'automotive.fuel',
+                'commercial.fuel',
+                'automotive.gas_station'
+            ],
+            restaurants: [
+                'catering.restaurant',
+                'catering.fast_food',
+                'catering.cafe',
+                'catering.pub'
+            ],
+            shopping: [
+                'commercial.shopping_mall',
+                'commercial.supermarket',
+                'commercial.department_store',
+                'commercial.marketplace'
+            ],
+            hotels: [
+                'accommodation.hotel',
+                'accommodation.motel',
+                'accommodation.guest_house'
+            ],
+            all: [
+                'automotive.fuel',
+                'commercial.fuel',
+                'automotive.gas_station',
+                'tourism.attraction.rest_area',
+                'highway.services',
+                'commercial.supermarket',
+                'accommodation',
+                'commercial.shopping',
+                'catering',
+                'commercial.department_store',
+                'entertainment',
+                'healthcare'
+            ]
+        };
+
+        const truckStopChains = [
+            'pilot', 'flying j', 'loves', 'ta', 'travel centers', 'petro',
+            'shell', 'exxon', 'bp', 'chevron', 'mobil', 'texaco', 'sunoco',
+            'speedway', 'wawa', 'sheetz', 'casey', 'kwik trip', 'buc-ee',
+            'circle k', '7-eleven', 'marathon', 'valero', 'conoco', 'phillips 66',
+            'arco', 'citgo', 'gulf', 'hess', 'murphy', 'racetrac', 'quiktrip'
+        ];
+
         // Initialize Application
         document.addEventListener('DOMContentLoaded', function() {
             console.log('🚀 GTGOTG Application Starting...');
@@ -1179,6 +1233,73 @@
             }
         }
 
+        async function searchMultipleCategories(longitude, latitude, radius, priority) {
+            let allBusinesses = [];
+            const categories = restroomCategories[priority];
+            
+            // Strategy 1: Search by categories (in smaller groups for better results)
+            const categoryGroups = [];
+            for (let i = 0; i < categories.length; i += 2) {
+                categoryGroups.push(categories.slice(i, i + 2));
+            }
+            
+            for (const categoryGroup of categoryGroups) {
+                try {
+                    const categoriesParam = categoryGroup.join(',');
+                    const placesUrl = `https://api.geoapify.com/v2/places?categories=${categoriesParam}&filter=circle:${longitude},${latitude},${radius}&limit=50&apiKey=${GEOAPIFY_API_KEY}`;
+                    const response = await fetch(placesUrl);
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data.features) {
+                            allBusinesses.push(...data.features);
+                        }
+                    }
+                } catch (error) {
+                    console.warn('Category search failed:', categoryGroup, error);
+                }
+            }
+            
+            // Strategy 2: Text-based searches for specific terms
+            const searchTerms = [];
+            if (priority === 'gas_stations' || priority === 'all') {
+                searchTerms.push('gas station', 'fuel station', 'petrol station');
+            }
+            if (priority === 'truck_stops' || priority === 'all') {
+                searchTerms.push('truck stop', 'rest area', 'travel center', 'service plaza');
+            }
+            
+            for (const term of searchTerms) {
+                try {
+                    const textUrl = `https://api.geoapify.com/v2/places?text=${encodeURIComponent(term)}&filter=circle:${longitude},${latitude},${radius}&limit=30&apiKey=${GEOAPIFY_API_KEY}`;
+                    const response = await fetch(textUrl);
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data.features) {
+                            allBusinesses.push(...data.features);
+                        }
+                    }
+                } catch (error) {
+                    console.warn('Text search failed:', term, error);
+                }
+            }
+            
+            // Remove duplicates based on name and location
+            const uniqueBusinesses = [];
+            const seen = new Set();
+            
+            for (const business of allBusinesses) {
+                const key = `${business.properties.name}_${business.geometry.coordinates[0].toFixed(4)}_${business.geometry.coordinates[1].toFixed(4)}`;
+                if (!seen.has(key)) {
+                    seen.add(key);
+                    uniqueBusinesses.push(business);
+                }
+            }
+            
+            return uniqueBusinesses;
+        }
+
         // Search for nearby businesses
         async function searchNearbyBusinesses(lat, lng) {
             console.log('🎯 Searching businesses near:', lat, lng);
@@ -1309,296 +1430,4 @@
                 amenities.push('Paper Towels', '24/7 Access');
             }
             
-            // Truck stops
-            if (categories.includes('service.vehicle')) {
-                amenities.push('Paper Towels', '24/7 Access', 'Shower Facilities');
-            }
-            
-            // Restaurants and food
-            if (categories.includes('catering.restaurant') || categories.includes('catering.fast_food') || categories.includes('catering.cafe')) {
-                amenities.push('Hand Dryer', 'Baby Changing');
-            }
-            
-            // Rest areas and parks
-            if (categories.includes('leisure.park')) {
-                amenities.push('Wheelchair Accessible', 'Family Restroom');
-            }
-            
-            // Shopping centers
-            if (categories.includes('commercial.shopping_mall') || categories.includes('commercial.supermarket') || categories.includes('commercial.department_store')) {
-                amenities.push('Wheelchair Accessible', 'Baby Changing', 'Family Restroom');
-            }
-            
-            return amenities;
-        }
-
-        // Generate realistic ratings
-        function generateRealisticRatings() {
-            return {
-                overall: +(Math.random() * 3 + 6.5).toFixed(1), // 6.5-9.5
-                cleanliness: +(Math.random() * 3 + 6).toFixed(1), // 6-9
-                safety: +(Math.random() * 2 + 7.5).toFixed(1), // 7.5-9.5
-                accessibility: +(Math.random() * 3 + 6).toFixed(1), // 6-9
-                reviews: Math.floor(Math.random() * 50) + 5 // 5-55 reviews
-            };
-        }
-
-        // Render businesses
-        function renderBusinesses(businessList) {
-            const resultsContainer = document.getElementById('businessResults');
-            const resultsCount = document.getElementById('resultsCount');
-            
-            resultsCount.textContent = `Showing ${businessList.length} restrooms in your area`;
-            resultsCount.style.display = 'block';
-
-            if (businessList.length === 0) {
-                resultsContainer.innerHTML = `
-                    <div class="loading">
-                        <h3>🔍 No Results Found</h3>
-                        <p>Try adjusting your filters or searching a different location.</p>
-                    </div>
-                `;
-                return;
-            }
-
-            resultsContainer.innerHTML = businessList.map(business => `
-                <div class="business-card">
-                    <div class="business-header">
-                        <div class="business-info">
-                            <div class="business-type">${getBusinessIcon(business.type)} ${business.type}</div>
-                            <h3>${business.name}</h3>
-                            <div class="business-address">${business.address}</div>
-                            <div class="business-distance">📍 ${business.distance.toFixed(1)} miles away</div>
-                        </div>
-                        <div class="business-badge">REAL BUSINESS</div>
-                    </div>
-
-                    <div class="business-ratings">
-                        <div class="rating-item">
-                            <div class="rating-label">Overall</div>
-                            <div class="rating-value">${business.ratings.overall}/10</div>
-                            <div class="rating-stars">${generateStars(business.ratings.overall)}</div>
-                        </div>
-                        <div class="rating-item">
-                            <div class="rating-label">Cleanliness</div>
-                            <div class="rating-value">${business.ratings.cleanliness}/10</div>
-                            <div class="rating-stars">${generateStars(business.ratings.cleanliness)}</div>
-                        </div>
-                        <div class="rating-item">
-                            <div class="rating-label">Safety</div>
-                            <div class="rating-value">${business.ratings.safety}/10</div>
-                            <div class="rating-stars">${generateStars(business.ratings.safety)}</div>
-                        </div>
-                        <div class="rating-item">
-                            <div class="rating-label">Accessibility</div>
-                            <div class="rating-value">${business.ratings.accessibility}/10</div>
-                            <div class="rating-stars">${generateStars(business.ratings.accessibility)}</div>
-                        </div>
-                    </div>
-
-                    <div class="business-amenities">
-                        <div style="font-size: 0.9rem; font-weight: 600; margin-bottom: 0.5rem;">🚹🚺 Restroom Available</div>
-                        <div style="font-size: 0.8rem; color: #666; margin-bottom: 0.5rem;">${business.ratings.reviews} reviews</div>
-                        ${business.amenities.map(amenity => `<span class="amenity">${amenity}</span>`).join('')}
-                    </div>
-
-                    <div class="business-actions">
-                        <button class="action-btn rate-btn" onclick="showRateReview('${business.id}')">Rate & Review</button>
-                        <button class="action-btn directions-btn" onclick="getDirections(${business.coordinates.lat}, ${business.coordinates.lng})">Get Directions</button>
-                        <button class="action-btn claim-btn" onclick="claimBusiness('${business.id}')">Claim Business</button>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        // Generate star rating display
-        function generateStars(rating) {
-            const stars = Math.round(rating);
-            let html = '';
-            for (let i = 1; i <= 10; i++) {
-                html += `<span class="star ${i <= stars ? '' : 'empty'}">★</span>`;
-            }
-            return html;
-        }
-
-        // Get business icon
-        function getBusinessIcon(type) {
-            const icons = {
-                'Gas Station': '⛽',
-                'Restaurant': '🍽️',
-                'Fast Food': '🍔',
-                'Coffee Shop': '☕',
-                'Hotel': '🏨',
-                'Grocery Store': '🛒',
-                'Shopping Center': '🛍️',
-                'Hospital': '🏥',
-                'Park': '🌳',
-                'Business': '🏢'
-            };
-            return icons[type] || '🏢';
-        }
-
-        // Update map (placeholder for now)
-        function updateMap() {
-            const mapContainer = document.getElementById('map');
-            if (businesses.length > 0) {
-                mapContainer.innerHTML = `
-                    <div style="display: flex; align-items: center; justify-content: center; height: 100%; background: #e8f5e8; color: #2e7d32;">
-                        <div style="text-align: center;">
-                            <div style="font-size: 2rem; margin-bottom: 1rem;">📍</div>
-                            <div><strong>${businesses.length} businesses found</strong></div>
-                            <div style="font-size: 0.9rem; margin-top: 0.5rem;">Interactive map with ${businesses.length} markers</div>
-                        </div>
-                    </div>
-                `;
-            }
-        }
-
-        // Apply filters
-        function applyFilters() {
-            const category = document.getElementById('categorySelect').value;
-            const distance = document.getElementById('distanceSelect').value;
-            const rating = document.getElementById('ratingSelect').value;
-            
-            let filtered = [...businesses];
-            
-            // Apply category filter
-            if (category) {
-                const categoryMap = {
-                    'gas_station': 'Gas Station',
-                    'truck_stop': 'Truck Stop',
-                    'restaurant': 'Restaurant',
-                    'fast_food': 'Fast Food',
-                    'coffee_shop': 'Coffee Shop',
-                    'rest_area': 'Rest Area',
-                    'shopping_center': 'Shopping Center',
-                    'grocery_store': 'Grocery Store',
-                    'department_store': 'Department Store',
-                    'tourist_attraction': 'Tourist Attraction'
-                };
-                filtered = filtered.filter(b => b.type === categoryMap[category]);
-            }
-            
-            // Apply distance filter
-            if (distance) {
-                filtered = filtered.filter(b => b.distance <= parseFloat(distance));
-            }
-            
-            // Apply rating filter
-            if (rating) {
-                filtered = filtered.filter(b => b.ratings.overall >= parseFloat(rating));
-            }
-            
-            // Apply quick filters
-            const activeFilters = Array.from(document.querySelectorAll('.quick-filter-btn.active')).map(btn => btn.dataset.filter);
-            
-            if (activeFilters.includes('wheelchair')) {
-                filtered = filtered.filter(b => b.amenities.includes('Wheelchair Accessible'));
-            }
-            
-            if (activeFilters.includes('baby')) {
-                filtered = filtered.filter(b => b.amenities.includes('Baby Changing'));
-            }
-            
-            if (activeFilters.includes('rated')) {
-                filtered = filtered.filter(b => b.ratings.overall >= 8);
-            }
-            
-            renderBusinesses(filtered);
-        }
-
-        // Toggle map size
-        function toggleMapSize() {
-            const map = document.getElementById('map');
-            const btn = document.getElementById('expandMapBtn');
-            
-            map.classList.toggle('expanded');
-            btn.textContent = map.classList.contains('expanded') ? '📏' : '🗺️';
-        }
-
-        // Show loading state
-        function showLoading() {
-            document.getElementById('businessResults').innerHTML = `
-                <div class="loading">
-                    <div class="spinner"></div>
-                    <h3>🔍 Searching...</h3>
-                    <p>Finding clean, safe restrooms near you...</p>
-                </div>
-            `;
-            document.getElementById('resultsCount').style.display = 'none';
-        }
-
-        // Show error state
-        function showError(message) {
-            document.getElementById('businessResults').innerHTML = `
-                <div class="loading">
-                    <h3>❌ Search Error</h3>
-                    <p>${message}</p>
-                </div>
-            `;
-            document.getElementById('resultsCount').style.display = 'none';
-        }
-
-        // Show no results
-        function showNoResults() {
-            document.getElementById('businessResults').innerHTML = `
-                <div class="loading">
-                    <h3>🔍 No Businesses Found</h3>
-                    <p>No businesses with restrooms found in this area. Try searching a different location or expanding your search radius.</p>
-                </div>
-            `;
-            document.getElementById('resultsCount').style.display = 'none';
-        }
-
-        // Show notification
-        function showNotification(message, type = 'info') {
-            const notification = document.createElement('div');
-            notification.className = `notification ${type}`;
-            notification.textContent = message;
-            
-            document.body.appendChild(notification);
-            
-            // Show notification
-            setTimeout(() => notification.classList.add('show'), 100);
-            
-            // Hide notification
-            setTimeout(() => {
-                notification.classList.remove('show');
-                setTimeout(() => notification.remove(), 300);
-            }, 4000);
-        }
-
-        // Placeholder functions for business actions
-        function showRateReview(businessId) {
-            showNotification('Rate & Review feature coming soon!', 'info');
-        }
-
-        function getDirections(lat, lng) {
-            const url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
-            window.open(url, '_blank');
-        }
-
-        function claimBusiness(businessId) {
-            showNotification('Business claim feature coming soon!', 'info');
-        }
-
-        // Test function to verify everything is working
-        function testFunctionality() {
-            console.log('🧪 Testing GTGOTG functionality...');
-            console.log('✅ searchBusinesses:', typeof searchBusinesses);
-            console.log('✅ useMyLocation:', typeof useMyLocation);
-            console.log('✅ handleAutocomplete:', typeof handleAutocomplete);
-            console.log('✅ GEOAPIFY_API_KEY:', GEOAPIFY_API_KEY ? 'Configured' : 'Missing');
-            console.log('✅ DOM elements:', {
-                searchBtn: !!document.getElementById('searchBtn'),
-                locationBtn: !!document.getElementById('locationBtn'),
-                locationInput: !!document.getElementById('locationInput')
-            });
-            console.log('🎉 All functionality tests passed!');
-        }
-
-        // Run test on load
-        setTimeout(testFunctionality, 1000);
-    </script>
-</body>
-</html>
+            //
