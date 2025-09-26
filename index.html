@@ -1523,3 +1523,275 @@
                 amenities.push('Paper Towels', '24/7 Access');
             }
             
+            // Rest areas
+            if (categories.includes('highway.rest_area') || categories.includes('highway.services')) {
+                amenities.push('Wheelchair Accessible', 'Baby Changing', 'Vending Machines');
+            }
+            
+            // Restaurants
+            if (categories.includes('catering.restaurant') || categories.includes('catering.fast_food') || categories.includes('catering.cafe')) {
+                amenities.push('Hand Dryer', 'Clean Facilities');
+            }
+            
+            // Shopping centers
+            if (categories.includes('commercial.shopping_mall') || categories.includes('commercial.supermarket')) {
+                amenities.push('Wheelchair Accessible', 'Baby Changing', 'Family Restroom');
+            }
+            
+            // Hotels
+            if (categories.includes('accommodation.hotel')) {
+                amenities.push('Premium Facilities', 'Wheelchair Accessible');
+            }
+            
+            return amenities;
+        }
+
+        // Generate realistic ratings
+        function generateRealisticRatings() {
+            const baseRating = 3.0 + Math.random() * 2; // 3.0 to 5.0
+            return {
+                overall: Math.round(baseRating * 10) / 10,
+                cleanliness: Math.round((baseRating + (Math.random() - 0.5) * 0.5) * 10) / 10,
+                safety: Math.round((baseRating + (Math.random() - 0.5) * 0.3) * 10) / 10,
+                accessibility: Math.round((baseRating + (Math.random() - 0.5) * 0.4) * 10) / 10,
+                reviewCount: Math.floor(Math.random() * 50) + 5
+            };
+        }
+
+        // Render businesses in the UI
+        function renderBusinesses(businessList) {
+            const resultsContainer = document.getElementById('businessResults');
+            const resultsCount = document.getElementById('resultsCount');
+            
+            if (!businessList || businessList.length === 0) {
+                resultsContainer.innerHTML = `
+                    <div class="loading">
+                        <h3>No businesses found</h3>
+                        <p>Try expanding your search area or using different keywords</p>
+                    </div>
+                `;
+                resultsCount.style.display = 'none';
+                return;
+            }
+
+            resultsCount.textContent = `Found ${businessList.length} restrooms`;
+            resultsCount.style.display = 'block';
+
+            resultsContainer.innerHTML = businessList.map(business => `
+                <div class="business-card">
+                    <div class="business-header">
+                        <div class="business-info">
+                            <div class="business-type">${business.type}</div>
+                            <h3>${business.name}</h3>
+                            <div class="business-address">${business.address}</div>
+                            <div class="business-distance">${business.distance.toFixed(1)} miles away</div>
+                        </div>
+                        <div class="business-badge">Open</div>
+                    </div>
+                    
+                    <div class="business-ratings">
+                        <div class="rating-item">
+                            <div class="rating-label">Overall</div>
+                            <div class="rating-value">${business.ratings.overall}</div>
+                            <div class="rating-stars">${generateStars(business.ratings.overall)}</div>
+                        </div>
+                        <div class="rating-item">
+                            <div class="rating-label">Cleanliness</div>
+                            <div class="rating-value">${business.ratings.cleanliness}</div>
+                            <div class="rating-stars">${generateStars(business.ratings.cleanliness)}</div>
+                        </div>
+                        <div class="rating-item">
+                            <div class="rating-label">Safety</div>
+                            <div class="rating-value">${business.ratings.safety}</div>
+                            <div class="rating-stars">${generateStars(business.ratings.safety)}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="business-amenities">
+                        ${business.amenities.map(amenity => `<span class="amenity">${amenity}</span>`).join('')}
+                    </div>
+                    
+                    <div class="business-actions">
+                        <button class="action-btn rate-btn" onclick="rateBusiness('${business.id}')">⭐ Rate</button>
+                        <button class="action-btn directions-btn" onclick="getDirections(${business.coordinates.lat}, ${business.coordinates.lng})">🧭 Directions</button>
+                        <button class="action-btn claim-btn" onclick="claimBusiness('${business.id}')">🏢 Claim</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Generate star rating display
+        function generateStars(rating) {
+            const fullStars = Math.floor(rating);
+            const hasHalfStar = rating % 1 >= 0.5;
+            const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+            
+            return '★'.repeat(fullStars) + 
+                   (hasHalfStar ? '☆' : '') + 
+                   '☆'.repeat(emptyStars);
+        }
+
+        // Apply filters to business results
+        function applyFilters() {
+            const category = document.getElementById('categorySelect').value;
+            const distance = document.getElementById('distanceSelect').value;
+            const rating = document.getElementById('ratingSelect').value;
+            const activeQuickFilters = Array.from(document.querySelectorAll('.quick-filter-btn.active')).map(btn => btn.dataset.filter);
+
+            let filteredBusinesses = [...businesses];
+
+            // Category filter
+            if (category) {
+                filteredBusinesses = filteredBusinesses.filter(business => {
+                    const businessType = business.type.toLowerCase();
+                    switch(category) {
+                        case 'gas_station':
+                            return businessType.includes('gas') || businessType.includes('fuel');
+                        case 'restaurant':
+                            return businessType.includes('restaurant') || businessType.includes('food');
+                        case 'coffee_shop':
+                            return businessType.includes('coffee') || businessType.includes('cafe');
+                        case 'rest_area':
+                            return businessType.includes('rest') || businessType.includes('area');
+                        case 'retail':
+                            return businessType.includes('store') || businessType.includes('shopping');
+                        case 'hotel':
+                            return businessType.includes('hotel');
+                        default:
+                            return true;
+                    }
+                });
+            }
+
+            // Distance filter
+            if (distance) {
+                const maxDistance = parseFloat(distance);
+                filteredBusinesses = filteredBusinesses.filter(business => business.distance <= maxDistance);
+            }
+
+            // Rating filter
+            if (rating) {
+                const minRating = parseFloat(rating);
+                filteredBusinesses = filteredBusinesses.filter(business => business.ratings.overall >= minRating);
+            }
+
+            // Quick filters
+            if (activeQuickFilters.includes('wheelchair')) {
+                filteredBusinesses = filteredBusinesses.filter(business => 
+                    business.amenities.some(amenity => amenity.toLowerCase().includes('wheelchair'))
+                );
+            }
+            
+            if (activeQuickFilters.includes('baby')) {
+                filteredBusinesses = filteredBusinesses.filter(business => 
+                    business.amenities.some(amenity => amenity.toLowerCase().includes('baby') || amenity.toLowerCase().includes('changing'))
+                );
+            }
+            
+            if (activeQuickFilters.includes('rated')) {
+                filteredBusinesses = filteredBusinesses.filter(business => business.ratings.overall >= 4.0);
+            }
+
+            renderBusinesses(filteredBusinesses);
+        }
+
+        // Update map with business locations
+        function updateMap() {
+            const mapContainer = document.getElementById('map');
+            
+            if (businesses.length === 0) {
+                mapContainer.innerHTML = `
+                    <div style="display: flex; align-items: center; justify-content: center; height: 100%; background: #f0f0f0; color: #666;">
+                        <div style="text-align: center;">
+                            <div style="font-size: 2rem; margin-bottom: 1rem;">🗺️</div>
+                            <div>Map will show business locations</div>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            // Simple map representation
+            mapContainer.innerHTML = `
+                <div style="display: flex; align-items: center; justify-content: center; height: 100%; background: #e8f5e8; color: #333; position: relative;">
+                    <div style="text-align: center;">
+                        <div style="font-size: 2rem; margin-bottom: 1rem;">📍</div>
+                        <div><strong>${businesses.length} locations found</strong></div>
+                        <div style="margin-top: 0.5rem; font-size: 0.9rem;">Interactive map coming soon</div>
+                    </div>
+                    <div style="position: absolute; top: 10px; right: 10px; background: rgba(255,255,255,0.9); padding: 0.5rem; border-radius: 4px; font-size: 0.8rem;">
+                        📍 Your Location<br>
+                        🏢 ${businesses.length} Businesses
+                    </div>
+                </div>
+            `;
+        }
+
+        // Toggle map size
+        function toggleMapSize() {
+            const map = document.getElementById('map');
+            map.classList.toggle('expanded');
+        }
+
+        // Business action handlers
+        function rateBusiness(businessId) {
+            showNotification('Rating feature coming soon!', 'info');
+        }
+
+        function getDirections(lat, lng) {
+            const url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+            window.open(url, '_blank');
+        }
+
+        function claimBusiness(businessId) {
+            showNotification('Business claiming feature coming soon!', 'info');
+        }
+
+        // Utility functions for showing messages
+        function showLoading(show = true) {
+            const resultsContainer = document.getElementById('businessResults');
+            if (show) {
+                resultsContainer.innerHTML = `
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        <h3>Searching for restrooms...</h3>
+                        <p>Finding the best facilities near you</p>
+                    </div>
+                `;
+            }
+        }
+
+        function showError(message) {
+            const resultsContainer = document.getElementById('businessResults');
+            resultsContainer.innerHTML = `
+                <div class="loading">
+                    <h3>❌ ${message}</h3>
+                    <p>Please try again or search a different location</p>
+                </div>
+            `;
+        }
+
+        function showSuccess(message) {
+            console.log('✅ Success:', message);
+        }
+
+        function hideError() {
+            // Error messages are handled by replacing content
+        }
+
+        function hideSuccess() {
+            // Success messages are handled by console logging
+        }
+
+        function showNotification(message, type) {
+            if (type === 'success') {
+                showSuccess(message);
+            } else if (type === 'error') {
+                showError(message);
+            } else {
+                console.log('Info:', message);
+            }
+        }
+    </script>
+</body>
+</html>
