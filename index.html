@@ -940,7 +940,7 @@
                 businesses = processBusinesses(businesses, latitude, longitude, category);
 
                 // Limit to 25 results
-                businesses = businesses.slice(0, 25);
+                businesses = businesses.slice(0, resultLimit);
 
                 currentBusinesses = businesses;
                 updateMap(businesses, latitude, longitude);
