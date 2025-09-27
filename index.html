@@ -578,6 +578,17 @@
                     </div>
 
                     <div class="form-group">
+                        <label for="resultLimit">Number of Results</label>
+                        <select id="resultLimit">
+                            <option value="5">5 locations</option>
+                            <option value="10" selected>10 locations</option>
+                            <option value="20">20 locations</option>
+                            <option value="25">25 locations</option>
+                            <option value="30">30 locations</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
                         <label for="category">Business Category</label>
                         <select id="category">
                             <option value="all">🎯 All Categories</option>
@@ -888,6 +899,8 @@
         async function searchBusinesses() {
             const location = document.getElementById('location').value.trim();
             const radius = document.getElementById('radius').value;
+            const resultLimit = parseInt(document.getElementById('resultLimit').value);
+            const resultLimit = parseInt(document.getElementById('resultLimit').value);
             const category = document.getElementById('category').value;
             
             if (!location) {
