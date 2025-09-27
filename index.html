@@ -11,7 +11,6 @@
     
     <!-- Meta Tags for SEO and Social Sharing -->
     <meta name="description" content="Find clean, safe restrooms anywhere in the USA. Specializing in truck stops, rest areas, gas stations, and traveler-friendly locations.">
-    <!-- Force Deploy: September 17, 2025 - Real Geoapify Integration -->
     <meta name="keywords" content="restroom finder, bathroom locator, truck stops, rest areas, travel, clean restrooms, GTGOTG">
     <meta name="author" content="GTGOTG Team">
     
@@ -20,14 +19,14 @@
     <meta property="og:url" content="https://gtgotg.com">
     <meta property="og:title" content="Got To Go On The Go - Find Clean Restrooms">
     <meta property="og:description" content="Find clean, safe restrooms anywhere in the USA. Truck stops, rest areas, and more!">
-    <meta property="og:image" content="https://gtgotg.com/logo.png">
+    <meta property="og:image" content="thumbnail.png">
     
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="https://gtgotg.com">
     <meta property="twitter:title" content="Got To Go On The Go - Find Clean Restrooms">
     <meta property="twitter:description" content="Find clean, safe restrooms anywhere in the USA. Truck stops, rest areas, and more!">
-    <meta property="twitter:image" content="https://gtgotg.com/logo.png">
+    <meta property="twitter:image" content="thumbnail.png">
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
@@ -66,10 +65,9 @@
         }
 
         .header-logo {
-            height: 60px;
+            height: 80px;
             width: auto;
             flex-shrink: 0;
-            display: block;
         }
 
         .header-text {
@@ -156,55 +154,32 @@
             border-color: #667eea;
         }
 
-        .location-input-container {
-            position: relative;
+        .priority-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin: 15px 0;
         }
 
-        .use-location-btn {
-            position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
+        .priority-btn {
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        .priority-btn.active {
+            border-color: #667eea;
             background: #667eea;
             color: white;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.8rem;
         }
 
-        .use-location-btn:hover {
-            background: #5a6fd8;
-        }
-
-        .autocomplete-dropdown {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background: white;
-            border: 2px solid #e0e0e0;
-            border-top: none;
-            border-radius: 0 0 8px 8px;
-            max-height: 200px;
-            overflow-y: auto;
-            z-index: 1000;
-            display: none;
-        }
-
-        .autocomplete-item {
-            padding: 12px;
-            cursor: pointer;
-            border-bottom: 1px solid #f0f0f0;
-        }
-
-        .autocomplete-item:hover {
-            background: #f8f9fa;
-        }
-
-        .autocomplete-item:last-child {
-            border-bottom: none;
+        .priority-btn:hover {
+            border-color: #667eea;
         }
 
         .search-btn {
@@ -423,39 +398,6 @@
             margin-bottom: 20px;
         }
 
-        .location-suggestions {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background: white;
-            border: 1px solid #e0e0e0;
-            border-top: none;
-            border-radius: 0 0 8px 8px;
-            max-height: 200px;
-            overflow-y: auto;
-            z-index: 1000;
-            display: none;
-        }
-
-        .form-group {
-            position: relative;
-        }
-
-        .suggestion-item {
-            padding: 12px;
-            cursor: pointer;
-            border-bottom: 1px solid #f0f0f0;
-        }
-
-        .suggestion-item:hover {
-            background: #f8f9fa;
-        }
-
-        .suggestion-item:last-child {
-            border-bottom: none;
-        }
-
         .success {
             background: #e8f5e8;
             color: #2e7d32;
@@ -554,10 +496,14 @@
             }
             
             .header-logo {
-                height: 50px;
+                height: 60px;
             }
             
             .business-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .priority-buttons {
                 grid-template-columns: 1fr;
             }
         }
@@ -572,61 +518,52 @@
                 <img src="logo.png" alt="GTGOTG Logo" class="header-logo">
                 <div class="header-text">
                     <h1>Got To Go On The Go</h1>
-                    <p style="font-size: 1.2rem;">Public restrooms, rated and reviewed by real people, like you</p>
+                    <p style="font-size: 1.2rem;">Find clean, safe restrooms anywhere in the USA</p>
                 </div>
             </div>
-            <p class="header-subtitle">Find clean, safe restrooms anywhere in the USA</p>
+            <p class="header-subtitle">Truck Stops, Rest Areas & More!</p>
         </div>
 
         <div class="main-content">
             <div class="search-section">
                 <form class="search-form" id="searchForm">
                     <div class="form-group">
-                        <label for="location">Location (City, State, Zip Code, or Address)</label>
-                        <div class="location-input-container">
-                            <input type="text" id="location" placeholder="e.g., Denver, CO or 80202 or I-70 Exit 123" required>
-                            <button type="button" class="use-location-btn" onclick="useMyLocation()">📍 Use My Location</button>
-                            <div class="autocomplete-dropdown" id="autocompleteDropdown"></div>
-                        </div>
-                        <div id="locationSuggestions" class="location-suggestions"></div>
+                        <label for="location">Location (City, State or Address)</label>
+                        <input type="text" id="location" placeholder="e.g., Denver, CO or I-70 Exit 123" required>
                     </div>
                     
                     <div class="form-group">
                         <label for="radius">Search Radius</label>
                         <select id="radius">
-                            <option value="8047">5 miles</option>
-                            <option value="16093">10 miles</option>
-                            <option value="24140" selected>15 miles</option>
-                            <option value="40234">25 miles</option>
-                            <option value="80467">50 miles</option>
+                            <option value="5000">5 km (~3 miles)</option>
+                            <option value="10000">10 km (~6 miles)</option>
+                            <option value="25000" selected>25 km (~15 miles)</option>
+                            <option value="50000">50 km (~30 miles)</option>
                         </select>
                     </div>
 
                     <div class="form-group">
-                        <label for="resultLimit">Number of Results</label>
-                        <select id="resultLimit">
-                            <option value="5">5 locations</option>
-                            <option value="10" selected>10 locations</option>
-                            <option value="20">20 locations</option>
-                            <option value="25">25 locations</option>
-                            <option value="30">30 locations</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="category">Business Category</label>
-                        <select id="category">
-                            <option value="all">🎯 All Categories</option>
-                            <option value="gas_stations">⛽ Gas/Fuel Stations</option>
-                            <option value="convenience_stores">🏪 Convenience Stores</option>
-                            <option value="truck_stops">🚛 Truck Stops</option>
-                            <option value="restaurants">🍽️ Restaurants</option>
-                            <option value="rest_areas">🛣️ Rest Areas</option>
-                            <option value="general_merchandise">🛒 General Merchandise</option>
-                            <option value="grocery_stores">🥬 Grocery Stores</option>
-                            <option value="fast_food">🍔 Fast Food</option>
-                            <option value="bars_taverns">🍺 Bars/Taverns</option>
-                        </select>
+                        <label>Priority Categories</label>
+                        <div class="priority-buttons">
+                            <div class="priority-btn active" data-priority="truck_stops">
+                                🚛 Truck Stops & Rest Areas
+                            </div>
+                            <div class="priority-btn" data-priority="gas_stations">
+                                ⛽ Gas Stations
+                            </div>
+                            <div class="priority-btn" data-priority="restaurants">
+                                🍔 Restaurants & Fast Food
+                            </div>
+                            <div class="priority-btn" data-priority="shopping">
+                                🏪 Shopping & Retail
+                            </div>
+                            <div class="priority-btn" data-priority="hotels">
+                                🏨 Hotels & Lodging
+                            </div>
+                            <div class="priority-btn" data-priority="all">
+                                🎯 All Categories
+                            </div>
+                        </div>
                     </div>
 
                     <button type="submit" class="search-btn" id="searchBtn">
@@ -665,16 +602,16 @@
                     <div class="stat-label">Total Found</div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-number" id="fuelStationCount">0</div>
-                    <div class="stat-label">Fuel Stations</div>
-                </div>
-                <div class="stat-item">
                     <div class="stat-number" id="truckStopCount">0</div>
                     <div class="stat-label">Truck Stops</div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-number" id="restAreaCount">0</div>
-                    <div class="stat-label">Rest Areas</div>
+                    <div class="stat-number" id="gasStationCount">0</div>
+                    <div class="stat-label">Gas Stations</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="chainCount">0</div>
+                    <div class="stat-label">Chain Stores</div>
                 </div>
             </div>
 
@@ -731,63 +668,11 @@
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        const GEOAPIFY_API_KEY = 'fdb6a068a51e4a58ad7a479281da68b5';
+        const GEOAPIFY_API_KEY = '0dd9c79bbb8d4b189288ae96d8c614f6';
         let map;
         let markers = [];
         let currentBusinesses = [];
         
-        // Business categories with correct Geoapify API categories
-        const businessCategories = {
-            gas_stations: {
-                categories: ['automotive.fuel', 'commercial.fuel', 'service.vehicle.fuel'],
-                chains: ['shell', 'exxonmobil', 'exxon', 'bp', 'chevron', 'phillips 66', 'valero', 'sunoco', 'marathon', 'speedway', 'citgo', 'conoco', 'mobil', 'texaco', '76', 'arco', 'gulf'],
-                keywords: ['gas station', 'fuel station', 'petrol station']
-            },
-            convenience_stores: {
-                categories: ['commercial.convenience', 'commercial.food_and_drink.convenience'],
-                chains: ['7-eleven', 'circle k', 'wawa', 'sheetz', 'casey\'s', 'kwik trip', 'speedway', 'pilot', 'flying j'],
-                keywords: ['convenience store', 'corner store']
-            },
-            truck_stops: {
-                categories: ['commercial.truck_stop', 'service.vehicle.truck_stop'],
-                chains: ['pilot', 'flying j', 'loves', 'ta', 'petro', 'speedway'],
-                keywords: ['truck stop', 'travel center', 'travel plaza']
-            },
-            restaurants: {
-                categories: ['commercial.food_and_drink.restaurant', 'commercial.food_and_drink.fast_food'],
-                chains: ['mcdonalds', 'burger king', 'subway', 'kfc', 'taco bell', 'wendys', 'pizza hut', 'dominos'],
-                keywords: ['restaurant', 'dining']
-            },
-            rest_areas: {
-                categories: ['tourism.information.rest_area', 'highway.rest_area'],
-                chains: [],
-                keywords: ['rest area', 'rest stop', 'highway rest']
-            },
-            general_merchandise: {
-            public_bathrooms: [
-                'access',
-                'access.yes',
-                'amenity.toilet'
-            ],
-                    'commercial.truck_stop',
-                    'commercial.food_and_drink.restaurant',
-                    'commercial.food_and_drink.fast_food',
-                    'tourism.information.rest_area',
-                    'commercial.supermarket',
-                    'commercial.shopping',
-                    'commercial.food_and_drink.bar',
-                    'accommodation.hotel',
-                    'accommodation.motel'
-                'commercial.food_and_drink.bar',
-                'commercial.food_and_drink.pub',
-                'entertainment.nightclub',
-                'commercial.food_and_drink.restaurant.cocktail_bar',
-                ],
-                chains: [],
-                keywords: []
-            }
-        };
-
         // Initialize map
         function initMap() {
             try {
@@ -810,103 +695,62 @@
             }
         }
 
-        // Location autocomplete
-        let autocompleteTimeout;
-        document.getElementById('location').addEventListener('input', (e) => {
-            clearTimeout(autocompleteTimeout);
-            const query = e.target.value.trim();
-            
-            if (query.length < 3) {
-                hideAutocomplete();
-                return;
-            }
-            
-            autocompleteTimeout = setTimeout(() => {
-                searchLocations(query);
-            }, 300);
+        // Restroom categories with truck stops priority
+        const restroomCategories = {
+            truck_stops: [
+                'commercial.gas_station',
+                'tourism.information.rest_area',
+                'commercial.truck_stop',
+                'service.vehicle.fuel'
+            ],
+            gas_stations: [
+                'commercial.gas_station',
+                'service.vehicle.fuel'
+            ],
+            restaurants: [
+                'commercial.food_and_drink.restaurant',
+                'commercial.food_and_drink.fast_food',
+                'commercial.food_and_drink.cafe'
+            ],
+            shopping: [
+                'commercial.shopping.mall',
+                'commercial.supermarket',
+                'commercial.department_store',
+                'commercial.electronics'
+            ],
+            hotels: [
+                'accommodation.hotel',
+                'accommodation.motel'
+            ],
+            all: [
+                'commercial.gas_station',
+                'tourism.information.rest_area',
+                'commercial.truck_stop',
+                'service.vehicle.fuel',
+                'commercial.supermarket',
+                'accommodation',
+                'commercial.shopping',
+                'commercial.food_and_drink',
+                'commercial.department_store',
+                'entertainment',
+                'healthcare'
+            ]
+        };
+
+        const truckStopChains = [
+            'pilot', 'flying j', 'loves', 'ta', 'travel centers', 'petro',
+            'shell', 'exxon', 'bp', 'chevron', 'mobil', 'texaco', 'sunoco',
+            'speedway', 'wawa', 'sheetz', 'casey', 'kwik trip', 'buc-ee'
+        ];
+
+        // Priority button handling
+        document.querySelectorAll('.priority-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.priority-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            });
         });
 
-        async function searchLocations(query) {
-            try {
-                const url = `https://api.geoapify.com/v1/geocode/autocomplete?text=${encodeURIComponent(query)}&apiKey=${GEOAPIFY_API_KEY}&limit=5&filter=countrycode:us`;
-                const response = await fetch(url);
-                const data = await response.json();
-                
-                showAutocomplete(data.features || []);
-            } catch (error) {
-                console.error('Autocomplete error:', error);
-                hideAutocomplete();
-            }
-        }
-
-        function showAutocomplete(locations) {
-            const dropdown = document.getElementById('autocompleteDropdown');
-            
-            if (locations.length === 0) {
-                hideAutocomplete();
-                return;
-            }
-            
-            dropdown.innerHTML = locations.map(location => 
-                `<div class="autocomplete-item" onclick="selectLocation('${location.properties.formatted}')">${location.properties.formatted}</div>`
-            ).join('');
-            
-            dropdown.style.display = 'block';
-        }
-
-        function hideAutocomplete() {
-            document.getElementById('autocompleteDropdown').style.display = 'none';
-        }
-
-        function selectLocation(location) {
-            document.getElementById('location').value = location;
-            hideAutocomplete();
-        }
-
-        // Use current location
-        async function useMyLocation() {
-            if (!navigator.geolocation) {
-                showError('Geolocation is not supported by this browser');
-                return;
-            }
-
-            const btn = document.querySelector('.use-location-btn');
-            btn.textContent = '📍 Getting...';
-            btn.disabled = true;
-
-            navigator.geolocation.getCurrentPosition(
-                async (position) => {
-                    try {
-                        const lat = position.coords.latitude;
-                        const lng = position.coords.longitude;
-                        
-                        const url = `https://api.geoapify.com/v1/geocode/reverse?lat=${lat}&lon=${lng}&apiKey=${GEOAPIFY_API_KEY}`;
-                        const response = await fetch(url);
-                        const data = await response.json();
-                        
-                        if (data.features && data.features.length > 0) {
-                            const address = data.features[0].properties.formatted;
-                            document.getElementById('location').value = address;
-                            showSuccess(`Location found: ${address}`);
-                        } else {
-                            showError('Could not determine your address');
-                        }
-                    } catch (error) {
-                        showError('Error getting your location');
-                    } finally {
-                        btn.textContent = '📍 Use My Location';
-                        btn.disabled = false;
-                    }
-                },
-                (error) => {
-                    showError('Unable to get your location. Please enter manually.');
-                    btn.textContent = '📍 Use My Location';
-                    btn.disabled = false;
-                }
-            );
-        }
-
-        // Search form handler
         document.getElementById('searchForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             await searchBusinesses();
@@ -915,8 +759,7 @@
         async function searchBusinesses() {
             const location = document.getElementById('location').value.trim();
             const radius = document.getElementById('radius').value;
-            const resultLimit = parseInt(document.getElementById('resultLimit').value);
-            const category = document.getElementById('category').value;
+            const priority = document.querySelector('.priority-btn.active').dataset.priority;
             
             if (!location) {
                 showError('Please enter a location');
@@ -930,7 +773,7 @@
 
             try {
                 // Geocode the location
-                const geocodeUrl = `https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(location)}&apiKey=${GEOAPIFY_API_KEY}&limit=1&filter=countrycode:us`;
+                const geocodeUrl = `https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(location)}&apiKey=${GEOAPIFY_API_KEY}&limit=1`;
                 const geocodeResponse = await fetch(geocodeUrl);
 
                 if (!geocodeResponse.ok) {
@@ -940,7 +783,7 @@
                 const geocodeData = await geocodeResponse.json();
                 
                 if (!geocodeData.features || geocodeData.features.length === 0) {
-                    throw new Error('Location not found. Please try a different location.');
+                    throw new Error('Location not found');
                 }
 
                 const coords = geocodeData.features[0].geometry.coordinates;
@@ -948,14 +791,21 @@
                 const longitude = coords[0];
                 const formattedAddress = geocodeData.features[0].properties.formatted;
 
-                // Search for businesses
-                let businesses = await searchByCategory(category, latitude, longitude, radius);
+                // Get appropriate categories
+                const categories = restroomCategories[priority].join(',');
+
+                const placesUrl = `https://api.geoapify.com/v2/places?categories=${categories}&filter=circle:${longitude},${latitude},${radius}&limit=100&apiKey=${GEOAPIFY_API_KEY}`;
+                const placesResponse = await fetch(placesUrl);
+
+                if (!placesResponse.ok) {
+                    throw new Error('Search failed');
+                }
+
+                const placesData = await placesResponse.json();
+                let businesses = placesData.features || [];
 
                 // Process and filter businesses
-                businesses = processBusinesses(businesses, latitude, longitude, category);
-
-                // Limit to 25 results
-                businesses = businesses.slice(0, resultLimit);
+                businesses = processBusinesses(businesses, latitude, longitude, priority);
 
                 currentBusinesses = businesses;
                 updateMap(businesses, latitude, longitude);
@@ -973,145 +823,85 @@
             }
         }
 
-        async function searchByCategory(category, lat, lng, radius) {
-            const categoryConfig = businessCategories[category];
-            let allBusinesses = [];
-
-            try {
-                // Search by categories
-                for (const cat of categoryConfig.categories) {
-                    try {
-                        const limit = document.getElementById('resultLimit').value;
-                        const url = `https://api.geoapify.com/v2/places?categories=${cat}&filter=circle:${lng},${lat},${radius}&limit=${limit}&apiKey=${GEOAPIFY_API_KEY}`;
-                        const response = await fetch(url);
-                        
-                        if (response.ok) {
-                            const data = await response.json();
-                            if (data.features) {
-                                allBusinesses.push(...data.features);
-                            }
-                        }
-                    } catch (error) {
-                        console.warn(`Error searching category ${cat}:`, error);
-                    }
-                }
-
-                // Additional text searches for gas stations
-                if (category === 'gas_stations' || category === 'all') {
-                    for (const keyword of ['gas station', 'fuel station', 'shell', 'exxon', 'bp', 'chevron']) {
-                        try {
-                            const url = `https://api.geoapify.com/v2/places?text=${encodeURIComponent(keyword)}&filter=circle:${lng},${lat},${radius}&limit=25&apiKey=${GEOAPIFY_API_KEY}`;
-                            const response = await fetch(url);
-                            
-                            if (response.ok) {
-                                const data = await response.json();
-                                if (data.features) {
-                                    allBusinesses.push(...data.features);
-                                }
-                            }
-                        } catch (error) {
-                            console.warn(`Error searching keyword ${keyword}:`, error);
-                        }
-                    }
-                }
-
-                // Remove duplicates based on name and location
-                const uniqueBusinesses = [];
-                const seen = new Set();
-
-                for (const business of allBusinesses) {
-                    const key = `${business.properties.name}_${business.geometry.coordinates[0].toFixed(4)}_${business.geometry.coordinates[1].toFixed(4)}`;
-                    if (!seen.has(key)) {
-                        seen.add(key);
-                        uniqueBusinesses.push(business);
-                    }
-                }
-
-                return uniqueBusinesses;
-
-            } catch (error) {
-                console.error('Error in searchByCategory:', error);
-                return [];
-            }
-        }
-
-        function processBusinesses(businesses, searchLat, searchLng, category) {
-            const categoryConfig = businessCategories[category];
-            
+        function processBusinesses(businesses, searchLat, searchLng, priority) {
             // Calculate distances and scores
             businesses = businesses.map(business => {
                 const coords = business.geometry.coordinates;
                 const distance = calculateDistance(searchLat, searchLng, coords[1], coords[0]);
-                const restroomProbability = calculateRestroomProbability(business, category);
-                const isChain = isChainStore(business.properties.name, categoryConfig.chains);
-                const businessType = getBusinessType(business, category);
+                const restroomProbability = calculateRestroomProbability(business, priority);
+                const isChain = isChainStore(business.properties.name);
+                const isTruckStop = isTruckStopLocation(business);
                 
                 return { 
                     ...business, 
                     distance, 
                     restroomProbability,
                     isChain,
-                    businessType
+                    isTruckStop
                 };
             });
 
-            // Sort by distance (nearest first)
-            businesses.sort((a, b) => a.distance - b.distance);
+            // Sort by priority: truck stops first, then by probability, then by distance
+            businesses.sort((a, b) => {
+                if (a.isTruckStop && !b.isTruckStop) return -1;
+                if (!a.isTruckStop && b.isTruckStop) return 1;
+                
+                if (a.restroomProbability !== b.restroomProbability) {
+                    return b.restroomProbability - a.restroomProbability;
+                }
+                
+                return a.distance - b.distance;
+            });
 
             return businesses;
         }
 
-        function calculateRestroomProbability(business, category) {
+        function calculateRestroomProbability(business, priority) {
             const props = business.properties;
             const name = props.name.toLowerCase();
             const categories = props.categories || [];
             
-            let score = 60; // Base score
+            let score = 50; // Base score
 
-            // Category-specific scoring
-            if (category === 'gas_stations' && (name.includes('gas') || name.includes('fuel') || name.includes('station'))) {
-                score += 30;
+            // Truck stops and rest areas get highest priority
+            if (isTruckStopLocation(business)) {
+                score += 45;
             }
-            if (category === 'truck_stops' && (name.includes('truck') || name.includes('travel'))) {
-                score += 35;
-            }
-            if (category === 'rest_areas') {
-                score += 35;
-            }
+
+            // Category-based scoring
+            if (categories.some(cat => cat.includes('gas_station'))) score += 40;
+            if (categories.some(cat => cat.includes('rest_area'))) score += 45;
+            if (categories.some(cat => cat.includes('truck_stop'))) score += 45;
+            if (categories.some(cat => cat.includes('supermarket'))) score += 35;
+            if (categories.some(cat => cat.includes('accommodation'))) score += 35;
+            if (categories.some(cat => cat.includes('restaurant'))) score += 30;
+            if (categories.some(cat => cat.includes('fast_food'))) score += 30;
 
             // Chain store bonus
-            const categoryConfig = businessCategories[category];
-            if (isChainStore(name, categoryConfig.chains)) {
+            if (isChainStore(name)) {
                 score += 15;
             }
 
             // Size indicators
-            if (['center', 'plaza', 'station', 'stop'].some(word => name.includes(word))) {
-                score += 10;
+            if (['truck stop', 'travel center', 'plaza', 'station'].some(word => name.includes(word))) {
+                score += 20;
             }
 
             return Math.min(score, 95);
         }
 
-        function isChainStore(name, chains) {
-            const nameLower = name.toLowerCase();
-            return chains.some(chain => nameLower.includes(chain.toLowerCase()));
+        function isTruckStopLocation(business) {
+            const name = business.properties.name.toLowerCase();
+            const categories = business.properties.categories || [];
+            
+            return truckStopChains.some(chain => name.includes(chain)) ||
+                   categories.some(cat => cat.includes('truck_stop') || cat.includes('rest_area')) ||
+                   ['truck stop', 'travel center', 'rest area', 'service plaza'].some(term => name.includes(term));
         }
 
-        function getBusinessType(business, category) {
-            const name = business.properties.name.toLowerCase();
-            
-            if (category === 'gas_stations' || name.includes('gas') || name.includes('fuel')) return 'Gas Station';
-            if (category === 'truck_stops' || name.includes('truck') || name.includes('travel')) return 'Truck Stop';
-            if (category === 'rest_areas') return 'Rest Area';
-            if (category === 'convenience_stores') return 'Convenience Store';
-            if (category === 'restaurants') return 'Restaurant';
-            if (category === 'fast_food') return 'Fast Food';
-            if (category === 'grocery_stores') return 'Grocery Store';
-            if (category === 'general_merchandise') return 'Store';
-            if (category === 'bars_taverns') return 'Bar/Tavern';
-            
-            return 'Business';
+        function isChainStore(name) {
+            const nameLower = name.toLowerCase();
+            return truckStopChains.some(chain => nameLower.includes(chain));
         }
 
         function updateMap(businesses, centerLat, centerLng) {
@@ -1132,17 +922,40 @@
                 markers = [];
 
                 // Set map center and zoom
-                map.setView([centerLat, centerLng], 11);
+                map.setView([centerLat, centerLng], 10);
 
                 // Add markers for businesses
                 businesses.forEach(business => {
                     try {
                         const coords = business.geometry.coordinates;
-                                ${business.isChain ? '<p><strong>🏪 Chain Store</strong></p>' : ''}
-                                <button onclick="reviewBusiness('${props.name}', '${props.formatted}')" style="background: #667eea; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; margin-top: 10px;">Rate Restroom</button>
-                            </div>
-                            <div class="priority-btn" data-priority="public_bathrooms">
-                                🚽 Public Bathrooms
+                        const props = business.properties;
+                        
+                        let icon = '🚽';
+                        if (business.isTruckStop) icon = '🚛';
+                        else if (props.categories?.some(cat => cat.includes('gas_station'))) icon = '⛽';
+                        else if (props.categories?.some(cat => cat.includes('restaurant'))) icon = '🍔';
+                        else if (props.categories?.some(cat => cat.includes('hotel'))) icon = '🏨';
+
+                        const marker = L.marker([coords[1], coords[0]], {
+                            icon: L.divIcon({
+                                html: `<div style="background: white; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border: 2px solid #667eea; font-size: 16px;">${icon}</div>`,
+                                className: 'custom-marker',
+                                iconSize: [30, 30],
+                                iconAnchor: [15, 15]
+                            })
+                        }).addTo(map);
+
+                        const businessName = props.name || 'Unknown Business';
+                        const businessAddress = props.formatted || 'Address not available';
+                        
+                        marker.bindPopup(`
+                            <div style="min-width: 200px;">
+                                <h3>${businessName}</h3>
+                                <p>${businessAddress}</p>
+                                <p><strong>Distance:</strong> ${business.distance.toFixed(2)} km</p>
+                                <p><strong>Restroom Probability:</strong> ${business.restroomProbability}%</p>
+                                ${business.isTruckStop ? '<p><strong>🚛 Truck Stop/Rest Area</strong></p>' : ''}
+                                <button onclick="reviewBusiness('${businessName}', '${businessAddress}')" style="background: #667eea; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; margin-top: 10px;">Rate Restroom</button>
                             </div>
                         `);
 
@@ -1190,16 +1003,18 @@
             // Calculate stats
             const stats = {
                 total: businesses.length,
-                fuelStations: businesses.filter(b => b.businessType === 'Gas Station').length,
-                truckStops: businesses.filter(b => b.businessType === 'Truck Stop').length,
-                restAreas: businesses.filter(b => b.businessType === 'Rest Area').length
+                truckStops: businesses.filter(b => b.isTruckStop).length,
+                gasStations: businesses.filter(b => 
+                    b.properties.categories?.some(cat => cat.includes('gas_station'))
+                ).length,
+                chains: businesses.filter(b => b.isChain).length
             };
 
             // Update stats
             document.getElementById('totalCount').textContent = stats.total;
-            document.getElementById('fuelStationCount').textContent = stats.fuelStations;
             document.getElementById('truckStopCount').textContent = stats.truckStops;
-            document.getElementById('restAreaCount').textContent = stats.restAreas;
+            document.getElementById('gasStationCount').textContent = stats.gasStations;
+            document.getElementById('chainCount').textContent = stats.chains;
 
             resultsCount.textContent = `${businesses.length} restroom locations found near ${searchLocation}`;
             
@@ -1223,26 +1038,32 @@
             card.className = 'business-card';
             
             const props = business.properties;
+            const category = props.categories ? props.categories[0].split('.').pop() : 'business';
             const phone = props.contact?.phone || '';
+            const hours = props.opening_hours || '';
             
             // Create restroom badge
-            const restroomBadge = createRestroomBadge(business.restroomProbability, business.businessType);
+            const restroomBadge = createRestroomBadge(business.restroomProbability, business.isTruckStop);
             const chainIndicator = business.isChain ? '<span class="chain-indicator">CHAIN</span>' : '';
+
+            const businessName = props.name || 'Unknown Business';
+            const businessAddress = props.formatted || 'Address not available';
 
             card.innerHTML = `
                 ${restroomBadge}
                 <div class="business-name">
-                    ${props.name || 'Unknown Business'}
+                    ${businessName}
                     ${chainIndicator}
                 </div>
-                <div class="business-address">📍 ${props.formatted || 'Address not available'}</div>
+                <div class="business-address">📍 ${businessAddress}</div>
                 <div class="business-details">
-                    <span class="detail-tag">${getBusinessIcon(business.businessType)} ${business.businessType}</span>
+                    <span class="detail-tag">${business.isTruckStop ? '🚛' : '🏪'} ${category}</span>
                     ${phone ? `<span class="detail-tag">📞 ${phone}</span>` : ''}
                     <span class="detail-tag">📏 ${business.distance.toFixed(2)} km</span>
                     <span class="detail-tag">🚽 ${business.restroomProbability}% likely</span>
+                    ${hours ? `<span class="detail-tag">🕒 Open</span>` : ''}
                 </div>
-                <button class="review-button" onclick="reviewBusiness('${props.name || 'Unknown'}', '${props.formatted || ''}')">
+                <button class="review-button" onclick="reviewBusiness('${businessName}', '${businessAddress}')">
                     ⭐ Rate This Restroom
                 </button>
             `;
@@ -1265,28 +1086,13 @@
             return card;
         }
 
-        function getBusinessIcon(businessType) {
-            const icons = {
-                'Gas Station': '⛽',
-                'Truck Stop': '🚛',
-                'Rest Area': '🛣️',
-                'Fast Food': '🍔',
-                'Restaurant': '🍽️',
-                'Convenience Store': '🏪',
-                'Grocery Store': '🥬',
-                'Store': '🛒',
-                'Bar/Tavern': '🍺'
-            };
-            return icons[businessType] || '🏪';
-        }
-
-        function createRestroomBadge(probability, businessType) {
+        function createRestroomBadge(probability, isTruckStop) {
             let badgeClass, badgeText;
             
-            if (businessType === 'Rest Area') {
-                badgeClass = 'badge-excellent';
-                badgeText = '🚽 Public Restroom';
-            } else if (probability >= 85) {
+            if (isTruckStop) {
+                badgeClass = 'badge-truck-stop';
+                badgeText = '🚛 Truck Stop';
+            } else if (probability >= 90) {
                 badgeClass = 'badge-excellent';
                 badgeText = '🚽 Restroom Likely';
             } else if (probability >= 70) {
@@ -1333,6 +1139,7 @@
             const username = document.getElementById('adminUsername').value;
             const password = document.getElementById('adminPassword').value;
             
+            // Simple admin check (in production, use proper authentication)
             if (username === 'admin' && password === 'gtgotg2025') {
                 closeAdminModal();
                 showAdminDashboard();
@@ -1342,14 +1149,16 @@
         });
 
         function showAdminDashboard() {
+            // Load dashboard data
             const totalSearches = localStorage.getItem('totalSearches') || '0';
             const totalReviews = localStorage.getItem('totalReviews') || '0';
-            const activeUsers = Math.floor(Math.random() * 50) + 10;
+            const activeUsers = Math.floor(Math.random() * 50) + 10; // Simulated
             
             document.getElementById('totalSearches').textContent = totalSearches;
             document.getElementById('totalReviews').textContent = totalReviews;
             document.getElementById('activeUsers').textContent = activeUsers;
             
+            // Load recent activity
             const recentActivity = JSON.parse(localStorage.getItem('recentActivity') || '[]');
             const activityHtml = recentActivity.length > 0 ? 
                 recentActivity.slice(-10).map(activity => `<p>${activity}</p>`).join('') :
@@ -1360,9 +1169,11 @@
         }
 
         function trackSearch(location, resultCount) {
+            // Update search count
             const currentCount = parseInt(localStorage.getItem('totalSearches') || '0');
             localStorage.setItem('totalSearches', (currentCount + 1).toString());
             
+            // Add to recent activity
             const activity = JSON.parse(localStorage.getItem('recentActivity') || '[]');
             activity.push(`Search: ${location} - ${resultCount} results found - ${new Date().toLocaleString()}`);
             localStorage.setItem('recentActivity', JSON.stringify(activity));
@@ -1399,79 +1210,12 @@
             document.getElementById('resultsSection').style.display = 'none';
         }
 
-        // Location autocomplete functionality
-        function setupLocationAutocomplete() {
-            const locationInput = document.getElementById('location');
-            const suggestionsDiv = document.getElementById('locationSuggestions');
-            let debounceTimer;
-
-            locationInput.addEventListener('input', (e) => {
-                const query = e.target.value.trim();
-                
-                if (query.length < 3) {
-                    suggestionsDiv.style.display = 'none';
-                    return;
-                }
-
-                clearTimeout(debounceTimer);
-                debounceTimer = setTimeout(async () => {
-                    try {
-                        const response = await fetch(
-                            `https://api.geoapify.com/v1/geocode/autocomplete?text=${encodeURIComponent(query)}&apiKey=${GEOAPIFY_API_KEY}&limit=5&filter=countrycode:us`
-                        );
-                        
-                        if (response.ok) {
-                            const data = await response.json();
-                            displaySuggestions(data.features || []);
-                        }
-                    } catch (error) {
-                        console.error('Autocomplete error:', error);
-                    }
-                }, 300);
-            });
-
-            // Hide suggestions when clicking outside
-            document.addEventListener('click', (e) => {
-                if (!locationInput.contains(e.target) && !suggestionsDiv.contains(e.target)) {
-                    suggestionsDiv.style.display = 'none';
-                }
-            });
-        }
-
-        function displaySuggestions(features) {
-            const suggestionsDiv = document.getElementById('locationSuggestions');
-            
-            if (features.length === 0) {
-                suggestionsDiv.style.display = 'none';
-                return;
-            }
-
-            suggestionsDiv.innerHTML = features.map(feature => {
-                const props = feature.properties;
-                return `<div class="suggestion-item" onclick="selectLocation('${props.formatted}')">${props.formatted}</div>`;
-            }).join('');
-
-            suggestionsDiv.style.display = 'block';
-        }
-
-        function selectLocation(location) {
-            document.getElementById('location').value = location;
-            document.getElementById('locationSuggestions').style.display = 'none';
-        }
-
-        // Hide autocomplete when clicking outside
-        document.addEventListener('click', (e) => {
-            if (!e.target.closest('.location-input-container')) {
-                hideAutocomplete();
-            }
-        });
-
         // Initialize app
         window.addEventListener('load', () => {
+            // Wait a bit for all resources to load
             setTimeout(() => {
                 initMap();
-                setupLocationAutocomplete();
-                showSuccess('✅ Ready to find restrooms! Search by location and category to get started.');
+                showSuccess('✅ Ready to find restrooms! Truck stops and rest areas prioritized for travelers.');
             }, 500);
         });
 
