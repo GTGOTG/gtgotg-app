@@ -744,32 +744,62 @@
             },
             convenience_stores: {
                 categories: ['commercial.convenience', 'commercial.food_and_drink.convenience'],
-            all: [
+                chains: ['7-eleven', 'circle k', 'wawa', 'sheetz', 'casey\'s', 'kwik trip', 'speedway', 'pilot', 'flying j'],
+                keywords: ['convenience store', 'corner store']
             },
-                'tourism.information.rest_area',
-                'commercial.truck_stop',
-                'service.vehicle.fuel',
-                'commercial.supermarket',
-                'accommodation',
-                'commercial.shopping',
+            truck_stops: {
+                categories: ['commercial.truck_stop', 'service.vehicle.truck_stop'],
+                chains: ['pilot', 'flying j', 'loves', 'ta', 'petro', 'speedway'],
+                keywords: ['truck stop', 'travel center', 'travel plaza']
+            },
+            restaurants: {
+                categories: ['commercial.food_and_drink.restaurant', 'commercial.food_and_drink.fast_food'],
+                chains: ['mcdonalds', 'burger king', 'subway', 'kfc', 'taco bell', 'wendys', 'pizza hut', 'dominos'],
                 keywords: ['restaurant', 'dining']
             },
-                'commercial.food_and_drink.cafe',
-                'commercial.food_and_drink.bar',
-                'commercial.food_and_drink.pub',
-                'entertainment.nightclub',
-                'commercial.food_and_drink.restaurant.cocktail_bar',
-            general_merchandise: {
-                'commercial.electronics',
+            rest_areas: {
+                categories: ['tourism.information.rest_area', 'highway.rest_area'],
+                chains: [],
+                keywords: ['rest area', 'rest stop', 'highway rest']
             },
-                'accommodation.motel',
+            general_merchandise: {
+                categories: ['commercial.shopping', 'commercial.department_store'],
+                chains: ['walmart', 'target', 'costco', 'sams club', 'home depot', 'lowes'],
+                keywords: ['store', 'shopping']
+            },
+            grocery_stores: {
+                categories: ['commercial.supermarket', 'commercial.food_and_drink.grocery'],
+                chains: ['kroger', 'safeway', 'publix', 'wegmans', 'whole foods', 'trader joes'],
+                keywords: ['grocery', 'supermarket']
+            },
+            fast_food: {
+                categories: ['commercial.food_and_drink.fast_food'],
+                chains: ['mcdonalds', 'burger king', 'subway', 'kfc', 'taco bell', 'wendys'],
+                keywords: ['fast food', 'quick service']
+            },
+            bars_taverns: {
+                categories: ['commercial.food_and_drink.bar', 'commercial.food_and_drink.pub', 'entertainment.nightclub'],
+                chains: [],
+                keywords: ['bar', 'tavern', 'pub']
+            },
+            all: {
+                categories: [
+                    'automotive.fuel',
+                    'commercial.fuel',
+                    'service.vehicle.fuel',
+                    'commercial.convenience',
+                    'commercial.truck_stop',
+                    'commercial.food_and_drink.restaurant',
+                    'commercial.food_and_drink.fast_food',
+                    'tourism.information.rest_area',
+                    'commercial.supermarket',
+                    'commercial.shopping',
+                    'commercial.food_and_drink.bar',
+                    'accommodation.hotel',
+                    'accommodation.motel'
+                ],
                 chains: [],
                 keywords: []
-            ],
-            public_bathrooms: [
-                'access',
-                'access.yes',
-                'amenity.toilet'
             }
         };
 
@@ -966,7 +996,8 @@
                 // Search by categories
                 for (const cat of categoryConfig.categories) {
                     try {
-                        const url = `https://api.geoapify.com/v2/places?categories=${cat}&filter=circle:${lng},${lat},${radius}&limit=50&apiKey=${GEOAPIFY_API_KEY}`;
+                        const limit = document.getElementById('resultLimit').value;
+                        const url = `https://api.geoapify.com/v2/places?categories=${cat}&filter=circle:${lng},${lat},${radius}&limit=${limit}&apiKey=${GEOAPIFY_API_KEY}`;
                         const response = await fetch(url);
                         
                         if (response.ok) {
@@ -1127,11 +1158,18 @@
                         let icon = '🚽';
                         if (business.businessType === 'Gas Station') icon = '⛽';
                         else if (business.businessType === 'Truck Stop') icon = '🚛';
+                        else if (business.businessType === 'Rest Area') icon = '🛣️';
+
+                        const marker = L.marker([coords[1], coords[0]]).addTo(map);
+                        marker.bindPopup(`
+                            <div style="min-width: 200px;">
+                                <h3>${icon} ${props.name || 'Unknown Business'}</h3>
+                                <p><strong>📍 Address:</strong><br>${props.formatted || 'Address not available'}</p>
+                                <p><strong>🏪 Type:</strong> ${business.businessType}</p>
+                                <p><strong>📏 Distance:</strong> ${business.distance.toFixed(2)} km</p>
+                                <p><strong>🚽 Restroom Likelihood:</strong> ${business.restroomProbability}%</p>
                                 ${business.isChain ? '<p><strong>🏪 Chain Store</strong></p>' : ''}
                                 <button onclick="reviewBusiness('${props.name}', '${props.formatted}')" style="background: #667eea; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; margin-top: 10px;">Rate Restroom</button>
-                            </div>
-                            <div class="priority-btn" data-priority="public_bathrooms">
-                                🚽 Public Bathrooms
                             </div>
                         `);
 
