@@ -20,14 +20,14 @@
     <meta property="og:url" content="https://gtgotg.com">
     <meta property="og:title" content="Got To Go On The Go - Find Clean Restrooms">
     <meta property="og:description" content="Find clean, safe restrooms anywhere in the USA. Truck stops, rest areas, and more!">
-    <meta property="og:image" content="thumbnail.png">
+    <meta property="og:image" content="https://gtgotg.com/logo.png">
     
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="https://gtgotg.com">
     <meta property="twitter:title" content="Got To Go On The Go - Find Clean Restrooms">
     <meta property="twitter:description" content="Find clean, safe restrooms anywhere in the USA. Truck stops, rest areas, and more!">
-    <meta property="twitter:image" content="thumbnail.png">
+    <meta property="twitter:image" content="https://gtgotg.com/logo.png">
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
@@ -66,9 +66,10 @@
         }
 
         .header-logo {
-            height: 80px;
+            height: 60px;
             width: auto;
             flex-shrink: 0;
+            display: block;
         }
 
         .header-text {
@@ -553,7 +554,7 @@
             }
             
             .header-logo {
-                height: 60px;
+                height: 50px;
             }
             
             .business-grid {
@@ -763,31 +764,11 @@
                 keywords: ['rest area', 'rest stop', 'highway rest']
             },
             general_merchandise: {
-                categories: ['commercial.shopping', 'commercial.department_store'],
-                chains: ['walmart', 'target', 'costco', 'sams club', 'home depot', 'lowes'],
-                keywords: ['store', 'shopping']
-            },
-            grocery_stores: {
-                categories: ['commercial.supermarket', 'commercial.food_and_drink.grocery'],
-                chains: ['kroger', 'safeway', 'publix', 'wegmans', 'whole foods', 'trader joes'],
-                keywords: ['grocery', 'supermarket']
-            },
-            fast_food: {
-                categories: ['commercial.food_and_drink.fast_food'],
-                chains: ['mcdonalds', 'burger king', 'subway', 'kfc', 'taco bell', 'wendys'],
-                keywords: ['fast food', 'quick service']
-            },
-            bars_taverns: {
-                categories: ['commercial.food_and_drink.bar', 'commercial.food_and_drink.pub', 'entertainment.nightclub'],
-                chains: [],
-                keywords: ['bar', 'tavern', 'pub']
-            },
-            all: {
-                categories: [
-                    'automotive.fuel',
-                    'commercial.fuel',
-                    'service.vehicle.fuel',
-                    'commercial.convenience',
+            public_bathrooms: [
+                'access',
+                'access.yes',
+                'amenity.toilet'
+            ],
                     'commercial.truck_stop',
                     'commercial.food_and_drink.restaurant',
                     'commercial.food_and_drink.fast_food',
@@ -797,6 +778,10 @@
                     'commercial.food_and_drink.bar',
                     'accommodation.hotel',
                     'accommodation.motel'
+                'commercial.food_and_drink.bar',
+                'commercial.food_and_drink.pub',
+                'entertainment.nightclub',
+                'commercial.food_and_drink.restaurant.cocktail_bar',
                 ],
                 chains: [],
                 keywords: []
@@ -1153,23 +1138,11 @@
                 businesses.forEach(business => {
                     try {
                         const coords = business.geometry.coordinates;
-                        const props = business.properties;
-                        
-                        let icon = '🚽';
-                        if (business.businessType === 'Gas Station') icon = '⛽';
-                        else if (business.businessType === 'Truck Stop') icon = '🚛';
-                        else if (business.businessType === 'Rest Area') icon = '🛣️';
-
-                        const marker = L.marker([coords[1], coords[0]]).addTo(map);
-                        marker.bindPopup(`
-                            <div style="min-width: 200px;">
-                                <h3>${icon} ${props.name || 'Unknown Business'}</h3>
-                                <p><strong>📍 Address:</strong><br>${props.formatted || 'Address not available'}</p>
-                                <p><strong>🏪 Type:</strong> ${business.businessType}</p>
-                                <p><strong>📏 Distance:</strong> ${business.distance.toFixed(2)} km</p>
-                                <p><strong>🚽 Restroom Likelihood:</strong> ${business.restroomProbability}%</p>
                                 ${business.isChain ? '<p><strong>🏪 Chain Store</strong></p>' : ''}
                                 <button onclick="reviewBusiness('${props.name}', '${props.formatted}')" style="background: #667eea; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; margin-top: 10px;">Rate Restroom</button>
+                            </div>
+                            <div class="priority-btn" data-priority="public_bathrooms">
+                                🚽 Public Bathrooms
                             </div>
                         `);
 
