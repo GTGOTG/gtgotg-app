@@ -1061,7 +1061,7 @@
                     ${hours ? `<span class="detail-tag">🕒 Open</span>` : ''}
                 </div>
                 <button class="review-button" onclick="reviewBusiness('${(props.name || 'Unknown').replace(/'/g, "\\'").replace(/"/g, '\\"')}', '${(props.formatted || '').replace(/'/g, "\\'").replace(/"/g, '\\"')}')">
-                <button class="review-button" onclick="reviewBusiness('${(props.name || 'Unknown').replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/\n/g, '\\n').replace(/\r/g, '\\r')}', '${(props.formatted || '').replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/\n/g, '\\n').replace(/\r/g, '\\r')}')">
+                <button class="review-button" onclick="reviewBusiness('${(props.name || 'Unknown').replace(/'/g, "\\'")}', '${(props.formatted || '').replace(/'/g, "\\'")}')">
                     ⭐ Rate This Restroom
                 </button>
             `;
