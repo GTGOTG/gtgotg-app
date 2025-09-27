@@ -744,55 +744,32 @@
             },
             convenience_stores: {
                 categories: ['commercial.convenience', 'commercial.food_and_drink.convenience'],
-                chains: ['7-eleven', '7 eleven', 'village pantry', 'circle k', 'casey\'s', 'murphy\'s', 'kwik trip', 'wawa', 'sheetz', 'getgo', 'cumberland farms', 'holiday', 'maverik', 'thorntons'],
-                keywords: ['convenience store', 'corner store']
+            all: [
             },
-            truck_stops: {
-                categories: ['commercial.truck_stop', 'tourism.information.rest_area', 'highway.rest_area'],
-                chains: ['pilot', 'flying j', 'love\'s', 'loves', 'ta', 'travel centers', 'petro', 'sapp bros', 'roady\'s', 'ambest'],
-                keywords: ['truck stop', 'travel center', 'travel plaza']
-            },
-            restaurants: {
-                categories: ['catering.restaurant', 'commercial.food_and_drink.restaurant'],
-                chains: ['applebee\'s', 'applebees', 'texas roadhouse', 'chili\'s', 'chilis', 'ihop', 'olive garden', 'red lobster', 'outback', 'tgi friday\'s', 'cracker barrel'],
+                'tourism.information.rest_area',
+                'commercial.truck_stop',
+                'service.vehicle.fuel',
+                'commercial.supermarket',
+                'accommodation',
+                'commercial.shopping',
                 keywords: ['restaurant', 'dining']
             },
-            rest_areas: {
-                categories: ['highway.rest_area', 'tourism.information.rest_area', 'highway.services'],
-                chains: [],
-                keywords: ['rest area', 'rest stop', 'service plaza', 'welcome center']
-            },
+                'commercial.food_and_drink.cafe',
+                'commercial.food_and_drink.bar',
+                'commercial.food_and_drink.pub',
+                'entertainment.nightclub',
+                'commercial.food_and_drink.restaurant.cocktail_bar',
             general_merchandise: {
-                categories: ['commercial.department_store', 'commercial.supermarket', 'commercial.electronics'],
-                chains: ['walmart', 'target', 'meijer', 'meyer', 'best buy', 'sam\'s club', 'sams club', 'walgreens', 'cvs', 'rite aid', 'dollar general', 'family dollar'],
-                keywords: ['department store', 'big box store']
+                'commercial.electronics',
             },
-            grocery_stores: {
-                categories: ['commercial.supermarket', 'commercial.food_and_drink.supermarket'],
-                chains: ['kroger', 'king soopers', 'albertson\'s', 'albertsons', 'smith\'s', 'smiths', 'aldi', 'safeway', 'publix', 'wegmans', 'giant', 'stop & shop', 'food lion'],
-                keywords: ['grocery store', 'supermarket']
-            },
-            fast_food: {
-                categories: ['catering.fast_food', 'commercial.food_and_drink.fast_food'],
-                chains: ['mcdonald\'s', 'mcdonalds', 'burger king', 'carl\'s jr', 'carls jr', 'taco bell', 'kfc', 'subway', 'wendy\'s', 'wendys', 'arby\'s', 'arbys', 'dairy queen', 'sonic'],
-                keywords: ['fast food', 'quick service']
-            },
-            bars_taverns: {
-                categories: ['commercial.food_and_drink.bar', 'commercial.food_and_drink.pub', 'entertainment.nightclub', 'commercial.food_and_drink.restaurant.cocktail_bar'],
-                chains: ['buffalo wild wings', 'hooters', 'twin peaks', 'tilted kilt'],
-                keywords: ['bar', 'tavern', 'saloon', 'pub']
-            },
-            all: {
-                categories: [
-                    'automotive.fuel', 'commercial.fuel', 'service.vehicle.fuel',
-                    'commercial.convenience', 'commercial.truck_stop',
-                    'catering.restaurant', 'catering.fast_food',
-                    'highway.rest_area', 'tourism.information.rest_area',
-                    'commercial.department_store', 'commercial.supermarket',
-                    'entertainment.nightlife.bar'
-                ],
+                'accommodation.motel',
                 chains: [],
                 keywords: []
+            ],
+            public_bathrooms: [
+                'access',
+                'access.yes',
+                'amenity.toilet'
             }
         };
 
@@ -1150,32 +1127,11 @@
                         let icon = '🚽';
                         if (business.businessType === 'Gas Station') icon = '⛽';
                         else if (business.businessType === 'Truck Stop') icon = '🚛';
-                        else if (business.businessType === 'Rest Area') icon = '🛣️';
-                        else if (business.businessType === 'Fast Food') icon = '🍔';
-                        else if (business.businessType === 'Restaurant') icon = '🍽️';
-                        else if (business.businessType === 'Convenience Store') icon = '🏪';
-                        else if (business.businessType === 'Grocery Store') icon = '🥬';
-                        else if (business.businessType === 'Store') icon = '🛒';
-                        else if (business.businessType === 'Bar/Tavern') icon = '🍺';
-
-                        const marker = L.marker([coords[1], coords[0]], {
-                            icon: L.divIcon({
-                                html: `<div style="background: white; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border: 2px solid #667eea; font-size: 16px;">${icon}</div>`,
-                                className: 'custom-marker',
-                                iconSize: [30, 30],
-                                iconAnchor: [15, 15]
-                            })
-                        }).addTo(map);
-
-                        marker.bindPopup(`
-                            <div style="min-width: 200px;">
-                                <h3>${props.name}</h3>
-                                <p>${props.formatted}</p>
-                                <p><strong>Type:</strong> ${business.businessType}</p>
-                                <p><strong>Distance:</strong> ${business.distance.toFixed(2)} km</p>
-                                <p><strong>Restroom Probability:</strong> ${business.restroomProbability}%</p>
                                 ${business.isChain ? '<p><strong>🏪 Chain Store</strong></p>' : ''}
                                 <button onclick="reviewBusiness('${props.name}', '${props.formatted}')" style="background: #667eea; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; margin-top: 10px;">Rate Restroom</button>
+                            </div>
+                            <div class="priority-btn" data-priority="public_bathrooms">
+                                🚽 Public Bathrooms
                             </div>
                         `);
 
