@@ -1060,7 +1060,6 @@
                     <span class="detail-tag">🚽 ${business.restroomProbability}% likely</span>
                     ${hours ? `<span class="detail-tag">🕒 Open</span>` : ''}
                 </div>
-                <button class="review-button" onclick="reviewBusiness('${props.name || 'Unknown'}', '${props.formatted || ''}')">
                 <button class="review-button" onclick="reviewBusiness('${(props.name || 'Unknown').replace(/'/g, "\\'").replace(/"/g, '\\"')}', '${(props.formatted || '').replace(/'/g, "\\'").replace(/"/g, '\\"')}')">
                     ⭐ Rate This Restroom
                 </button>
