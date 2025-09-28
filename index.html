@@ -468,6 +468,21 @@
             color: black;
         }
 
+        .current-location-btn {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            z-index: 10;
+        }
+
         @media (max-width: 1024px) {
             .main-content {
                 grid-template-columns: 1fr;
@@ -687,6 +702,7 @@
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
+        const GEOAPIFY_API_KEY = '0dd9c79bbb8d4b189288ae96d8c614f6';
         const GEOAPIFY_API_KEY = 'b8c3f5a4d2e1f9g8h7i6j5k4l3m2n1o0'; // Updated API key
         let map;
         let markers = [];
