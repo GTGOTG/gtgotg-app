@@ -536,12 +536,25 @@
                     </div>
                     
                     <div class="form-group">
+                        <label for="limit">Number of Results</label>
+                        <select id="limit">
+                            <option value="5">5 locations</option>
+                            <option value="10" selected>10 locations</option>
+                            <option value="15">15 locations</option>
+                            <option value="20">20 locations</option>
+                            <option value="25">25 locations</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
                         <label for="radius">Search Radius</label>
                         <select id="radius">
-                            <option value="5000">5 km (~3 miles)</option>
-                            <option value="10000">10 km (~6 miles)</option>
-                            <option value="25000" selected>25 km (~15 miles)</option>
-                            <option value="50000">50 km (~30 miles)</option>
+                            <option value="1609">1 mile</option>
+                            <option value="8047" selected>5 miles</option>
+                            <option value="16093">10 miles</option>
+                            <option value="24140">15 miles</option>
+                            <option value="32187">20 miles</option>
+                            <option value="40234">25 miles</option>
                         </select>
                     </div>
 
@@ -801,7 +814,7 @@
                 // Get appropriate categories
                 const categories = restroomCategories[priority].join(',');
 
-                const placesUrl = `https://api.geoapify.com/v2/places?categories=${categories}&filter=circle:${longitude},${latitude},${radius}&limit=100&apiKey=${GEOAPIFY_API_KEY}`;
+                const placesUrl = `https://api.geoapify.com/v2/places?categories=${categories}&filter=circle:${longitude},${latitude},${radius}&limit=${limit}&apiKey=${GEOAPIFY_API_KEY}`;
                 const placesResponse = await fetch(placesUrl);
 
                 if (!placesResponse.ok) {
@@ -959,7 +972,7 @@
                             <div style="min-width: 200px;">
                                 <h3>${businessName}</h3>
                                 <p>${businessAddress}</p>
-                                <p><strong>Distance:</strong> ${business.distance.toFixed(2)} km</p>
+                                <p><strong>Distance:</strong> ${(business.distance * 0.621371).toFixed(2)} miles</p>
                                 <p><strong>Restroom Probability:</strong> ${business.restroomProbability}%</p>
                                 ${business.isTruckStop ? '<p><strong>🚛 Truck Stop/Rest Area</strong></p>' : ''}
                                 <button onclick="reviewBusiness('${businessName}', '${businessAddress}')" style="background: #667eea; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; margin-top: 10px;">Rate Restroom</button>
@@ -1066,7 +1079,7 @@
                 <div class="business-details">
                     <span class="detail-tag">${business.isTruckStop ? '🚛' : '🏪'} ${category}</span>
                     ${phone ? `<span class="detail-tag">📞 ${phone}</span>` : ''}
-                    <span class="detail-tag">📏 ${business.distance.toFixed(2)} km</span>
+                    <span class="detail-tag">📏 ${(business.distance * 0.621371).toFixed(2)} miles</span>
                     <span class="detail-tag">🚽 ${business.restroomProbability}% likely</span>
                     ${hours ? `<span class="detail-tag">🕒 Open</span>` : ''}
                 </div>
