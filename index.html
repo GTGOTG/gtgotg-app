@@ -529,7 +529,10 @@
                 <form class="search-form" id="searchForm">
                     <div class="form-group">
                         <label for="location">Location (City, State or Address)</label>
-                        <input type="text" id="location" placeholder="e.g., Denver, CO or I-70 Exit 123" required>
+                        <div style="position: relative;">
+                            <input type="text" id="location" placeholder="e.g., Denver, CO or I-70 Exit 123" required autocomplete="off">
+                            <div id="autocomplete-dropdown" style="display: none; position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #ddd; border-top: none; border-radius: 0 0 8px 8px; max-height: 200px; overflow-y: auto; z-index: 1000; box-shadow: 0 4px 6px rgba(0,0,0,0.1);"></div>
+                        </div>
                     </div>
                     
                     <div class="form-group">
@@ -753,6 +756,7 @@
 
         document.getElementById('searchForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+            hideAutocomplete();
             await searchBusinesses();
         });
 
@@ -790,6 +794,9 @@
                 const latitude = coords[1];
                 const longitude = coords[0];
                 const formattedAddress = geocodeData.features[0].properties.formatted;
+
+                // Update the input field with the formatted address
+                document.getElementById('location').value = formattedAddress;
 
                 // Get appropriate categories
                 const categories = restroomCategories[priority].join(',');
@@ -1216,6 +1223,7 @@
             setTimeout(() => {
                 initMap();
                 showSuccess('✅ Ready to find restrooms! Truck stops and rest areas prioritized for travelers.');
+                setupAutocomplete();
             }, 500);
         });
 
@@ -1230,6 +1238,88 @@
             if (event.target === dashboardModal) {
                 dashboardModal.style.display = 'none';
             }
+        }
+
+        // Autocomplete functionality
+        let autocompleteTimeout;
+        
+        function setupAutocomplete() {
+            const locationInput = document.getElementById('location');
+            const dropdown = document.getElementById('autocomplete-dropdown');
+            
+            locationInput.addEventListener('input', (e) => {
+                const query = e.target.value.trim();
+                
+                if (query.length < 3) {
+                    hideAutocomplete();
+                    return;
+                }
+                
+                clearTimeout(autocompleteTimeout);
+                autocompleteTimeout = setTimeout(() => {
+                    searchAddresses(query);
+                }, 300);
+            });
+            
+            locationInput.addEventListener('blur', () => {
+                // Delay hiding to allow clicking on dropdown items
+                setTimeout(() => {
+                    hideAutocomplete();
+                }, 200);
+            });
+            
+            locationInput.addEventListener('focus', () => {
+                const query = locationInput.value.trim();
+                if (query.length >= 3) {
+                    searchAddresses(query);
+                }
+            });
+        }
+        
+        async function searchAddresses(query) {
+            try {
+                const geocodeUrl = `https://api.geoapify.com/v1/geocode/autocomplete?text=${encodeURIComponent(query)}&apiKey=${GEOAPIFY_API_KEY}&limit=5&format=json`;
+                const response = await fetch(geocodeUrl);
+                
+                if (!response.ok) return;
+                
+                const data = await response.json();
+                const results = data.results || [];
+                
+                showAutocompleteResults(results);
+            } catch (error) {
+                console.error('Autocomplete error:', error);
+            }
+        }
+        
+        function showAutocompleteResults(results) {
+            const dropdown = document.getElementById('autocomplete-dropdown');
+            
+            if (results.length === 0) {
+                hideAutocomplete();
+                return;
+            }
+            
+            dropdown.innerHTML = results.map(result => `
+                <div style="padding: 12px; cursor: pointer; border-bottom: 1px solid #eee; transition: background 0.2s;" 
+                     onmouseover="this.style.background='#f5f5f5'" 
+                     onmouseout="this.style.background='white'"
+                     onclick="selectAddress('${result.formatted.replace(/'/g, "\\'")}')">
+                    <div style="font-weight: 600; color: #333;">${result.formatted}</div>
+                    ${result.country ? `<div style="font-size: 0.9rem; color: #666;">${result.country}</div>` : ''}
+                </div>
+            `).join('');
+            
+            dropdown.style.display = 'block';
+        }
+        
+        function selectAddress(address) {
+            document.getElementById('location').value = address;
+            hideAutocomplete();
+        }
+        
+        function hideAutocomplete() {
+            document.getElementById('autocomplete-dropdown').style.display = 'none';
         }
     </script>
 </body>
