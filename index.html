@@ -1335,858 +1335,853 @@
                             document.getElementById('location').value = `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
                             showSuccess('✅ Location coordinates found!');
                         }
-                            showSuccess('✅ Using coordinates for location.');
-                            const lat = position.coords.latitude;
-                            const lng = position.coords.longitude;
-                            document.getElementById('location').value = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
-                            showSuccess('✅ Location coordinates found!');
-                        } finally {
-                            locationBtn.disabled = false;
-                            locationBtn.textContent = '📍 Use My Location';
-                        }
-                    },
-                    function(error) {
-                        let message = 'Location access denied. ';
-                        switch(error.code) {
-                            case error.PERMISSION_DENIED:
-                                message += 'Please allow location access and try again.';
-                                break;
-                            case error.POSITION_UNAVAILABLE:
-                                message += 'Location information unavailable.';
-                                break;
-                            case error.TIMEOUT:
-                                message += 'Location request timed out.';
-                                break;
-                        }
-                        showError(message);
+                    } finally {
                         locationBtn.disabled = false;
                         locationBtn.textContent = '📍 Use My Location';
-                    },
-                    {
-                        enableHighAccuracy: true,
-                        timeout: 10000,
-                        maximumAge: 300000
                     }
-                );
-            });
-        }
-        // Autocomplete functionality
-        // Star rating system
-        function initStarRatings() {
-            document.querySelectorAll('.star-rating').forEach(ratingContainer => {
-                const stars = ratingContainer.querySelectorAll('.star');
-                const ratingType = ratingContainer.dataset.rating;
+                },
+                function(error) {
+                    let message = 'Location access denied. ';
+                    switch(error.code) {
+                        case error.PERMISSION_DENIED:
+                            message += 'Please allow location access and try again.';
+                            break;
+                        case error.POSITION_UNAVAILABLE:
+                            message += 'Location information unavailable.';
+                            break;
+                        case error.TIMEOUT:
+                            message += 'Location request timed out.';
+                            break;
+                    }
+                    showError(message);
+                    locationBtn.disabled = false;
+                    locationBtn.textContent = '📍 Use My Location';
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 300000
+                }
+            );
+        });
+    }
+    // Autocomplete functionality
+    // Star rating system
+    function initStarRatings() {
+        document.querySelectorAll('.star-rating').forEach(ratingContainer => {
+            const stars = ratingContainer.querySelectorAll('.star');
+            const ratingType = ratingContainer.dataset.rating;
+            
+            stars.forEach((star, index) => {
+                star.addEventListener('mouseenter', () => {
+                    highlightStars(stars, index + 1, 'hover');
+                });
                 
-                stars.forEach((star, index) => {
-                    star.addEventListener('mouseenter', () => {
-                        highlightStars(stars, index + 1, 'hover');
-                    });
-                    
-                    star.addEventListener('mouseleave', () => {
-                        removeHighlight(stars, 'hover');
-                        highlightStars(stars, ratings[ratingType], 'active');
-                    });
-                    
-                    star.addEventListener('click', () => {
-                        ratings[ratingType] = index + 1;
-                        removeHighlight(stars, 'active');
-                        highlightStars(stars, ratings[ratingType], 'active');
-                    });
+                star.addEventListener('mouseleave', () => {
+                    removeHighlight(stars, 'hover');
+                    highlightStars(stars, ratings[ratingType], 'active');
+                });
+                
+                star.addEventListener('click', () => {
+                    ratings[ratingType] = index + 1;
+                    removeHighlight(stars, 'active');
+                    highlightStars(stars, ratings[ratingType], 'active');
                 });
             });
-        }
+        });
+    }
 
-        function highlightStars(stars, count, className) {
-            for (let i = 0; i < count; i++) {
-                if (stars[i]) {
-                    stars[i].classList.add(className);
-                }
+    function highlightStars(stars, count, className) {
+        for (let i = 0; i < count; i++) {
+            if (stars[i]) {
+                stars[i].classList.add(className);
             }
         }
+    }
 
-        function removeHighlight(stars, className) {
-            stars.forEach(star => {
-                star.classList.remove(className);
+    function removeHighlight(stars, className) {
+        stars.forEach(star => {
+            star.classList.remove(className);
+        });
+    }
+
+    function resetStarRatings() {
+        ratings = { overall: 0, cleanliness: 0, safety: 0 };
+        document.querySelectorAll('.star').forEach(star => {
+            star.classList.remove('active', 'hover');
+        });
+    }
+
+    // Review system
+    function reviewBusiness(businessName, businessAddress) {
+        currentReviewBusiness = { name: businessName, address: businessAddress };
+        document.getElementById('reviewModalTitle').textContent = `⭐ Rate: ${businessName}`;
+        resetStarRatings();
+        resetAmenities();
+        document.getElementById('reviewModal').style.display = 'block';
+    }
+
+    function closeReviewModal() {
+        document.getElementById('reviewModal').style.display = 'none';
+        currentReviewBusiness = null;
+    }
+
+    function resetAmenities() {
+        document.querySelectorAll('#reviewForm input[type="checkbox"]').forEach(checkbox => {
+            checkbox.checked = false;
+        });
+        document.getElementById('bathroomType').value = 'unisex';
+        document.getElementById('reviewText').value = '';
+        if (document.getElementById('reviewPhotos')) {
+            document.getElementById('reviewPhotos').value = '';
+        }
+    }
+
+    // Handle review form submission
+    document.getElementById('reviewForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        submitReview();
+    });
+
+    function submitReview() {
+        if (!currentReviewBusiness) return;
+
+        // Check if user wants to write a review or upload photos
+        const reviewText = document.getElementById('reviewText').value.trim();
+        const photoFiles = document.getElementById('reviewPhotos').files;
+        
+        if ((reviewText || photoFiles.length > 0) && !currentUser) {
+            // Prompt for login for written reviews/photos
+            const username = prompt('Please enter your name to submit written reviews and photos:');
+            if (!username) return;
+            currentUser = username;
+            
+            // Enable text area and photo upload
+            document.getElementById('reviewText').disabled = false;
+            document.getElementById('reviewText').placeholder = 'Share your experience...';
+            document.getElementById('reviewPhotos').disabled = false;
+        }
+
+        // Collect amenities
+        const selectedAmenities = [];
+        const amenityLabels = {
+            toiletPaper: '🧻 Toilet Paper',
+            paperTowels: '🧽 Paper Towels',
+            babyChange: '👶 Baby Change Table',
+            wheelchairAccessible: '♿ Wheelchair Accessible',
+            runningWater: '🚰 Running Water',
+            soap: '🧼 Soap Available',
+            mirror: '🪞 Mirror',
+            handDryer: '💨 Hand Dryer',
+            hotWater: '🔥 Hot Water',
+            wellLit: '💡 Well Lit',
+            cleanFloors: '🧽 Clean Floors',
+            privacyLock: '🔒 Privacy Lock'
+        };
+
+        document.querySelectorAll('input[name="amenities"]:checked').forEach(checkbox => {
+            selectedAmenities.push({
+                value: checkbox.value,
+                label: amenityLabels[checkbox.value]
             });
-        }
-
-        function resetStarRatings() {
-            ratings = { overall: 0, cleanliness: 0, safety: 0 };
-            document.querySelectorAll('.star').forEach(star => {
-                star.classList.remove('active', 'hover');
-            });
-        }
-
-        // Review system
-        function reviewBusiness(businessName, businessAddress) {
-            currentReviewBusiness = { name: businessName, address: businessAddress };
-            document.getElementById('reviewModalTitle').textContent = `⭐ Rate: ${businessName}`;
-            resetStarRatings();
-            resetAmenities();
-            document.getElementById('reviewModal').style.display = 'block';
-        }
-
-        function closeReviewModal() {
-            document.getElementById('reviewModal').style.display = 'none';
-            currentReviewBusiness = null;
-        }
-
-        function resetAmenities() {
-            document.querySelectorAll('#reviewForm input[type="checkbox"]').forEach(checkbox => {
-                checkbox.checked = false;
-            });
-            document.getElementById('bathroomType').value = 'unisex';
-            document.getElementById('reviewText').value = '';
-            if (document.getElementById('reviewPhotos')) {
-                document.getElementById('reviewPhotos').value = '';
-            }
-        }
-
-        // Handle review form submission
-        document.getElementById('reviewForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            submitReview();
         });
 
-        function submitReview() {
-            if (!currentReviewBusiness) return;
+        const review = {
+            businessName: currentReviewBusiness.name,
+            businessAddress: currentReviewBusiness.address,
+            reviewer: currentUser || 'Anonymous',
+            ratings: { ...ratings },
+            amenities: selectedAmenities,
+            adaCompliant: document.getElementById('adaCompliant').checked,
+            bathroomType: document.getElementById('bathroomType').value,
+            reviewText: reviewText,
+            photoCount: photoFiles.length,
+            timestamp: new Date().toISOString(),
+            date: new Date().toLocaleDateString()
+        };
 
-            // Check if user wants to write a review or upload photos
-            const reviewText = document.getElementById('reviewText').value.trim();
-            const photoFiles = document.getElementById('reviewPhotos').files;
+        // Save review
+        saveReview(review);
+        
+        // Check for trophies
+        checkAndAwardTrophies(review);
+        
+        // Close modal and refresh display
+        closeReviewModal();
+        
+        // Refresh business cards to show new review
+        if (currentBusinesses.length > 0) {
+            displayResults(currentBusinesses, 'Current Location');
+        }
+        
+        alert('Thank you for your review! 🌟');
+    }
+
+    function saveReview(review) {
+        // Get existing reviews
+        const reviews = JSON.parse(localStorage.getItem('businessReviews') || '{}');
+        const businessKey = `${review.businessName}_${review.businessAddress}`;
+        
+        if (!reviews[businessKey]) {
+            reviews[businessKey] = [];
+        }
+        
+        reviews[businessKey].push(review);
+        localStorage.setItem('businessReviews', JSON.stringify(reviews));
+        
+        // Update total reviews count
+        const totalReviews = parseInt(localStorage.getItem('totalReviews') || '0');
+        localStorage.setItem('totalReviews', (totalReviews + 1).toString());
+    }
+
+    function getBusinessReviews(businessName, businessAddress) {
+        const reviews = JSON.parse(localStorage.getItem('businessReviews') || '{}');
+        const businessKey = `${businessName}_${businessAddress}`;
+        return reviews[businessKey] || [];
+    }
+
+    function calculateAverageRating(reviews) {
+        if (reviews.length === 0) return 0;
+        
+        const totalOverall = reviews.reduce((sum, review) => sum + (review.ratings.overall || 0), 0);
+        return (totalOverall / reviews.length).toFixed(1);
+    }
+
+    // Trophy system
+    function checkAndAwardTrophies(review) {
+        const trophies = JSON.parse(localStorage.getItem('userTrophies') || '{}');
+        const userTrophies = trophies[review.reviewer] || [];
+        const newTrophies = [];
+
+        // Check for first reviewer trophy
+        const businessKey = `${review.businessName}_${review.businessAddress}`;
+        const allReviews = JSON.parse(localStorage.getItem('businessReviews') || '{}');
+        const businessReviews = allReviews[businessKey] || [];
+        
+        if (businessReviews.length === 1) { // This is the first review
+            const firstReviewerTrophies = userTrophies.filter(t => t.type === 'first_reviewer');
+            const firstCount = firstReviewerTrophies.length + 1;
             
-            if ((reviewText || photoFiles.length > 0) && !currentUser) {
-                // Prompt for login for written reviews/photos
-                const username = prompt('Please enter your name to submit written reviews and photos:');
-                if (!username) return;
-                currentUser = username;
+            const trophy = {
+                type: 'first_reviewer',
+                title: `🥇 First Reviewer${firstCount > 1 ? ` x${firstCount}` : ''}`,
+                description: `First to review ${review.businessName}`,
+                earnedAt: new Date().toISOString()
+            };
+            
+            userTrophies.push(trophy);
+            newTrophies.push(trophy);
+        }
+
+        // Check for milestone trophies
+        const userReviewCount = getUserReviewCount(review.reviewer);
+        const milestones = [5, 10, 15, 20, 25];
+        
+        milestones.forEach(milestone => {
+            if (userReviewCount === milestone) {
+                let trophyTitle, trophyIcon;
                 
-                // Enable text area and photo upload
-                document.getElementById('reviewText').disabled = false;
-                document.getElementById('reviewText').placeholder = 'Share your experience...';
-                document.getElementById('reviewPhotos').disabled = false;
-            }
-
-            // Collect amenities
-            const selectedAmenities = [];
-            const amenityLabels = {
-                toiletPaper: '🧻 Toilet Paper',
-                paperTowels: '🧽 Paper Towels',
-                babyChange: '👶 Baby Change Table',
-                wheelchairAccessible: '♿ Wheelchair Accessible',
-                runningWater: '🚰 Running Water',
-                soap: '🧼 Soap Available',
-                mirror: '🪞 Mirror',
-                handDryer: '💨 Hand Dryer',
-                hotWater: '🔥 Hot Water',
-                wellLit: '💡 Well Lit',
-                cleanFloors: '🧽 Clean Floors',
-                privacyLock: '🔒 Privacy Lock'
-            };
-
-            document.querySelectorAll('input[name="amenities"]:checked').forEach(checkbox => {
-                selectedAmenities.push({
-                    value: checkbox.value,
-                    label: amenityLabels[checkbox.value]
-                });
-            });
-
-            const review = {
-                businessName: currentReviewBusiness.name,
-                businessAddress: currentReviewBusiness.address,
-                reviewer: currentUser || 'Anonymous',
-                ratings: { ...ratings },
-                amenities: selectedAmenities,
-                adaCompliant: document.getElementById('adaCompliant').checked,
-                bathroomType: document.getElementById('bathroomType').value,
-                reviewText: reviewText,
-                photoCount: photoFiles.length,
-                timestamp: new Date().toISOString(),
-                date: new Date().toLocaleDateString()
-            };
-
-            // Save review
-            saveReview(review);
-            
-            // Check for trophies
-            checkAndAwardTrophies(review);
-            
-            // Close modal and refresh display
-            closeReviewModal();
-            
-            // Refresh business cards to show new review
-            if (currentBusinesses.length > 0) {
-                displayResults(currentBusinesses, 'Current Location');
-            }
-            
-            alert('Thank you for your review! 🌟');
-        }
-
-        function saveReview(review) {
-            // Get existing reviews
-            const reviews = JSON.parse(localStorage.getItem('businessReviews') || '{}');
-            const businessKey = `${review.businessName}_${review.businessAddress}`;
-            
-            if (!reviews[businessKey]) {
-                reviews[businessKey] = [];
-            }
-            
-            reviews[businessKey].push(review);
-            localStorage.setItem('businessReviews', JSON.stringify(reviews));
-            
-            // Update total reviews count
-            const totalReviews = parseInt(localStorage.getItem('totalReviews') || '0');
-            localStorage.setItem('totalReviews', (totalReviews + 1).toString());
-        }
-
-        function getBusinessReviews(businessName, businessAddress) {
-            const reviews = JSON.parse(localStorage.getItem('businessReviews') || '{}');
-            const businessKey = `${businessName}_${businessAddress}`;
-            return reviews[businessKey] || [];
-        }
-
-        function calculateAverageRating(reviews) {
-            if (reviews.length === 0) return 0;
-            
-            const totalOverall = reviews.reduce((sum, review) => sum + (review.ratings.overall || 0), 0);
-            return (totalOverall / reviews.length).toFixed(1);
-        }
-
-        // Trophy system
-        function checkAndAwardTrophies(review) {
-            const trophies = JSON.parse(localStorage.getItem('userTrophies') || '{}');
-            const userTrophies = trophies[review.reviewer] || [];
-            const newTrophies = [];
-
-            // Check for first reviewer trophy
-            const businessKey = `${review.businessName}_${review.businessAddress}`;
-            const allReviews = JSON.parse(localStorage.getItem('businessReviews') || '{}');
-            const businessReviews = allReviews[businessKey] || [];
-            
-            if (businessReviews.length === 1) { // This is the first review
-                const firstReviewerTrophies = userTrophies.filter(t => t.type === 'first_reviewer');
-                const firstCount = firstReviewerTrophies.length + 1;
+                if (milestone === 5) {
+                    trophyTitle = '🏆 Milestone Reviewer';
+                    trophyIcon = '🏆';
+                } else if (milestone === 10) {
+                    trophyTitle = '🎖️ Veteran Reviewer';
+                    trophyIcon = '🎖️';
+                } else if (milestone >= 25) {
+                    trophyTitle = '👑 Expert Reviewer';
+                    trophyIcon = '👑';
+                } else {
+                    trophyTitle = '🏆 Milestone Reviewer';
+                    trophyIcon = '🏆';
+                }
                 
                 const trophy = {
-                    type: 'first_reviewer',
-                    title: `🥇 First Reviewer${firstCount > 1 ? ` x${firstCount}` : ''}`,
-                    description: `First to review ${review.businessName}`,
+                    type: 'milestone',
+                    milestone: milestone,
+                    title: trophyTitle,
+                    description: `${milestone} reviews completed`,
                     earnedAt: new Date().toISOString()
                 };
                 
                 userTrophies.push(trophy);
                 newTrophies.push(trophy);
             }
+        });
 
-            // Check for milestone trophies
-            const userReviewCount = getUserReviewCount(review.reviewer);
-            const milestones = [5, 10, 15, 20, 25];
-            
-            milestones.forEach(milestone => {
-                if (userReviewCount === milestone) {
-                    let trophyTitle, trophyIcon;
-                    
-                    if (milestone === 5) {
-                        trophyTitle = '🏆 Milestone Reviewer';
-                        trophyIcon = '🏆';
-                    } else if (milestone === 10) {
-                        trophyTitle = '🎖️ Veteran Reviewer';
-                        trophyIcon = '🎖️';
-                    } else if (milestone >= 25) {
-                        trophyTitle = '👑 Expert Reviewer';
-                        trophyIcon = '👑';
-                    } else {
-                        trophyTitle = '🏆 Milestone Reviewer';
-                        trophyIcon = '🏆';
-                    }
-                    
-                    const trophy = {
-                        type: 'milestone',
-                        milestone: milestone,
-                        title: trophyTitle,
-                        description: `${milestone} reviews completed`,
-                        earnedAt: new Date().toISOString()
-                    };
-                    
-                    userTrophies.push(trophy);
-                    newTrophies.push(trophy);
-                }
-            });
+        // Save trophies
+        trophies[review.reviewer] = userTrophies;
+        localStorage.setItem('userTrophies', JSON.stringify(trophies));
 
-            // Save trophies
-            trophies[review.reviewer] = userTrophies;
-            localStorage.setItem('userTrophies', JSON.stringify(trophies));
-
-            // Show trophy notifications
-            if (newTrophies.length > 0) {
-                showTrophyNotification(newTrophies);
-            }
+        // Show trophy notifications
+        if (newTrophies.length > 0) {
+            showTrophyNotification(newTrophies);
         }
+    }
 
-        function getUserReviewCount(username) {
-            const reviews = JSON.parse(localStorage.getItem('businessReviews') || '{}');
-            let count = 0;
-            
-            Object.values(reviews).forEach(businessReviews => {
-                count += businessReviews.filter(review => review.reviewer === username).length;
-            });
-            
-            return count;
+    function getUserReviewCount(username) {
+        const reviews = JSON.parse(localStorage.getItem('businessReviews') || '{}');
+        let count = 0;
+        
+        Object.values(reviews).forEach(businessReviews => {
+            count += businessReviews.filter(review => review.reviewer === username).length;
+        });
+        
+        return count;
+    }
+
+    function showTrophyNotification(trophies) {
+        const notification = document.createElement('div');
+        notification.className = 'trophy-notification';
+        
+        const trophyText = trophies.map(trophy => trophy.title).join('<br>');
+        notification.innerHTML = `
+            <h3>🎉 Trophy Earned!</h3>
+            <div>${trophyText}</div>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            document.body.removeChild(notification);
+        }, 4000);
+    }
+
+    function getUserTrophyBadges(username) {
+        const trophies = JSON.parse(localStorage.getItem('userTrophies') || '{}');
+        const userTrophies = trophies[username] || [];
+        
+        const badges = [];
+        
+        // First reviewer badges
+        const firstReviewerCount = userTrophies.filter(t => t.type === 'first_reviewer').length;
+        if (firstReviewerCount > 0) {
+            badges.push(`<span class="trophy-badge first-reviewer-badge">🥇 First${firstReviewerCount > 1 ? ` x${firstReviewerCount}` : ''}</span>`);
         }
-
-        function showTrophyNotification(trophies) {
-            const notification = document.createElement('div');
-            notification.className = 'trophy-notification';
+        
+        // Milestone badges
+        const milestones = userTrophies.filter(t => t.type === 'milestone').map(t => t.milestone).sort((a, b) => b - a);
+        if (milestones.length > 0) {
+            const highestMilestone = milestones[0];
+            let badgeClass = 'milestone-badge';
+            let badgeIcon = '🏆';
             
-            const trophyText = trophies.map(trophy => trophy.title).join('<br>');
-            notification.innerHTML = `
-                <h3>🎉 Trophy Earned!</h3>
-                <div>${trophyText}</div>
-            `;
-            
-            document.body.appendChild(notification);
-            
-            setTimeout(() => {
-                document.body.removeChild(notification);
-            }, 4000);
-        }
-
-        function getUserTrophyBadges(username) {
-            const trophies = JSON.parse(localStorage.getItem('userTrophies') || '{}');
-            const userTrophies = trophies[username] || [];
-            
-            const badges = [];
-            
-            // First reviewer badges
-            const firstReviewerCount = userTrophies.filter(t => t.type === 'first_reviewer').length;
-            if (firstReviewerCount > 0) {
-                badges.push(`<span class="trophy-badge first-reviewer-badge">🥇 First${firstReviewerCount > 1 ? ` x${firstReviewerCount}` : ''}</span>`);
+            if (highestMilestone >= 25) {
+                badgeClass = 'expert-badge';
+                badgeIcon = '👑';
+            } else if (highestMilestone >= 10) {
+                badgeIcon = '🎖️';
             }
             
-            // Milestone badges
-            const milestones = userTrophies.filter(t => t.type === 'milestone').map(t => t.milestone).sort((a, b) => b - a);
-            if (milestones.length > 0) {
-                const highestMilestone = milestones[0];
-                let badgeClass = 'milestone-badge';
-                let badgeIcon = '🏆';
+            badges.push(`<span class="trophy-badge ${badgeClass}">${badgeIcon} ${highestMilestone}+</span>`);
+        }
+        
+        return badges.join('');
+    }
+
+    async function searchBusinesses() {
+        const location = document.getElementById('location').value.trim();
+        const radius = document.getElementById('radius').value;
+        const locationLimit = document.getElementById('locationLimit').value;
+        const priority = document.querySelector('.priority-btn.active').dataset.priority;
+        
+        if (!location) {
+            showError('Please enter a location');
+            return;
+        }
+
+        showLoading(true);
+        hideError();
+        hideSuccess();
+        hideResults();
+
+        try {
+            // Parse coordinates or use mock geocoding
+            let latitude, longitude, formattedAddress;
+            
+            if (location.includes(',') && location.split(',').length >= 2) {
+                // Coordinates format: "lat, lng"
+                const coords = location.split(',').map(c => parseFloat(c.trim()));
+                latitude = coords[0];
+                longitude = coords[1];
+                formattedAddress = `${latitude}, ${longitude}`;
+            } else {
+                // Mock geocoding for demo - use major US cities
+                const mockLocations = {
+                    'miami': { lat: 25.7617, lon: -80.1918, formatted: 'Miami, FL, USA' },
+                    'denver': { lat: 39.7392, lon: -104.9903, formatted: 'Denver, CO, USA' },
+                    'chicago': { lat: 41.8781, lon: -87.6298, formatted: 'Chicago, IL, USA' },
+                    'houston': { lat: 29.7604, lon: -95.3698, formatted: 'Houston, TX, USA' },
+                    'phoenix': { lat: 33.4484, lon: -112.0740, formatted: 'Phoenix, AZ, USA' },
+                    'los angeles': { lat: 34.0522, lon: -118.2437, formatted: 'Los Angeles, CA, USA' },
+                    'new york': { lat: 40.7128, lon: -74.0060, formatted: 'New York, NY, USA' }
+                };
                 
-                if (highestMilestone >= 25) {
-                    badgeClass = 'expert-badge';
-                    badgeIcon = '👑';
-                } else if (highestMilestone >= 10) {
-                    badgeIcon = '🎖️';
-                }
+                const locationKey = location.toLowerCase();
+                const mockLocation = Object.keys(mockLocations).find(key => 
+                    locationKey.includes(key) || key.includes(locationKey)
+                );
                 
-                badges.push(`<span class="trophy-badge ${badgeClass}">${badgeIcon} ${highestMilestone}+</span>`);
+                if (mockLocation) {
+                    const loc = mockLocations[mockLocation];
+                    latitude = loc.lat;
+                    longitude = loc.lon;
+                    formattedAddress = loc.formatted;
+                } else {
+                    // Default to Denver if location not found
+                    latitude = 39.7392;
+                    longitude = -104.9903;
+                    formattedAddress = `${location} (using Denver, CO as fallback)`;
+                }
+            }
+
+            // Get appropriate categories
+            // Generate mock business data for demo
+            let businesses = generateMockBusinesses(latitude, longitude, priority, parseInt(locationLimit));
+
+            // Process and filter businesses
+            businesses = processBusinesses(businesses, latitude, longitude, priority);
+
+            currentBusinesses = businesses;
+            updateMap(businesses, latitude, longitude);
+            showSuccess(`Found ${businesses.length} restroom locations near ${formattedAddress}`);
+            displayResults(businesses, formattedAddress);
+
+            // Track search for admin dashboard
+            trackSearch(location, businesses.length);
+
+        } catch (error) {
+            console.error('Search error:', error);
+            showError(`Search failed: ${error.message}`);
+        } finally {
+            showLoading(false);
+        }
+    }
+
+    function processBusinesses(businesses, searchLat, searchLng, priority) {
+        // Calculate distances and scores
+        businesses = businesses.map(business => {
+            const coords = business.geometry.coordinates;
+            const distance = calculateDistance(searchLat, searchLng, coords[1], coords[0]);
+            const restroomProbability = calculateRestroomProbability(business, priority);
+            const isChain = isChainStore(business.properties.name);
+            const isTruckStop = isTruckStopLocation(business);
+            
+            return { 
+                ...business, 
+                distance, 
+                restroomProbability,
+                isChain,
+                isTruckStop
+            };
+        });
+
+        // Sort by priority: truck stops first, then by probability, then by distance
+        businesses.sort((a, b) => {
+            if (a.isTruckStop && !b.isTruckStop) return -1;
+            if (!a.isTruckStop && b.isTruckStop) return 1;
+            
+            if (a.restroomProbability !== b.restroomProbability) {
+                return b.restroomProbability - a.restroomProbability;
             }
             
-            return badges.join('');
-        }
+            return a.distance - b.distance;
+        });
 
-        async function searchBusinesses() {
-            const location = document.getElementById('location').value.trim();
-            const radius = document.getElementById('radius').value;
-            const locationLimit = document.getElementById('locationLimit').value;
-            const priority = document.querySelector('.priority-btn.active').dataset.priority;
-            
-            if (!location) {
-                showError('Please enter a location');
+        return businesses;
+    }
+
+    function calculateRestroomProbability(business, priority) {
+        // Use mock probability if available, otherwise calculate
+        if (business.mockProbability) {
+            return business.mockProbability;
+        }
+        
+        // Fallback calculation for real data
+        return 75; // Default probability
+    }
+
+    function isTruckStopLocation(business) {
+        const name = business.properties.name.toLowerCase();
+        const categories = business.properties.categories || [];
+        
+        return truckStopChains.some(chain => name.includes(chain)) ||
+               categories.some(cat => cat.includes('truck_stop') || cat.includes('rest_area')) ||
+               ['truck stop', 'travel center', 'rest area', 'service plaza'].some(term => name.includes(term));
+    }
+
+    function isChainStore(name) {
+        const nameLower = name.toLowerCase();
+        return truckStopChains.some(chain => nameLower.includes(chain));
+    }
+
+    function updateMap(businesses, centerLat, centerLng) {
+        try {
+            if (!map) {
+                console.warn('Map not initialized, skipping update');
                 return;
             }
-
-            showLoading(true);
-            hideError();
-            hideSuccess();
-            hideResults();
-
-            try {
-                // Parse coordinates or use mock geocoding
-                let latitude, longitude, formattedAddress;
-                
-                if (location.includes(',') && location.split(',').length >= 2) {
-                    // Coordinates format: "lat, lng"
-                    const coords = location.split(',').map(c => parseFloat(c.trim()));
-                    latitude = coords[0];
-                    longitude = coords[1];
-                    formattedAddress = `${latitude}, ${longitude}`;
-                } else {
-                    // Mock geocoding for demo - use major US cities
-                    const mockLocations = {
-                        'miami': { lat: 25.7617, lon: -80.1918, formatted: 'Miami, FL, USA' },
-                        'denver': { lat: 39.7392, lon: -104.9903, formatted: 'Denver, CO, USA' },
-                        'chicago': { lat: 41.8781, lon: -87.6298, formatted: 'Chicago, IL, USA' },
-                        'houston': { lat: 29.7604, lon: -95.3698, formatted: 'Houston, TX, USA' },
-                        'phoenix': { lat: 33.4484, lon: -112.0740, formatted: 'Phoenix, AZ, USA' },
-                        'los angeles': { lat: 34.0522, lon: -118.2437, formatted: 'Los Angeles, CA, USA' },
-                        'new york': { lat: 40.7128, lon: -74.0060, formatted: 'New York, NY, USA' }
-                    };
-                    
-                    const locationKey = location.toLowerCase();
-                    const mockLocation = Object.keys(mockLocations).find(key => 
-                        locationKey.includes(key) || key.includes(locationKey)
-                    );
-                    
-                    if (mockLocation) {
-                        const loc = mockLocations[mockLocation];
-                        latitude = loc.lat;
-                        longitude = loc.lon;
-                        formattedAddress = loc.formatted;
-                    } else {
-                        // Default to Denver if location not found
-                        latitude = 39.7392;
-                        longitude = -104.9903;
-                        formattedAddress = `${location} (using Denver, CO as fallback)`;
-                    }
+            
+            // Clear existing markers
+            markers.forEach(marker => {
+                try {
+                    map.removeLayer(marker);
+                } catch (e) {
+                    console.warn('Error removing marker:', e);
                 }
-
-                // Get appropriate categories
-                // Generate mock business data for demo
-                let businesses = generateMockBusinesses(latitude, longitude, priority, parseInt(locationLimit));
-
-                // Process and filter businesses
-                businesses = processBusinesses(businesses, latitude, longitude, priority);
-
-                currentBusinesses = businesses;
-                updateMap(businesses, latitude, longitude);
-                showSuccess(`Found ${businesses.length} restroom locations near ${formattedAddress}`);
-                displayResults(businesses, formattedAddress);
-
-                // Track search for admin dashboard
-                trackSearch(location, businesses.length);
-
-            } catch (error) {
-                console.error('Search error:', error);
-                showError(`Search failed: ${error.message}`);
-            } finally {
-                showLoading(false);
-            }
-        }
-
-        function processBusinesses(businesses, searchLat, searchLng, priority) {
-            // Calculate distances and scores
-            businesses = businesses.map(business => {
-                const coords = business.geometry.coordinates;
-                const distance = calculateDistance(searchLat, searchLng, coords[1], coords[0]);
-                const restroomProbability = calculateRestroomProbability(business, priority);
-                const isChain = isChainStore(business.properties.name);
-                const isTruckStop = isTruckStopLocation(business);
-                
-                return { 
-                    ...business, 
-                    distance, 
-                    restroomProbability,
-                    isChain,
-                    isTruckStop
-                };
             });
+            markers = [];
 
-            // Sort by priority: truck stops first, then by probability, then by distance
-            businesses.sort((a, b) => {
-                if (a.isTruckStop && !b.isTruckStop) return -1;
-                if (!a.isTruckStop && b.isTruckStop) return 1;
-                
-                if (a.restroomProbability !== b.restroomProbability) {
-                    return b.restroomProbability - a.restroomProbability;
-                }
-                
-                return a.distance - b.distance;
-            });
+            // Set map center and zoom
+            map.setView([centerLat, centerLng], 10);
 
-            return businesses;
-        }
-
-        function calculateRestroomProbability(business, priority) {
-            // Use mock probability if available, otherwise calculate
-            if (business.mockProbability) {
-                return business.mockProbability;
-            }
-            
-            // Fallback calculation for real data
-            return 75; // Default probability
-        }
-
-        function isTruckStopLocation(business) {
-            const name = business.properties.name.toLowerCase();
-            const categories = business.properties.categories || [];
-            
-            return truckStopChains.some(chain => name.includes(chain)) ||
-                   categories.some(cat => cat.includes('truck_stop') || cat.includes('rest_area')) ||
-                   ['truck stop', 'travel center', 'rest area', 'service plaza'].some(term => name.includes(term));
-        }
-
-        function isChainStore(name) {
-            const nameLower = name.toLowerCase();
-            return truckStopChains.some(chain => nameLower.includes(chain));
-        }
-
-        function updateMap(businesses, centerLat, centerLng) {
-            try {
-                if (!map) {
-                    console.warn('Map not initialized, skipping update');
-                    return;
-                }
-                
-                // Clear existing markers
-                markers.forEach(marker => {
-                    try {
-                        map.removeLayer(marker);
-                    } catch (e) {
-                        console.warn('Error removing marker:', e);
-                    }
-                });
-                markers = [];
-
-                // Set map center and zoom
-                map.setView([centerLat, centerLng], 10);
-
-                // Add markers for businesses
-                businesses.forEach(business => {
-                    try {
-                        const coords = business.geometry.coordinates;
-                        const props = business.properties;
-                        
-                        let icon = '🚽';
-                        if (business.isTruckStop) icon = '🚛';
-                        else if (props.categories?.some(cat => cat.includes('gas_station'))) icon = '⛽';
-                        else if (props.categories?.some(cat => cat.includes('restaurant'))) icon = '🍔';
-                        else if (props.categories?.some(cat => cat.includes('hotel'))) icon = '🏨';
-
-                        const marker = L.marker([coords[1], coords[0]], {
-                            icon: L.divIcon({
-                                html: `<div style="background: white; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border: 2px solid #667eea; font-size: 16px;">${icon}</div>`,
-                                className: 'custom-marker',
-                                iconSize: [30, 30],
-                                iconAnchor: [15, 15]
-                            })
-                        }).addTo(map);
-
-                        marker.bindPopup(`
-                            <div style="min-width: 200px;">
-                                <h3>${props.name}</h3>
-                                <p>${props.formatted}</p>
-                                <p><strong>Distance:</strong> ${business.distance.toFixed(2)} km</p>
-                                <p><strong>Restroom Probability:</strong> ${business.restroomProbability}%</p>
-                                ${business.isTruckStop ? '<p><strong>🚛 Truck Stop/Rest Area</strong></p>' : ''}
-                                <button onclick="reviewBusiness('${(props.name || '').replace(/'/g, "\\'")}', '${(props.formatted || '').replace(/'/g, "\\'")}');" style="background: #667eea; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; margin-top: 10px;">Rate Restroom</button>
-                            </div>
-                        `);
-
-                        markers.push(marker);
-                    } catch (error) {
-                        console.warn('Error adding marker for business:', business.properties?.name, error);
-                    }
-                });
-                
-                console.log(`Added ${markers.length} markers to map`);
-            } catch (error) {
-                console.error('Error updating map:', error);
-            }
-        }
-
-        function toggleMapSize() {
-            try {
-                const mapContainer = document.getElementById('map');
-                const expandText = document.getElementById('expandText');
-                
-                if (mapContainer.classList.contains('expanded')) {
-                    mapContainer.classList.remove('expanded');
-                    expandText.textContent = '🔍 Expand';
-                } else {
-                    mapContainer.classList.add('expanded');
-                    expandText.textContent = '📉 Collapse';
-                }
-                
-                // Refresh map after size change
-                setTimeout(() => {
-                    if (map) {
-                        map.invalidateSize();
-                    }
-                }, 300);
-            } catch (error) {
-                console.error('Error toggling map size:', error);
-            }
-        }
-
-        function displayResults(businesses, searchLocation) {
-            const resultsSection = document.getElementById('resultsSection');
-            const resultsCount = document.getElementById('resultsCount');
-            const businessGrid = document.getElementById('businessGrid');
-            
-            // Calculate stats
-            const stats = {
-                total: businesses.length,
-                truckStops: businesses.filter(b => b.isTruckStop).length,
-                gasStations: businesses.filter(b => 
-                    b.properties.categories?.some(cat => cat.includes('gas_station'))
-                ).length,
-                chains: businesses.filter(b => b.isChain).length
-            };
-
-            // Update stats
-            document.getElementById('totalCount').textContent = stats.total;
-            document.getElementById('truckStopCount').textContent = stats.truckStops;
-            document.getElementById('gasStationCount').textContent = stats.gasStations;
-            document.getElementById('chainCount').textContent = stats.chains;
-
-            resultsCount.textContent = `${businesses.length} restroom locations found near ${searchLocation}`;
-            
-            // Clear previous results
-            businessGrid.innerHTML = '';
-            
-            if (businesses.length === 0) {
-                businessGrid.innerHTML = '<p style="text-align: center; color: #666; grid-column: 1 / -1;">No restroom locations found. Try expanding your search radius or changing categories.</p>';
-            } else {
-                businesses.forEach(business => {
-                    const businessCard = createBusinessCard(business);
-                    businessGrid.appendChild(businessCard);
-                });
-            }
-            
-            resultsSection.style.display = 'block';
-        }
-
-        function createBusinessCard(business) {
-            const card = document.createElement('div');
-            card.className = 'business-card';
-            
-            const props = business.properties;
-            const category = props.categories ? props.categories[0].split('.').pop() : 'business';
-            const phone = props.contact?.phone || '';
-            const hours = props.opening_hours || '';
-            
-            // Get reviews for this business
-            const reviews = getBusinessReviews(props.name, props.formatted);
-            const averageRating = calculateAverageRating(reviews);
-            const reviewCount = reviews.length;
-            
-            // Create restroom badge
-            const restroomBadge = createRestroomBadge(business.restroomProbability, business.isTruckStop);
-            const chainIndicator = business.isChain ? '<span class="chain-indicator">CHAIN</span>' : '';
-            
-            // Create rating display
-            const ratingDisplay = reviewCount > 0 ? 
-                `<div class="business-rating">
-                    <span class="review-stars">${'★'.repeat(Math.round(averageRating))}${'☆'.repeat(5 - Math.round(averageRating))}</span>
-                    <span style="color: #666; font-size: 0.9rem;">${averageRating}/5 (${reviewCount} reviews)</span>
-                </div>` : '';
-
-            card.innerHTML = `
-                ${restroomBadge}
-                <div class="business-name">
-                    ${props.name || 'Unknown Business'}
-                    ${chainIndicator}
-                </div>
-                <div class="business-address">📍 ${props.formatted || 'Address not available'}</div>
-                ${ratingDisplay}
-                <div class="business-details">
-                    <span class="detail-tag">${business.isTruckStop ? '🚛' : '🏪'} ${category}</span>
-                    ${phone ? `<span class="detail-tag">📞 ${phone}</span>` : ''}
-                    <span class="detail-tag">📏 ${business.distance.toFixed(2)} km</span>
-                    <span class="detail-tag">🚽 ${business.restroomProbability}% likely</span>
-                    ${hours ? `<span class="detail-tag">🕒 Open</span>` : ''}
-                </div>
-                <button class="review-button" onclick="reviewBusiness('${(props.name || 'Unknown').replace(/'/g, "\\'").replace(/"/g, '\\"')}', '${(props.formatted || '').replace(/'/g, "\\'").replace(/"/g, '\\"')}')">
-                    ⭐ Rate This Restroom
-                </button>
-                ${reviewCount > 0 ? createRecentReviewsDisplay(reviews.slice(-3)) : ''}
-            `;
-            
-            // Add click handler to focus on map
-            card.addEventListener('click', (e) => {
-                if (e.target.tagName !== 'BUTTON') {
+            // Add markers for businesses
+            businesses.forEach(business => {
+                try {
                     const coords = business.geometry.coordinates;
-                    if (map) {
-                        map.setView([coords[1], coords[0]], 15);
-                        
-                        // Find and open the corresponding marker popup
-                        markers.forEach(marker => {
-                            if (marker.getLatLng().lat === coords[1] && marker.getLatLng().lng === coords[0]) {
-                                marker.openPopup();
-                            }
-                        });
-                    }
+                    const props = business.properties;
+                    
+                    let icon = '🚽';
+                    if (business.isTruckStop) icon = '🚛';
+                    else if (props.categories?.some(cat => cat.includes('gas_station'))) icon = '⛽';
+                    else if (props.categories?.some(cat => cat.includes('restaurant'))) icon = '🍔';
+                    else if (props.categories?.some(cat => cat.includes('hotel'))) icon = '🏨';
+
+                    const marker = L.marker([coords[1], coords[0]], {
+                        icon: L.divIcon({
+                            html: `<div style="background: white; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border: 2px solid #667eea; font-size: 16px;">${icon}</div>`,
+                            className: 'custom-marker',
+                            iconSize: [30, 30],
+                            iconAnchor: [15, 15]
+                        })
+                    }).addTo(map);
+
+                    marker.bindPopup(`
+                        <div style="min-width: 200px;">
+                            <h3>${props.name}</h3>
+                            <p>${props.formatted}</p>
+                            <p><strong>Distance:</strong> ${business.distance.toFixed(2)} km</p>
+                            <p><strong>Restroom Probability:</strong> ${business.restroomProbability}%</p>
+                            ${business.isTruckStop ? '<p><strong>🚛 Truck Stop/Rest Area</strong></p>' : ''}
+                            <button onclick="reviewBusiness('${(props.name || '').replace(/'/g, "\\'")}', '${(props.formatted || '').replace(/'/g, "\\'")}');" style="background: #667eea; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; margin-top: 10px;">Rate Restroom</button>
+                        </div>
+                    `);
+
+                    markers.push(marker);
+                } catch (error) {
+                    console.warn('Error adding marker for business:', business.properties?.name, error);
                 }
             });
             
-            return card;
+            console.log(`Added ${markers.length} markers to map`);
+        } catch (error) {
+            console.error('Error updating map:', error);
         }
+    }
 
-        function createRecentReviewsDisplay(reviews) {
-            if (reviews.length === 0) return '';
+    function toggleMapSize() {
+        try {
+            const mapContainer = document.getElementById('map');
+            const expandText = document.getElementById('expandText');
             
-            const reviewsHtml = reviews.map(review => {
-                const trophyBadges = getUserTrophyBadges(review.reviewer);
-                const amenityTags = review.amenities.slice(0, 3).map(amenity => 
-                    `<span class="amenity-tag">${amenity.label}</span>`
-                ).join('');
-                
-                return `
-                    <div class="review-card">
-                        <div class="review-header">
-                            <span class="reviewer-name">${review.reviewer}${trophyBadges}</span>
-                            <span class="review-date">${review.date}</span>
-                        </div>
-                        <div class="review-stars">${'★'.repeat(review.ratings.overall)}${'☆'.repeat(5 - review.ratings.overall)}</div>
-                        ${review.reviewText ? `<p style="margin: 8px 0; font-size: 0.9rem; color: #555;">${review.reviewText}</p>` : ''}
-                        ${amenityTags ? `<div class="review-amenities">${amenityTags}${review.amenities.length > 3 ? ` +${review.amenities.length - 3} more` : ''}</div>` : ''}
-                    </div>
-                `;
-            }).join('');
+            if (mapContainer.classList.contains('expanded')) {
+                mapContainer.classList.remove('expanded');
+                expandText.textContent = '🔍 Expand';
+            } else {
+                mapContainer.classList.add('expanded');
+                expandText.textContent = '📉 Collapse';
+            }
+            
+            // Refresh map after size change
+            setTimeout(() => {
+                if (map) {
+                    map.invalidateSize();
+                }
+            }, 300);
+        } catch (error) {
+            console.error('Error toggling map size:', error);
+        }
+    }
+
+    function displayResults(businesses, searchLocation) {
+        const resultsSection = document.getElementById('resultsSection');
+        const resultsCount = document.getElementById('resultsCount');
+        const businessGrid = document.getElementById('businessGrid');
+        
+        // Calculate stats
+        const stats = {
+            total: businesses.length,
+            truckStops: businesses.filter(b => b.isTruckStop).length,
+            gasStations: businesses.filter(b => 
+                b.properties.categories?.some(cat => cat.includes('gas_station'))
+            ).length,
+            chains: businesses.filter(b => b.isChain).length
+        };
+
+        // Update stats
+        document.getElementById('totalCount').textContent = stats.total;
+        document.getElementById('truckStopCount').textContent = stats.truckStops;
+        document.getElementById('gasStationCount').textContent = stats.gasStations;
+        document.getElementById('chainCount').textContent = stats.chains;
+
+        resultsCount.textContent = `${businesses.length} restroom locations found near ${searchLocation}`;
+        
+        // Clear previous results
+        businessGrid.innerHTML = '';
+        
+        if (businesses.length === 0) {
+            businessGrid.innerHTML = '<p style="text-align: center; color: #666; grid-column: 1 / -1;">No restroom locations found. Try expanding your search radius or changing categories.</p>';
+        } else {
+            businesses.forEach(business => {
+                const businessCard = createBusinessCard(business);
+                businessGrid.appendChild(businessCard);
+            });
+        }
+        
+        resultsSection.style.display = 'block';
+    }
+
+    function createBusinessCard(business) {
+        const card = document.createElement('div');
+        card.className = 'business-card';
+        
+        const props = business.properties;
+        const category = props.categories ? props.categories[0].split('.').pop() : 'business';
+        const phone = props.contact?.phone || '';
+        const hours = props.opening_hours || '';
+        
+        // Get reviews for this business
+        const reviews = getBusinessReviews(props.name, props.formatted);
+        const averageRating = calculateAverageRating(reviews);
+        const reviewCount = reviews.length;
+        
+        // Create restroom badge
+        const restroomBadge = createRestroomBadge(business.restroomProbability, business.isTruckStop);
+        const chainIndicator = business.isChain ? '<span class="chain-indicator">CHAIN</span>' : '';
+        
+        // Create rating display
+        const ratingDisplay = reviewCount > 0 ? 
+            `<div class="business-rating">
+                <span class="review-stars">${'★'.repeat(Math.round(averageRating))}${'☆'.repeat(5 - Math.round(averageRating))}</span>
+                <span style="color: #666; font-size: 0.9rem;">${averageRating}/5 (${reviewCount} reviews)</span>
+            </div>` : '';
+
+        card.innerHTML = `
+            ${restroomBadge}
+            <div class="business-name">
+                ${props.name || 'Unknown Business'}
+                ${chainIndicator}
+            </div>
+            <div class="business-address">📍 ${props.formatted || 'Address not available'}</div>
+            ${ratingDisplay}
+            <div class="business-details">
+                <span class="detail-tag">${business.isTruckStop ? '🚛' : '🏪'} ${category}</span>
+                ${phone ? `<span class="detail-tag">📞 ${phone}</span>` : ''}
+                <span class="detail-tag">📏 ${business.distance.toFixed(2)} km</span>
+                <span class="detail-tag">🚽 ${business.restroomProbability}% likely</span>
+                ${hours ? `<span class="detail-tag">🕒 Open</span>` : ''}
+            </div>
+            <button class="review-button" onclick="reviewBusiness('${(props.name || 'Unknown').replace(/'/g, "\\'").replace(/"/g, '\\"')}', '${(props.formatted || '').replace(/'/g, "\\'").replace(/"/g, '\\"')}')">
+                ⭐ Rate This Restroom
+            </button>
+            ${reviewCount > 0 ? createRecentReviewsDisplay(reviews.slice(-3)) : ''}
+        `;
+        
+        // Add click handler to focus on map
+        card.addEventListener('click', (e) => {
+            if (e.target.tagName !== 'BUTTON') {
+                const coords = business.geometry.coordinates;
+                if (map) {
+                    map.setView([coords[1], coords[0]], 15);
+                    
+                    // Find and open the corresponding marker popup
+                    markers.forEach(marker => {
+                        if (marker.getLatLng().lat === coords[1] && marker.getLatLng().lng === coords[0]) {
+                            marker.openPopup();
+                        }
+                    });
+                }
+            }
+        });
+        
+        return card;
+    }
+
+    function createRecentReviewsDisplay(reviews) {
+        if (reviews.length === 0) return '';
+        
+        const reviewsHtml = reviews.map(review => {
+            const trophyBadges = getUserTrophyBadges(review.reviewer);
+            const amenityTags = review.amenities.slice(0, 3).map(amenity => 
+                `<span class="amenity-tag">${amenity.label}</span>`
+            ).join('');
             
             return `
-                <div style="margin-top: 15px; border-top: 1px solid #eee; padding-top: 15px;">
-                    <h4 style="margin-bottom: 10px; color: #333; font-size: 1rem;">Recent Reviews</h4>
-                    ${reviewsHtml}
+                <div class="review-card">
+                    <div class="review-header">
+                        <span class="reviewer-name">${review.reviewer}${trophyBadges}</span>
+                        <span class="review-date">${review.date}</span>
+                    </div>
+                    <div class="review-stars">${'★'.repeat(review.ratings.overall)}${'☆'.repeat(5 - review.ratings.overall)}</div>
+                    ${review.reviewText ? `<p style="margin: 8px 0; font-size: 0.9rem; color: #555;">${review.reviewText}</p>` : ''}
+                    ${amenityTags ? `<div class="review-amenities">${amenityTags}${review.amenities.length > 3 ? ` +${review.amenities.length - 3} more` : ''}</div>` : ''}
                 </div>
             `;
+        }).join('');
+        
+        return `
+            <div style="margin-top: 15px; border-top: 1px solid #eee; padding-top: 15px;">
+                <h4 style="margin-bottom: 10px; color: #333; font-size: 1rem;">Recent Reviews</h4>
+                ${reviewsHtml}
+            </div>
+        `;
+    }
+
+    function createRestroomBadge(probability, isTruckStop) {
+        let badgeClass, badgeText;
+        
+        if (isTruckStop) {
+            badgeClass = 'badge-truck-stop';
+            badgeText = '🚛 Truck Stop';
+        } else if (probability >= 90) {
+            badgeClass = 'badge-excellent';
+            badgeText = '🚽 Restroom Likely';
+        } else if (probability >= 70) {
+            badgeClass = 'badge-good';
+            badgeText = '🚽 Probably Has';
+        } else {
+            badgeClass = 'badge-maybe';
+            badgeText = '🚽 May Have';
         }
+        
+        return `<div class="restroom-badge ${badgeClass}">${badgeText}</div>`;
+    }
 
-        function createRestroomBadge(probability, isTruckStop) {
-            let badgeClass, badgeText;
-            
-            if (isTruckStop) {
-                badgeClass = 'badge-truck-stop';
-                badgeText = '🚛 Truck Stop';
-            } else if (probability >= 90) {
-                badgeClass = 'badge-excellent';
-                badgeText = '🚽 Restroom Likely';
-            } else if (probability >= 70) {
-                badgeClass = 'badge-good';
-                badgeText = '🚽 Probably Has';
-            } else {
-                badgeClass = 'badge-maybe';
-                badgeText = '🚽 May Have';
-            }
-            
-            return `<div class="restroom-badge ${badgeClass}">${badgeText}</div>`;
+    function calculateDistance(lat1, lon1, lat2, lon2) {
+        const R = 6371;
+        const dLat = (lat2 - lat1) * Math.PI / 180;
+        const dLon = (lon2 - lon1) * Math.PI / 180;
+        const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                  Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                  Math.sin(dLon/2) * Math.sin(dLon/2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        return R * c;
+    }
+
+    // Admin functions
+    function showAdminLogin() {
+        document.getElementById('adminModal').style.display = 'block';
+    }
+
+    function closeAdminModal() {
+        document.getElementById('adminModal').style.display = 'none';
+    }
+
+    function closeDashboardModal() {
+        document.getElementById('dashboardModal').style.display = 'none';
+    }
+
+    document.getElementById('adminLoginForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const username = document.getElementById('adminUsername').value;
+        const password = document.getElementById('adminPassword').value;
+        
+        // Simple admin check (in production, use proper authentication)
+        if (username === 'admin' && password === 'gtgotg2025') {
+            closeAdminModal();
+            showAdminDashboard();
+        } else {
+            alert('Invalid credentials');
         }
+    });
 
-        function calculateDistance(lat1, lon1, lat2, lon2) {
-            const R = 6371;
-            const dLat = (lat2 - lat1) * Math.PI / 180;
-            const dLon = (lon2 - lon1) * Math.PI / 180;
-            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-                      Math.sin(dLon/2) * Math.sin(dLon/2);
-            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-            return R * c;
+    function showAdminDashboard() {
+        // Load dashboard data
+        const totalSearches = localStorage.getItem('totalSearches') || '0';
+        const totalReviews = localStorage.getItem('totalReviews') || '0';
+        const activeUsers = Math.floor(Math.random() * 50) + 10; // Simulated
+        
+        document.getElementById('totalSearches').textContent = totalSearches;
+        document.getElementById('totalReviews').textContent = totalReviews;
+        document.getElementById('activeUsers').textContent = activeUsers;
+        
+        // Load recent activity
+        const recentActivity = JSON.parse(localStorage.getItem('recentActivity') || '[]');
+        const activityHtml = recentActivity.length > 0 ? 
+            recentActivity.slice(-10).map(activity => `<p>${activity}</p>`).join('') :
+            '<p>No recent activity</p>';
+        
+        document.getElementById('recentActivity').innerHTML = activityHtml;
+        document.getElementById('dashboardModal').style.display = 'block';
+    }
+
+    function trackSearch(location, resultCount) {
+        // Update search count
+        const currentCount = parseInt(localStorage.getItem('totalSearches') || '0');
+        localStorage.setItem('totalSearches', (currentCount + 1).toString());
+        
+        // Add to recent activity
+        const activity = JSON.parse(localStorage.getItem('recentActivity') || '[]');
+        activity.push(`Search: ${location} - ${resultCount} results found - ${new Date().toLocaleString()}`);
+        localStorage.setItem('recentActivity', JSON.stringify(activity));
+    }
+
+    // Utility functions
+    function showLoading(show) {
+        document.getElementById('loadingSection').style.display = show ? 'block' : 'none';
+        document.getElementById('searchBtn').disabled = show;
+        document.getElementById('searchBtn').textContent = show ? '🔍 Searching...' : '🔍 Find Restrooms';
+    }
+
+    function showError(message) {
+        const errorSection = document.getElementById('errorSection');
+        errorSection.textContent = message;
+        errorSection.style.display = 'block';
+    }
+
+    function showSuccess(message) {
+        const successSection = document.getElementById('successSection');
+        successSection.textContent = message;
+        successSection.style.display = 'block';
+    }
+
+    function hideError() {
+        document.getElementById('errorSection').style.display = 'none';
+    }
+
+    function hideSuccess() {
+        document.getElementById('successSection').style.display = 'none';
+    }
+
+    function hideResults() {
+        document.getElementById('resultsSection').style.display = 'none';
+    }
+
+    // Initialize app
+    window.addEventListener('load', () => {
+        // Wait a bit for all resources to load
+        setTimeout(() => {
+            initMap();
+            initStarRatings();
+            showSuccess('✅ Ready to find restrooms! Truck stops and rest areas prioritized for travelers.');
+        }, 500);
+    });
+
+    // Close modals when clicking outside
+    window.onclick = function(event) {
+        const adminModal = document.getElementById('adminModal');
+        const dashboardModal = document.getElementById('dashboardModal');
+        const reviewModal = document.getElementById('reviewModal');
+        
+        if (event.target === adminModal) {
+            adminModal.style.display = 'none';
         }
-
-        // Admin functions
-        function showAdminLogin() {
-            document.getElementById('adminModal').style.display = 'block';
+        if (event.target === dashboardModal) {
+            dashboardModal.style.display = 'none';
         }
-
-        function closeAdminModal() {
-            document.getElementById('adminModal').style.display = 'none';
+        if (event.target === reviewModal) {
+            reviewModal.style.display = 'none';
         }
-
-        function closeDashboardModal() {
-            document.getElementById('dashboardModal').style.display = 'none';
-        }
-
-        document.getElementById('adminLoginForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const username = document.getElementById('adminUsername').value;
-            const password = document.getElementById('adminPassword').value;
-            
-            // Simple admin check (in production, use proper authentication)
-            if (username === 'admin' && password === 'gtgotg2025') {
-                closeAdminModal();
-                showAdminDashboard();
-            } else {
-                alert('Invalid credentials');
-            }
-        });
-
-        function showAdminDashboard() {
-            // Load dashboard data
-            const totalSearches = localStorage.getItem('totalSearches') || '0';
-            const totalReviews = localStorage.getItem('totalReviews') || '0';
-            const activeUsers = Math.floor(Math.random() * 50) + 10; // Simulated
-            
-            document.getElementById('totalSearches').textContent = totalSearches;
-            document.getElementById('totalReviews').textContent = totalReviews;
-            document.getElementById('activeUsers').textContent = activeUsers;
-            
-            // Load recent activity
-            const recentActivity = JSON.parse(localStorage.getItem('recentActivity') || '[]');
-            const activityHtml = recentActivity.length > 0 ? 
-                recentActivity.slice(-10).map(activity => `<p>${activity}</p>`).join('') :
-                '<p>No recent activity</p>';
-            
-            document.getElementById('recentActivity').innerHTML = activityHtml;
-            document.getElementById('dashboardModal').style.display = 'block';
-        }
-
-        function trackSearch(location, resultCount) {
-            // Update search count
-            const currentCount = parseInt(localStorage.getItem('totalSearches') || '0');
-            localStorage.setItem('totalSearches', (currentCount + 1).toString());
-            
-            // Add to recent activity
-            const activity = JSON.parse(localStorage.getItem('recentActivity') || '[]');
-            activity.push(`Search: ${location} - ${resultCount} results found - ${new Date().toLocaleString()}`);
-            localStorage.setItem('recentActivity', JSON.stringify(activity));
-        }
-
-        // Utility functions
-        function showLoading(show) {
-            document.getElementById('loadingSection').style.display = show ? 'block' : 'none';
-            document.getElementById('searchBtn').disabled = show;
-            document.getElementById('searchBtn').textContent = show ? '🔍 Searching...' : '🔍 Find Restrooms';
-        }
-
-        function showError(message) {
-            const errorSection = document.getElementById('errorSection');
-            errorSection.textContent = message;
-            errorSection.style.display = 'block';
-        }
-
-        function showSuccess(message) {
-            const successSection = document.getElementById('successSection');
-            successSection.textContent = message;
-            successSection.style.display = 'block';
-        }
-
-        function hideError() {
-            document.getElementById('errorSection').style.display = 'none';
-        }
-
-        function hideSuccess() {
-            document.getElementById('successSection').style.display = 'none';
-        }
-
-        function hideResults() {
-            document.getElementById('resultsSection').style.display = 'none';
-        }
-
-        // Initialize app
-        window.addEventListener('load', () => {
-            // Wait a bit for all resources to load
-            setTimeout(() => {
-                initMap();
-                initStarRatings();
-                showSuccess('✅ Ready to find restrooms! Truck stops and rest areas prioritized for travelers.');
-            }, 500);
-        });
-
-        // Close modals when clicking outside
-        window.onclick = function(event) {
-            const adminModal = document.getElementById('adminModal');
-            const dashboardModal = document.getElementById('dashboardModal');
-            const reviewModal = document.getElementById('reviewModal');
-            
-            if (event.target === adminModal) {
-                adminModal.style.display = 'none';
-            }
-            if (event.target === dashboardModal) {
-                dashboardModal.style.display = 'none';
-            }
-            if (event.target === reviewModal) {
-                reviewModal.style.display = 'none';
-            }
-        }
-    </script>
+    }
+</script>
 </body>
 </html>
