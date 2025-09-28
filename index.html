@@ -715,6 +715,220 @@
             color: #666;
         }
 
+        /* Review Modal Styles */
+        .review-modal {
+            display: none;
+            position: fixed;
+            z-index: 1001;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .review-modal-content {
+            background-color: white;
+            margin: 2% auto;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .rating-section {
+            margin: 20px 0;
+        }
+
+        .rating-label {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .star-rating {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 15px;
+        }
+
+        .star {
+            font-size: 24px;
+            color: #ddd;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .star:hover,
+        .star.hover {
+            color: #FFA500;
+        }
+
+        .star.active {
+            color: #FFD700;
+        }
+
+        .amenities-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .amenity-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px;
+            border-radius: 6px;
+            transition: background-color 0.2s;
+            cursor: pointer;
+        }
+
+        .amenity-item:hover {
+            background-color: #f0f8ff;
+        }
+
+        .amenity-item input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+
+        .amenity-item label {
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin: 0;
+        }
+
+        .login-required {
+            background-color: #f5f5f5;
+            border: 1px dashed #ccc;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            color: #666;
+            margin: 15px 0;
+        }
+
+        .login-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+
+        .review-display {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid #f0f0f0;
+        }
+
+        .review-card {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .reviewer-name {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .review-date {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .review-ratings {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+        }
+
+        .review-amenities {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+
+        .amenity-tag {
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 2px 6px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+        }
+
+        .review-text {
+            color: #555;
+            line-height: 1.4;
+        }
+
+        .trophy-badge {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            margin-left: 5px;
+        }
+
+        .badge-first {
+            background: linear-gradient(45deg, #FFD700, #FFA500);
+            color: white;
+        }
+
+        .badge-milestone {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+        }
+
+        .badge-veteran {
+            background: linear-gradient(45deg, #2196F3, #1976D2);
+            color: white;
+        }
+
+        .badge-expert {
+            background: linear-gradient(45deg, #9C27B0, #7B1FA2);
+            color: white;
+        }
+
+        .trophy-notification {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            z-index: 2000;
+            text-align: center;
+            animation: trophyPop 0.5s ease-out;
+        }
+
+        @keyframes trophyPop {
+            0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        }
+
         /* Modal Styles */
         .modal {
             display: none;
@@ -1816,7 +2030,321 @@
         }
 
         function reviewBusiness(businessName, businessAddress) {
-            document.getElementById('reviewBusinessInfo').innerHTML = `
+            currentReviewBusiness = { name: businessName, address: businessAddress };
+            document.getElementById('reviewBusinessName').textContent = businessName;
+            document.getElementById('reviewBusinessAddress').textContent = businessAddress;
+            
+            resetStarRatings();
+            resetReviewForm();
+            updateLoginRequiredFields();
+            
+            document.getElementById('reviewModal').style.display = 'block';
+        }
+
+        function resetStarRatings() {
+            ratings = { overall: 0, cleanliness: 0, safety: 0 };
+            document.querySelectorAll('.star-rating .star').forEach(star => {
+                star.classList.remove('active');
+            });
+        }
+
+        function resetReviewForm() {
+            document.getElementById('reviewForm').reset();
+            document.querySelectorAll('input[name="amenities"]').forEach(checkbox => {
+                checkbox.checked = false;
+            });
+        }
+
+        function updateLoginRequiredFields() {
+            const reviewText = document.getElementById('reviewText');
+            const reviewPhotos = document.getElementById('reviewPhotos');
+            const loginPrompt = document.getElementById('loginPrompt');
+            
+            if (currentUser) {
+                reviewText.disabled = false;
+                reviewText.placeholder = "Share your experience...";
+                reviewPhotos.disabled = false;
+                loginPrompt.style.display = 'none';
+            } else {
+                reviewText.disabled = true;
+                reviewText.placeholder = "Login required to write reviews...";
+                reviewPhotos.disabled = true;
+                loginPrompt.style.display = 'block';
+            }
+        }
+
+        function closeReviewModal() {
+            document.getElementById('reviewModal').style.display = 'none';
+            currentReviewBusiness = null;
+        }
+
+        function showLoginForReview() {
+            // Simple login simulation - in production, use proper authentication
+            const username = prompt("Enter username:");
+            if (username && username.trim()) {
+                currentUser = { username: username.trim(), loginTime: new Date() };
+                updateLoginRequiredFields();
+                showSuccess(`Welcome back, ${currentUser.username}!`);
+            }
+        }
+
+        // Star rating functionality
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('star')) {
+                const ratingType = e.target.closest('.star-rating').dataset.rating;
+                const value = parseInt(e.target.dataset.value);
+                const stars = e.target.closest('.star-rating').querySelectorAll('.star');
+                
+                ratings[ratingType] = value;
+                
+                stars.forEach((star, index) => {
+                    if (index < value) {
+                        star.classList.add('active');
+                    } else {
+                        star.classList.remove('active');
+                    }
+                });
+            }
+        });
+
+        // Star rating hover effects
+        document.addEventListener('mouseover', function(e) {
+            if (e.target.classList.contains('star')) {
+                const value = parseInt(e.target.dataset.value);
+                const stars = e.target.closest('.star-rating').querySelectorAll('.star');
+                
+                stars.forEach((star, index) => {
+                    if (index < value) {
+                        star.classList.add('hover');
+                    } else {
+                        star.classList.remove('hover');
+                    }
+                });
+            }
+        });
+
+        document.addEventListener('mouseout', function(e) {
+            if (e.target.classList.contains('star')) {
+                const stars = e.target.closest('.star-rating').querySelectorAll('.star');
+                stars.forEach(star => {
+                    star.classList.remove('hover');
+                });
+            }
+        });
+
+        // Review form submission
+        document.getElementById('reviewForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            submitReview();
+        });
+
+        function submitReview() {
+            if (ratings.overall === 0) {
+                alert('Please provide an overall rating');
+                return;
+            }
+
+            const amenities = Array.from(document.querySelectorAll('input[name="amenities"]:checked'))
+                .map(checkbox => ({
+                    value: checkbox.value,
+                    label: checkbox.nextElementSibling.textContent
+                }));
+
+            const review = {
+                businessName: currentReviewBusiness.name,
+                businessAddress: currentReviewBusiness.address,
+                ratings: { ...ratings },
+                amenities: amenities,
+                bathroomType: document.getElementById('bathroomType').value,
+                adaCompliant: document.getElementById('adaCompliant').checked,
+                reviewText: document.getElementById('reviewText').value,
+                reviewer: currentUser ? currentUser.username : 'Anonymous',
+                timestamp: new Date().toISOString(),
+                photos: [] // Photo handling would be implemented here
+            };
+
+            // Save review to localStorage
+            const reviews = JSON.parse(localStorage.getItem('restroomReviews') || '[]');
+            reviews.push(review);
+            localStorage.setItem('restroomReviews', JSON.stringify(reviews));
+
+            // Check for trophies
+            if (currentUser) {
+                checkAndAwardTrophies(review);
+            }
+
+            // Update business card with new review
+            updateBusinessCardWithReview(currentReviewBusiness.name);
+
+            showSuccess('Review submitted successfully!');
+            closeReviewModal();
+        }
+
+        function checkAndAwardTrophies(review) {
+            const reviews = JSON.parse(localStorage.getItem('restroomReviews') || '[]');
+            const userReviews = reviews.filter(r => r.reviewer === currentUser.username);
+            const businessReviews = reviews.filter(r => 
+                r.businessName === review.businessName && 
+                r.businessAddress === review.businessAddress
+            );
+
+            let trophies = JSON.parse(localStorage.getItem('userTrophies') || '{}');
+            if (!trophies[currentUser.username]) {
+                trophies[currentUser.username] = [];
+            }
+
+            let newTrophies = [];
+
+            // First reviewer trophy
+            if (businessReviews.length === 1) {
+                const firstTrophy = {
+                    type: 'first',
+                    business: review.businessName,
+                    timestamp: new Date().toISOString()
+                };
+                trophies[currentUser.username].push(firstTrophy);
+                newTrophies.push('🥇 First Reviewer at ' + review.businessName);
+            }
+
+            // Milestone trophies (every 5 reviews)
+            const reviewCount = userReviews.length;
+            if (reviewCount % 5 === 0 && reviewCount > 0) {
+                let trophyType, trophyText;
+                if (reviewCount >= 25) {
+                    trophyType = 'expert';
+                    trophyText = '👑 Expert Reviewer';
+                } else if (reviewCount >= 10) {
+                    trophyType = 'veteran';
+                    trophyText = '🎖️ Veteran Reviewer';
+                } else {
+                    trophyType = 'milestone';
+                    trophyText = '🏆 Milestone Reviewer';
+                }
+
+                const milestoneTrophy = {
+                    type: trophyType,
+                    reviewCount: reviewCount,
+                    timestamp: new Date().toISOString()
+                };
+                trophies[currentUser.username].push(milestoneTrophy);
+                newTrophies.push(trophyText + ` (${reviewCount} reviews)`);
+            }
+
+            localStorage.setItem('userTrophies', JSON.stringify(trophies));
+
+            // Show trophy notification
+            if (newTrophies.length > 0) {
+                showTrophyNotification(newTrophies);
+            }
+        }
+
+        function showTrophyNotification(trophies) {
+            const notification = document.createElement('div');
+            notification.className = 'trophy-notification';
+            notification.innerHTML = `
+                <h3>🎉 Trophy Earned!</h3>
+                ${trophies.map(trophy => `<p>${trophy}</p>`).join('')}
+            `;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                document.body.removeChild(notification);
+            }, 4000);
+        }
+
+        function getUserTrophyBadges(username) {
+            const trophies = JSON.parse(localStorage.getItem('userTrophies') || '{}');
+            const userTrophies = trophies[username] || [];
+            
+            let badges = [];
+            
+            // Count first reviewer badges
+            const firstCount = userTrophies.filter(t => t.type === 'first').length;
+            if (firstCount > 0) {
+                badges.push(`<span class="trophy-badge badge-first">🥇 First ${firstCount > 1 ? 'x' + firstCount : ''}</span>`);
+            }
+            
+            // Get highest milestone badge
+            const milestones = userTrophies.filter(t => ['milestone', 'veteran', 'expert'].includes(t.type));
+            if (milestones.length > 0) {
+                const latest = milestones[milestones.length - 1];
+                let badgeClass, badgeText;
+                
+                switch (latest.type) {
+                    case 'expert':
+                        badgeClass = 'badge-expert';
+                        badgeText = '👑 Expert';
+                        break;
+                    case 'veteran':
+                        badgeClass = 'badge-veteran';
+                        badgeText = '🎖️ Veteran';
+                        break;
+                    default:
+                        badgeClass = 'badge-milestone';
+                        badgeText = '🏆 Milestone';
+                }
+                
+                badges.push(`<span class="trophy-badge ${badgeClass}">${badgeText}</span>`);
+            }
+            
+            return badges.join('');
+        }
+
+        function updateBusinessCardWithReview(businessName) {
+            const reviews = JSON.parse(localStorage.getItem('restroomReviews') || '[]');
+            const businessReviews = reviews.filter(r => r.businessName === businessName);
+            
+            if (businessReviews.length === 0) return;
+            
+            // Calculate average ratings
+            const avgOverall = businessReviews.reduce((sum, r) => sum + r.ratings.overall, 0) / businessReviews.length;
+            const avgCleanliness = businessReviews.reduce((sum, r) => sum + r.ratings.cleanliness, 0) / businessReviews.length;
+            const avgSafety = businessReviews.reduce((sum, r) => sum + r.ratings.safety, 0) / businessReviews.length;
+            
+            // Find the business card and update it
+            const businessCards = document.querySelectorAll('.business-card');
+            businessCards.forEach(card => {
+                const nameElement = card.querySelector('.business-name');
+                if (nameElement && nameElement.textContent.includes(businessName)) {
+                    // Add or update review display
+                    let reviewDisplay = card.querySelector('.review-display');
+                    if (!reviewDisplay) {
+                        reviewDisplay = document.createElement('div');
+                        reviewDisplay.className = 'review-display';
+                        card.appendChild(reviewDisplay);
+                    }
+                    
+                    reviewDisplay.innerHTML = `
+                        <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #eee;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                <span style="font-weight: 600;">⭐ ${avgOverall.toFixed(1)} (${businessReviews.length} review${businessReviews.length > 1 ? 's' : ''})</span>
+                                <span style="font-size: 0.8rem; color: #666;">Clean: ${avgCleanliness.toFixed(1)} | Safe: ${avgSafety.toFixed(1)}</span>
+                            </div>
+                            ${businessReviews.slice(-3).map(review => `
+                                <div class="review-card" style="background: #f8f9fa; padding: 10px; border-radius: 6px; margin-bottom: 8px;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                                        <span style="font-weight: 600; font-size: 0.9rem;">
+                                            ${review.reviewer}${getUserTrophyBadges(review.reviewer)}
+                                        </span>
+                                        <span style="color: #666; font-size: 0.8rem;">${new Date(review.timestamp).toLocaleDateString()}</span>
+                                    </div>
+                                    <div style="display: flex; gap: 10px; margin-bottom: 5px; font-size: 0.8rem;">
+                                        <span>⭐ ${review.ratings.overall}</span>
+                                        <span>🧽 ${review.ratings.cleanliness}</span>
+                                        <span>🛡️ ${review.ratings.safety}</span>
+                                    </div>
+                                    ${review.amenities.length > 0 ? `
+                                        <div style="margin-bottom: 5px;">
+                                            ${review.amenities.map(amenity => `<span class="amenity-tag">${amenity.label}</span>`).join(' ')}
+                                        </div>
+                                    ` : ''}
+                                    ${review.reviewText ? `<div style="color: #555; font-size: 0.9rem;">${review.reviewText}</div>` : ''}
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                }
+            });
                 <h3>${businessName}</h3>
                 <p>📍 ${businessAddress}</p>
             `;
@@ -2209,6 +2737,7 @@
         window.onclick = function(event) {
             const adminModal = document.getElementById('adminModal');
             const dashboardModal = document.getElementById('dashboardModal');
+            const reviewModal = document.getElementById('reviewModal');
             const loginModal = document.getElementById('loginModal');
             const registerModal = document.getElementById('registerModal');
             const reviewModal = document.getElementById('reviewModal');
@@ -2219,6 +2748,9 @@
             }
             if (event.target === dashboardModal) {
                 dashboardModal.style.display = 'none';
+            }
+            if (event.target === reviewModal) {
+                reviewModal.style.display = 'none';
             }
             if (event.target === loginModal) {
                 loginModal.style.display = 'none';
