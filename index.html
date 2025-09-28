@@ -1330,17 +1330,12 @@
                             // Use coordinates as fallback
                             document.getElementById('location').value = `${lat}, ${lng}`;
                             showSuccess('✅ Location coordinates found! You can search nearby.');
-                                document.getElementById('location').value = data.results[0].formatted;
-                                showSuccess('✅ Location found successfully!');
-                            } else {
-                                // Fallback to coordinates
-                                document.getElementById('location').value = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
-                                showSuccess('✅ Location coordinates found!');
                             }
                         } catch (error) {
-                            const lat = position.coords.latitude.toFixed(4);
-                            const lng = position.coords.longitude.toFixed(4);
-                            document.getElementById('location').value = `${lat}, ${lng}`;
+                            console.error('Reverse geocoding error:', error);
+                            document.getElementById('location').value = `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+                            showSuccess('✅ Location coordinates found!');
+                        }
                             showSuccess('✅ Using coordinates for location.');
                             const lat = position.coords.latitude;
                             const lng = position.coords.longitude;
