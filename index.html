@@ -437,6 +437,74 @@
             margin-left: 5px;
         }
 
+        .review-indicator {
+            background: #4CAF50;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            margin-left: 5px;
+        }
+
+        .business-reviews {
+            margin: 15px 0;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        .reviews-summary h4 {
+            margin: 0 0 10px 0;
+            color: #333;
+            font-size: 1rem;
+        }
+
+        .review-card {
+            background: white;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            border-left: 3px solid #667eea;
+        }
+
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+            font-size: 0.85rem;
+        }
+
+        .review-rating {
+            color: #FFD700;
+        }
+
+        .review-date {
+            color: #666;
+            font-size: 0.8rem;
+        }
+
+        .review-text {
+            margin: 5px 0;
+            font-style: italic;
+            color: #555;
+        }
+
+        .review-amenities {
+            margin: 5px 0;
+            font-size: 0.8rem;
+        }
+
+        .review-details {
+            display: flex;
+            gap: 10px;
+            font-size: 0.75rem;
+            color: #666;
+            margin-top: 5px;
+        }
+
         .review-button {
             background: #667eea;
             color: white;
@@ -1816,6 +1884,15 @@
         }
 
         function reviewBusiness(businessName, businessAddress) {
+            // Check if user is logged in
+            const currentUser = JSON.parse(localStorage.getItem('gtgotg_currentUser') || 'null');
+            if (!currentUser) {
+                showError('Please log in to rate restrooms');
+                showLogin();
+                return;
+            }
+            
+            // Set business info in modal
             document.getElementById('reviewBusinessInfo').innerHTML = `
                 <h3>${businessName}</h3>
                 <p>📍 ${businessAddress}</p>
@@ -1975,14 +2052,6 @@
                 }
                 
                 localStorage.setItem('gtgotg_currentUser', JSON.stringify(googleUser));
-                
-                // Enable photo upload and written reviews when logged in
-                document.getElementById('reviewPhotos').disabled = false;
-                const reviewTextarea = document.querySelector('textarea[placeholder*="Login required"]');
-                if (reviewTextarea) {
-                    reviewTextarea.placeholder = "Share your experience with this restroom...";
-                }
-                
                 updateUserInterface();
                 closeLoginModal();
                 closeRegisterModal();
@@ -2015,14 +2084,6 @@
                 }
                 
                 localStorage.setItem('gtgotg_currentUser', JSON.stringify(facebookUser));
-                
-                // Enable photo upload and written reviews when logged in
-                document.getElementById('reviewPhotos').disabled = false;
-                const reviewTextarea = document.querySelector('textarea[placeholder*="Login required"]');
-                if (reviewTextarea) {
-                    reviewTextarea.placeholder = "Share your experience with this restroom...";
-                }
-                
                 updateUserInterface();
                 closeLoginModal();
                 closeRegisterModal();
