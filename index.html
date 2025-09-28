@@ -1873,7 +1873,7 @@
                                 <p><strong>Distance:</strong> ${business.distance.toFixed(2)} km</p>
                                 <p><strong>Restroom Probability:</strong> ${business.restroomProbability}%</p>
                                 ${business.isTruckStop ? '<p><strong>🚛 Truck Stop/Rest Area</strong></p>' : ''}
-                                <button onclick="reviewBusiness('${(props.name || '').replace(/'/g, "\\'").replace(/"/g, '\\"')}', '${(props.formatted || '').replace(/'/g, "\\'").replace(/"/g, '\\"')}')" style="background: #667eea; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; margin-top: 10px;">Rate Restroom</button>
+                                <button onclick="reviewBusiness('${(props.name || '').replace(/'/g, "\\'")}', '${(props.formatted || '').replace(/'/g, "\\'")}');" style="background: #667eea; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; margin-top: 10px;">Rate Restroom</button>
                             </div>
                         `);
 
