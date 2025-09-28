@@ -624,7 +624,7 @@
                     <div class="form-group">
                         <label>Priority Categories</label>
                         <div class="priority-buttons">
-                            <div class="priority-btn active" data-priority="truck_stops">
+                            <div class="priority-btn" data-priority="truck_stops">
                                 🚛 Truck Stops & Rest Areas
                             </div>
                             <div class="priority-btn" data-priority="gas_stations">
@@ -639,7 +639,7 @@
                             <div class="priority-btn" data-priority="hotels">
                                 🏨 Hotels & Lodging
                             </div>
-                            <div class="priority-btn" data-priority="all">
+                            <div class="priority-btn active" data-priority="all">
                                 🎯 All Categories
                             </div>
                         </div>
@@ -889,9 +889,12 @@
         // Restroom categories with truck stops priority
         const restroomCategories = {
             truck_stops: [
-                'amenity.toilet',
                 'service.vehicle.fuel',
-                'accommodation'
+                'amenity.toilet',
+                'leisure.park',
+                'tourism.information',
+                'highway.services',
+                'highway.rest_area'
             ],
             gas_stations: [
                 'amenity.toilet',
@@ -923,9 +926,11 @@
         };
 
         const truckStopChains = [
-            'pilot', 'flying j', 'loves', 'ta', 'travel centers', 'petro',
+            'pilot', 'flying j', 'loves', 'ta', 'travel centers', 'petro', 'truck stop',
             'shell', 'exxon', 'bp', 'chevron', 'mobil', 'texaco', 'sunoco',
-            'speedway', 'wawa', 'sheetz', 'casey', 'kwik trip', 'buc-ee'
+            'speedway', 'wawa', 'sheetz', 'casey', 'kwik trip', 'buc-ee',
+            'rest area', 'service area', 'welcome center', 'travel plaza',
+            'truck plaza', 'service plaza', 'highway services'
         ];
 
         // Priority button handling
@@ -1099,9 +1104,25 @@
             const name = (business.properties.name || '').toLowerCase();
             const categories = business.properties.categories || [];
             
-            return truckStopChains.some(chain => name.includes(chain)) ||
-                   categories.some(cat => cat.includes('truck_stop') || cat.includes('rest_area')) ||
-                   ['truck stop', 'travel center', 'rest area', 'service plaza'].some(term => name.includes(term));
+            // Check for truck stop chains and keywords
+            const isTruckStopName = truckStopChains.some(chain => name.includes(chain));
+            
+            // Check for rest area and service area categories
+            const isRestAreaCategory = categories.some(cat => 
+                cat.includes('rest_area') || 
+                cat.includes('services') || 
+                cat.includes('tourism.information') ||
+                cat.includes('leisure.park')
+            );
+            
+            // Check for truck stop/rest area keywords in name
+            const hasRestAreaKeywords = [
+                'rest area', 'service area', 'welcome center', 'travel plaza',
+                'truck plaza', 'service plaza', 'highway services', 'rest stop',
+                'travel center', 'truck stop', 'interstate', 'highway rest'
+            ].some(term => name.includes(term));
+            
+            return isTruckStopName || isRestAreaCategory || hasRestAreaKeywords;
         }
 
         function isChainStore(name) {
