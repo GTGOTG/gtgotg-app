@@ -1592,7 +1592,7 @@
 
             try {
                 // Geocode the location
-                const geocodeUrl = `https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(location)}&apiKey=${GEOAPIFY_API_KEY}&limit=1`;
+                const geocodeUrl = `https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(location)}&filter=countrycode:us&bias=countrycode:us&format=json&limit=1&apiKey=${GEOAPIFY_API_KEY}`;
                 const geocodeResponse = await fetch(geocodeUrl);
 
                 if (!geocodeResponse.ok) {
@@ -1601,14 +1601,14 @@
 
                 const geocodeData = await geocodeResponse.json();
                 
-                if (!geocodeData.features || geocodeData.features.length === 0) {
+                if (!geocodeData.results || geocodeData.results.length === 0) {
                     throw new Error('Location not found');
                 }
 
-                const coords = geocodeData.features[0].geometry.coordinates;
-                const latitude = coords[1];
-                const longitude = coords[0];
-                const formattedAddress = geocodeData.features[0].properties.formatted;
+                const result = geocodeData.results[0];
+                const latitude = result.lat;
+                const longitude = result.lon;
+                const formattedAddress = result.formatted;
 
                 // Get appropriate categories
                 const categories = restroomCategories[priority].join(',');
