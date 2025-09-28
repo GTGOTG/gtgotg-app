@@ -1330,7 +1330,6 @@
                             // Use coordinates as fallback
                             document.getElementById('location').value = `${lat}, ${lng}`;
                             showSuccess('✅ Location coordinates found! You can search nearby.');
-                            }
                         } catch (error) {
                             console.error('Reverse geocoding error:', error);
                             document.getElementById('location').value = `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
