@@ -1975,6 +1975,14 @@
                 }
                 
                 localStorage.setItem('gtgotg_currentUser', JSON.stringify(googleUser));
+                
+                // Enable photo upload and written reviews when logged in
+                document.getElementById('reviewPhotos').disabled = false;
+                const reviewTextarea = document.querySelector('textarea[placeholder*="Login required"]');
+                if (reviewTextarea) {
+                    reviewTextarea.placeholder = "Share your experience with this restroom...";
+                }
+                
                 updateUserInterface();
                 closeLoginModal();
                 closeRegisterModal();
@@ -2007,6 +2015,14 @@
                 }
                 
                 localStorage.setItem('gtgotg_currentUser', JSON.stringify(facebookUser));
+                
+                // Enable photo upload and written reviews when logged in
+                document.getElementById('reviewPhotos').disabled = false;
+                const reviewTextarea = document.querySelector('textarea[placeholder*="Login required"]');
+                if (reviewTextarea) {
+                    reviewTextarea.placeholder = "Share your experience with this restroom...";
+                }
+                
                 updateUserInterface();
                 closeLoginModal();
                 closeRegisterModal();
