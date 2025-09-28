@@ -1641,35 +1641,69 @@
             localStorage.setItem('recentActivity', JSON.stringify(activity));
         }
 
-        // Utility functions
-        function showLoading(show) {
-            document.getElementById('loadingSection').style.display = show ? 'block' : 'none';
-            document.getElementById('searchBtn').disabled = show;
-            document.getElementById('searchBtn').textContent = show ? '🔍 Searching...' : '🔍 Find Restrooms';
+        // Social Login Functions
+        function loginWithGoogle() {
+            // In a real app, this would use Google OAuth
+            // For demo purposes, we'll simulate the process
+            showSuccess('Google login would redirect to Google OAuth. For demo, creating test account...');
+            
+            // Simulate successful Google login
+            setTimeout(() => {
+                const googleUser = {
+                    id: 'google_' + Date.now(),
+                    name: 'Google User',
+                    email: 'user@gmail.com',
+                    loginMethod: 'google',
+                    createdAt: new Date().toISOString()
+                };
+                
+                // Save user and login
+                const users = JSON.parse(localStorage.getItem('gtgotg_users') || '[]');
+                const existingUser = users.find(u => u.email === googleUser.email);
+                
+                if (!existingUser) {
+                    users.push(googleUser);
+                    localStorage.setItem('gtgotg_users', JSON.stringify(users));
+                }
+                
+                localStorage.setItem('gtgotg_currentUser', JSON.stringify(googleUser));
+                updateUserInterface();
+                closeLoginModal();
+                closeRegisterModal();
+                showSuccess('Successfully logged in with Google!');
+            }, 1000);
         }
-
-        function showError(message) {
-            const errorSection = document.getElementById('errorSection');
-            errorSection.textContent = message;
-            errorSection.style.display = 'block';
-        }
-
-        function showSuccess(message) {
-            const successSection = document.getElementById('successSection');
-            successSection.textContent = message;
-            successSection.style.display = 'block';
-        }
-
-        function hideError() {
-            document.getElementById('errorSection').style.display = 'none';
-        }
-
-        function hideSuccess() {
-            document.getElementById('successSection').style.display = 'none';
-        }
-
-        function hideResults() {
-            document.getElementById('resultsSection').style.display = 'none';
+        
+        function loginWithFacebook() {
+            // In a real app, this would use Facebook OAuth
+            // For demo purposes, we'll simulate the process
+            showSuccess('Facebook login would redirect to Facebook OAuth. For demo, creating test account...');
+            
+            // Simulate successful Facebook login
+            setTimeout(() => {
+                const facebookUser = {
+                    id: 'facebook_' + Date.now(),
+                    name: 'Facebook User',
+                    email: 'user@facebook.com',
+                    loginMethod: 'facebook',
+                    createdAt: new Date().toISOString()
+                };
+                
+                // Save user and login
+                const users = JSON.parse(localStorage.getItem('gtgotg_users') || '[]');
+                const existingUser = users.find(u => u.email === facebookUser.email);
+                
+                if (!existingUser) {
+                    users.push(facebookUser);
+                    localStorage.setItem('gtgotg_users', JSON.stringify(users));
+                }
+                
+                localStorage.setItem('gtgotg_currentUser', JSON.stringify(facebookUser));
+                updateUserInterface();
+                closeLoginModal();
+                closeRegisterModal();
+                showSuccess('Successfully logged in with Facebook!');
+            }, 1000);
         }
 
         // Initialize app
