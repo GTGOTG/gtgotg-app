@@ -791,23 +791,36 @@
 
             try {
                 // Geocode the location
-                const geocodeUrl = `https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(location)}&apiKey=${GEOAPIFY_API_KEY}&limit=1`;
+                const geocodeUrl = `https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(location)}&apiKey=${GEOAPIFY_API_KEY}&limit=1&format=json`;
                 const geocodeResponse = await fetch(geocodeUrl);
 
                 if (!geocodeResponse.ok) {
-                    throw new Error('Location not found');
+                    const errorText = await geocodeResponse.text();
+                    console.error('Geocoding API error:', geocodeResponse.status, errorText);
+                    throw new Error(`Geocoding failed: ${geocodeResponse.status}`);
                 }
 
                 const geocodeData = await geocodeResponse.json();
+                console.log('Geocoding response:', geocodeData);
                 
-                if (!geocodeData.features || geocodeData.features.length === 0) {
-                    throw new Error('Location not found');
+                // Handle both GeoJSON format and JSON format responses
+                let coordinates, formattedAddress;
+                
+                if (geocodeData.features && geocodeData.features.length > 0) {
+                    // GeoJSON format
+                    coordinates = geocodeData.features[0].geometry.coordinates;
+                    formattedAddress = geocodeData.features[0].properties.formatted;
+                } else if (geocodeData.results && geocodeData.results.length > 0) {
+                    // JSON format
+                    const result = geocodeData.results[0];
+                    coordinates = [result.lon, result.lat];
+                    formattedAddress = result.formatted;
+                } else {
+                    throw new Error(`No results found for "${location}". Please try a different location or be more specific.`);
                 }
 
-                const coords = geocodeData.features[0].geometry.coordinates;
-                const latitude = coords[1];
-                const longitude = coords[0];
-                const formattedAddress = geocodeData.features[0].properties.formatted;
+                const latitude = coordinates[1];
+                const longitude = coordinates[0];
 
                 // Update the input field with the formatted address
                 document.getElementById('location').value = formattedAddress;
@@ -815,14 +828,17 @@
                 // Get appropriate categories
                 const categories = restroomCategories[priority].join(',');
 
-                const placesUrl = `https://api.geoapify.com/v2/places?categories=${categories}&filter=circle:${longitude},${latitude},${radius}&limit=${limit}&apiKey=${GEOAPIFY_API_KEY}`;
+                const placesUrl = `https://api.geoapify.com/v2/places?categories=${categories}&filter=circle:${longitude},${latitude},${radiusMeters}&limit=${limit}&apiKey=${GEOAPIFY_API_KEY}&format=json`;
                 const placesResponse = await fetch(placesUrl);
 
                 if (!placesResponse.ok) {
-                    throw new Error('Search failed');
+                    const errorText = await placesResponse.text();
+                    console.error('Places API error:', placesResponse.status, errorText);
+                    throw new Error(`Places search failed: ${placesResponse.status}`);
                 }
 
                 const placesData = await placesResponse.json();
+                console.log('Places response:', placesData);
                 let businesses = placesData.features || [];
 
                 // Process and filter businesses
@@ -838,7 +854,7 @@
 
             } catch (error) {
                 console.error('Search error:', error);
-                showError(`Search failed: ${error.message}`);
+                showError(error.message);
             } finally {
                 showLoading(false);
             }
