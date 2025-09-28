@@ -794,7 +794,6 @@
         
         <div class="header">
             <div class="header-content">
-                <img src="logo.png" alt="GTGOTG Logo" class="header-logo">
                 <div class="header-text">
                     <h1>Got To Go On The Go</h1>
                     <p style="font-size: 1.2rem;">Find clean, safe restrooms anywhere in the USA</p>
@@ -1104,7 +1103,7 @@
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        const GEOAPIFY_API_KEY = '0dd9c79bbb8d4b189288ae96d8c614f6';
+        const GEOAPIFY_API_KEY = 'YOUR_API_KEY_HERE';
         let map;
         let markers = [];
         let currentBusinesses = [];
@@ -1259,15 +1258,15 @@
 
         async function searchAutocomplete(query) {
             try {
-                const url = `https://api.geoapify.com/v1/geocode/autocomplete?text=${encodeURIComponent(query)}&apiKey=${GEOAPIFY_API_KEY}&limit=8&filter=countrycode:us&bias=countrycode:us&format=json`;
-                const response = await fetch(url);
+                // Mock autocomplete data for demo
+                const mockResults = [
+                    { formatted: `${query}, CA, USA`, lat: 34.0522, lon: -118.2437 },
+                    { formatted: `${query}, TX, USA`, lat: 32.7767, lon: -96.7970 },
+                    { formatted: `${query}, FL, USA`, lat: 25.7617, lon: -80.1918 },
+                    { formatted: `${query}, NY, USA`, lat: 40.7128, lon: -74.0060 }
+                ].filter(result => result.formatted.toLowerCase().includes(query.toLowerCase()));
                 
-                if (!response.ok) {
-                    console.warn('Autocomplete request failed:', response.status);
-                    return;
-                }
-                
-                const data = await response.json();
+                showAutocomplete(mockResults);
                 displayAutocompleteResults(data.results || []);
             } catch (error) {
                 console.error('Autocomplete error:', error);
@@ -1325,20 +1324,12 @@
                 navigator.geolocation.getCurrentPosition(
                     async function(position) {
                         try {
-                            const lat = position.coords.latitude;
-                            const lng = position.coords.longitude;
+                            const lat = position.coords.latitude.toFixed(4);
+                            const lng = position.coords.longitude.toFixed(4);
                             
-                            // Reverse geocode to get address
-                            const url = `https://api.geoapify.com/v1/geocode/reverse?lat=${lat}&lon=${lng}&apiKey=${GEOAPIFY_API_KEY}&format=json`;
-                            const response = await fetch(url);
-                            
-                            if (!response.ok) {
-                                throw new Error('Reverse geocoding failed');
-                            }
-                            
-                            const data = await response.json();
-                            
-                            if (data.results && data.results.length > 0) {
+                            // Use coordinates as fallback
+                            document.getElementById('location').value = `${lat}, ${lng}`;
+                            showSuccess('✅ Location coordinates found! You can search nearby.');
                                 document.getElementById('location').value = data.results[0].formatted;
                                 showSuccess('✅ Location found successfully!');
                             } else {
@@ -1347,8 +1338,10 @@
                                 showSuccess('✅ Location coordinates found!');
                             }
                         } catch (error) {
-                            console.error('Reverse geocoding error:', error);
-                            // Use coordinates as fallback
+                            const lat = position.coords.latitude.toFixed(4);
+                            const lng = position.coords.longitude.toFixed(4);
+                            document.getElementById('location').value = `${lat}, ${lng}`;
+                            showSuccess('✅ Using coordinates for location.');
                             const lat = position.coords.latitude;
                             const lng = position.coords.longitude;
                             document.getElementById('location').value = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
@@ -1699,6 +1692,7 @@
         async function searchBusinesses() {
             const location = document.getElementById('location').value.trim();
             const radius = document.getElementById('radius').value;
+            const locationLimit = document.getElementById('locationLimit').value;
             const priority = document.querySelector('.priority-btn.active').dataset.priority;
             
             if (!location) {
@@ -1712,38 +1706,48 @@
             hideResults();
 
             try {
-                // Geocode the location
-                const geocodeUrl = `https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(location)}&filter=countrycode:us&bias=countrycode:us&limit=1&format=json&apiKey=${GEOAPIFY_API_KEY}`;
-                const geocodeResponse = await fetch(geocodeUrl);
-
-                if (!geocodeResponse.ok) {
-                    throw new Error('Location not found');
-                }
-
-                const geocodeData = await geocodeResponse.json();
+                // Parse coordinates or use mock geocoding
+                let latitude, longitude, formattedAddress;
                 
-                if (!geocodeData.results || geocodeData.results.length === 0) {
-                    throw new Error('Location not found');
+                if (location.includes(',') && location.split(',').length >= 2) {
+                    // Coordinates format: "lat, lng"
+                    const coords = location.split(',').map(c => parseFloat(c.trim()));
+                    latitude = coords[0];
+                    longitude = coords[1];
+                    formattedAddress = `${latitude}, ${longitude}`;
+                } else {
+                    // Mock geocoding for demo - use major US cities
+                    const mockLocations = {
+                        'miami': { lat: 25.7617, lon: -80.1918, formatted: 'Miami, FL, USA' },
+                        'denver': { lat: 39.7392, lon: -104.9903, formatted: 'Denver, CO, USA' },
+                        'chicago': { lat: 41.8781, lon: -87.6298, formatted: 'Chicago, IL, USA' },
+                        'houston': { lat: 29.7604, lon: -95.3698, formatted: 'Houston, TX, USA' },
+                        'phoenix': { lat: 33.4484, lon: -112.0740, formatted: 'Phoenix, AZ, USA' },
+                        'los angeles': { lat: 34.0522, lon: -118.2437, formatted: 'Los Angeles, CA, USA' },
+                        'new york': { lat: 40.7128, lon: -74.0060, formatted: 'New York, NY, USA' }
+                    };
+                    
+                    const locationKey = location.toLowerCase();
+                    const mockLocation = Object.keys(mockLocations).find(key => 
+                        locationKey.includes(key) || key.includes(locationKey)
+                    );
+                    
+                    if (mockLocation) {
+                        const loc = mockLocations[mockLocation];
+                        latitude = loc.lat;
+                        longitude = loc.lon;
+                        formattedAddress = loc.formatted;
+                    } else {
+                        // Default to Denver if location not found
+                        latitude = 39.7392;
+                        longitude = -104.9903;
+                        formattedAddress = `${location} (using Denver, CO as fallback)`;
+                    }
                 }
-
-                const result = geocodeData.results[0];
-                const latitude = result.lat;
-                const longitude = result.lon;
-                const formattedAddress = result.formatted;
 
                 // Get appropriate categories
-                const categories = restroomCategories[priority].join(',');
-
-                const placesUrl = `https://api.geoapify.com/v2/places?categories=${categories}&filter=circle:${longitude},${latitude},${radius}&limit=${locationLimit}&apiKey=${GEOAPIFY_API_KEY}`;
-                const locationLimit = document.getElementById('locationLimit').value;
-                const placesResponse = await fetch(placesUrl);
-
-                if (!placesResponse.ok) {
-                    throw new Error('Search failed');
-                }
-
-                const placesData = await placesResponse.json();
-                let businesses = placesData.features || [];
+                // Generate mock business data for demo
+                let businesses = generateMockBusinesses(latitude, longitude, priority, parseInt(locationLimit));
 
                 // Process and filter businesses
                 businesses = processBusinesses(businesses, latitude, longitude, priority);
