@@ -1816,15 +1816,6 @@
         }
 
         function reviewBusiness(businessName, businessAddress) {
-            // Check if user is logged in
-            const currentUser = JSON.parse(localStorage.getItem('gtgotg_currentUser') || 'null');
-            if (!currentUser) {
-                showError('Please log in to rate restrooms');
-                showLogin();
-                return;
-            }
-            
-            // Set business info in modal
             document.getElementById('reviewBusinessInfo').innerHTML = `
                 <h3>${businessName}</h3>
                 <p>📍 ${businessAddress}</p>
