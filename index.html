@@ -604,7 +604,10 @@
                 <form class="search-form" id="searchForm">
                     <div class="form-group">
                         <label for="location">Location (City, State or Address)</label>
-                        <div class="location-input-container">
+                        <div style="display: flex; gap: 10px;">
+                            <input type="text" id="location" placeholder="e.g., Denver, CO or I-70 Exit 123" required style="flex: 1;">
+                            <button type="button" onclick="useCurrentLocation()" style="background: #4CAF50; color: white; border: none; padding: 12px 16px; border-radius: 8px; cursor: pointer; white-space: nowrap;">📍 Use Current Location</button>
+                        </div>
                             <input type="text" id="location" placeholder="e.g., Denver, CO or I-70 Exit 123" required>
                             <button type="button" class="current-location-btn" onclick="useCurrentLocation()">📍 Current</button>
                             <div class="autocomplete-dropdown" id="autocompleteDropdown"></div>
@@ -1522,7 +1525,6 @@
                     <span class="detail-tag">${business.isTruckStop ? '🚛' : '🏪'} ${category}</span>
                     ${phone ? `<span class="detail-tag">📞 ${phone}</span>` : ''}
                     <span class="detail-tag">📏 ${business.distance.toFixed(2)} miles</span>
-                    <span class="detail-tag">🚽 ${business.restroomProbability}% likely</span>
                     ⭐ Rate This Restroom
                 </button>
             `;
@@ -1701,6 +1703,73 @@
                 closeRegisterModal();
                 showSuccess('Successfully logged in with Facebook!');
             }, 1000);
+        }
+
+        // Use current location function
+        function useCurrentLocation() {
+            if (!navigator.geolocation) {
+                showError('Geolocation is not supported by this browser');
+                return;
+            }
+
+            const locationInput = document.getElementById('location');
+            locationInput.value = 'Getting your location...';
+            locationInput.disabled = true;
+
+            navigator.geolocation.getCurrentPosition(
+                async (position) => {
+                    try {
+                        const lat = position.coords.latitude;
+                        const lng = position.coords.longitude;
+                        
+                        // Reverse geocode to get address
+                        const geocodeUrl = `https://api.geoapify.com/v1/geocode/reverse?lat=${lat}&lon=${lng}&apiKey=${GEOAPIFY_API_KEY}`;
+                        const response = await fetch(geocodeUrl);
+                        const data = await response.json();
+                        
+                        if (data.features && data.features.length > 0) {
+                            const address = data.features[0].properties.formatted;
+                            locationInput.value = address;
+                        } else {
+                            locationInput.value = `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+                        }
+                        
+                        locationInput.disabled = false;
+                        showSuccess('✅ Current location detected!');
+                    } catch (error) {
+                        console.error('Reverse geocoding error:', error);
+                        locationInput.value = `${position.coords.latitude.toFixed(4)}, ${position.coords.longitude.toFixed(4)}`;
+                        locationInput.disabled = false;
+                        showSuccess('✅ Current location coordinates detected!');
+                    }
+                },
+                (error) => {
+                    locationInput.value = '';
+                    locationInput.disabled = false;
+                    
+                    let errorMessage = 'Unable to get your location. ';
+                    switch(error.code) {
+                        case error.PERMISSION_DENIED:
+                            errorMessage += 'Please allow location access and try again.';
+                            break;
+                        case error.POSITION_UNAVAILABLE:
+                            errorMessage += 'Location information is unavailable.';
+                            break;
+                        case error.TIMEOUT:
+                            errorMessage += 'Location request timed out.';
+                            break;
+                        default:
+                            errorMessage += 'An unknown error occurred.';
+                            break;
+                    }
+                    showError(errorMessage);
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 300000 // 5 minutes
+                }
+            );
         }
 
         // Initialize app
