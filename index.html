@@ -604,10 +604,7 @@
                 <form class="search-form" id="searchForm">
                     <div class="form-group">
                         <label for="location">Location (City, State or Address)</label>
-                        <div style="display: flex; gap: 10px;">
-                            <input type="text" id="location" placeholder="e.g., Denver, CO or I-70 Exit 123" required style="flex: 1;">
-                            <button type="button" onclick="useCurrentLocation()" style="background: #4CAF50; color: white; border: none; padding: 12px 16px; border-radius: 8px; cursor: pointer; white-space: nowrap;">📍 Use Current Location</button>
-                        </div>
+                        <div class="location-input-container">
                             <input type="text" id="location" placeholder="e.g., Denver, CO or I-70 Exit 123" required>
                             <button type="button" class="current-location-btn" onclick="useCurrentLocation()">📍 Current</button>
                             <div class="autocomplete-dropdown" id="autocompleteDropdown"></div>
@@ -1523,6 +1520,12 @@
                 <div class="business-address">📍 ${props.formatted || 'Address not available'}</div>
                 <div class="business-details">
                     <span class="detail-tag">${business.isTruckStop ? '🚛' : '🏪'} ${category}</span>
+                    ${phone ? `<span class="detail-tag">📞 ${phone}</span>` : ''}
+                    <span class="detail-tag">📏 ${business.distance.toFixed(2)} miles</span>
+                    <span class="detail-tag">🚽 ${business.restroomProbability}% likely</span>
+                    ${hours ? `<span class="detail-tag">🕒 Open</span>` : ''}
+                </div>
+                <button class="review-button" onclick="reviewBusiness('${(props.name || 'Unknown').replace(/'/g, "\\'").replace(/"/g, '\\"')}', '${(props.formatted || '').replace(/'/g, "\\'").replace(/"/g, '\\"')}')">
                     ⭐ Rate This Restroom
                 </button>
             `;
@@ -1640,6 +1643,62 @@
 
         // Social Login Functions
         function loginWithGoogle() {
+            // Placeholder functions for missing modal functions
+            window.showLogin = function() {
+                document.getElementById('loginModal').style.display = 'block';
+            };
+            
+            window.showRegister = function() {
+                document.getElementById('registerModal').style.display = 'block';
+            };
+            
+            window.showClaimBusiness = function() {
+                document.getElementById('claimBusinessModal').style.display = 'block';
+            };
+            
+            window.closeLoginModal = function() {
+                document.getElementById('loginModal').style.display = 'none';
+            };
+            
+            window.closeRegisterModal = function() {
+                document.getElementById('registerModal').style.display = 'none';
+            };
+            
+            window.closeReviewModal = function() {
+                document.getElementById('reviewModal').style.display = 'none';
+            };
+            
+            window.closeClaimBusinessModal = function() {
+                document.getElementById('claimBusinessModal').style.display = 'none';
+            };
+            
+            window.logout = function() {
+                localStorage.removeItem('gtgotg_currentUser');
+                updateUserInterface();
+                showSuccess('Successfully logged out!');
+            };
+            
+            window.updateUserInterface = function() {
+                // Update UI based on login status
+                const currentUser = JSON.parse(localStorage.getItem('gtgotg_currentUser') || 'null');
+                const loginBtn = document.getElementById('loginBtn');
+                const registerBtn = document.getElementById('registerBtn');
+                const logoutBtn = document.getElementById('logoutBtn');
+                const claimBtn = document.getElementById('claimBtn');
+                
+                if (currentUser) {
+                    loginBtn.style.display = 'none';
+                    registerBtn.style.display = 'none';
+                    logoutBtn.style.display = 'block';
+                    claimBtn.style.display = 'block';
+                } else {
+                    loginBtn.style.display = 'block';
+                    registerBtn.style.display = 'block';
+                    logoutBtn.style.display = 'none';
+                    claimBtn.style.display = 'none';
+                }
+            };
+            
             // In a real app, this would use Google OAuth
             // For demo purposes, we'll simulate the process
             showSuccess('Google login would redirect to Google OAuth. For demo, creating test account...');
@@ -1770,12 +1829,99 @@
             );
         }
 
+        function showLoading(show) {
+            document.getElementById('loadingSection').style.display = show ? 'block' : 'none';
+            document.getElementById('searchBtn').disabled = show;
+            document.getElementById('searchBtn').textContent = show ? '🔍 Searching...' : '🔍 Find Restrooms';
+        }
+
+        function showError(message) {
+            const errorSection = document.getElementById('errorSection');
+            errorSection.textContent = message;
+            errorSection.style.display = 'block';
+        }
+
+        function showSuccess(message) {
+            const successSection = document.getElementById('successSection');
+            successSection.textContent = message;
+            successSection.style.display = 'block';
+        }
+
+        function hideError() {
+            document.getElementById('errorSection').style.display = 'none';
+        }
+
+        function hideSuccess() {
+            document.getElementById('successSection').style.display = 'none';
+        }
+
+        function hideResults() {
+            document.getElementById('resultsSection').style.display = 'none';
+        }
+
         // Initialize app
         window.addEventListener('load', () => {
+            // Initialize missing functions
+            window.showLogin = function() {
+                document.getElementById('loginModal').style.display = 'block';
+            };
+            
+            window.showRegister = function() {
+                document.getElementById('registerModal').style.display = 'block';
+            };
+            
+            window.showClaimBusiness = function() {
+                document.getElementById('claimBusinessModal').style.display = 'block';
+            };
+            
+            window.closeLoginModal = function() {
+                document.getElementById('loginModal').style.display = 'none';
+            };
+            
+            window.closeRegisterModal = function() {
+                document.getElementById('registerModal').style.display = 'none';
+            };
+            
+            window.closeReviewModal = function() {
+                document.getElementById('reviewModal').style.display = 'none';
+            };
+            
+            window.closeClaimBusinessModal = function() {
+                document.getElementById('claimBusinessModal').style.display = 'none';
+            };
+            
+            window.logout = function() {
+                localStorage.removeItem('gtgotg_currentUser');
+                updateUserInterface();
+                showSuccess('Successfully logged out!');
+            };
+            
+            window.updateUserInterface = function() {
+                // Update UI based on login status
+                const currentUser = JSON.parse(localStorage.getItem('gtgotg_currentUser') || 'null');
+                const loginBtn = document.getElementById('loginBtn');
+                const registerBtn = document.getElementById('registerBtn');
+                const logoutBtn = document.getElementById('logoutBtn');
+                const claimBtn = document.getElementById('claimBtn');
+                
+                if (currentUser) {
+                    loginBtn.style.display = 'none';
+                    registerBtn.style.display = 'none';
+                    logoutBtn.style.display = 'block';
+                    claimBtn.style.display = 'block';
+                } else {
+                    loginBtn.style.display = 'block';
+                    registerBtn.style.display = 'block';
+                    logoutBtn.style.display = 'none';
+                    claimBtn.style.display = 'none';
+                }
+            };
+            
             // Wait a bit for all resources to load
             setTimeout(() => {
                 initMap();
                 setupAutocomplete();
+                updateUserInterface();
                 showSuccess('✅ Ready to find restrooms! Truck stops and rest areas prioritized for travelers.');
             }, 500);
         });
