@@ -810,11 +810,9 @@
                         <label for="location">Location (City, State or Address)</label>
                         <div class="location-input-container">
                             <input type="text" id="location" placeholder="e.g., Denver, CO or I-70 Exit 123" required>
-                            <button type="button" id="useLocationBtn" class="use-location-btn">📍 Use My Location</button>
-                            <div id="autocomplete-dropdown" class="autocomplete-dropdown"></div>
+                            <button type="button" id="locationBtn" class="use-location-btn">📍 Use My Location</button>
                         </div>
-                            <div id="autocompleteResults" class="autocomplete-results"></div>
-                        </div>
+                        <div id="autocompleteResults" class="autocomplete-results"></div>
                     </div>
                     
                     <div class="form-group">
@@ -844,7 +842,7 @@
                     <div class="form-group">
                         <label>Priority Categories</label>
                         <div class="priority-buttons">
-                            <div class="priority-btn active" data-priority="truck_stops">
+                            <div class="priority-btn" data-priority="truck_stops">
                                 🚛 Truck Stops & Rest Areas
                             </div>
                             <div class="priority-btn" data-priority="gas_stations">
@@ -859,7 +857,7 @@
                             <div class="priority-btn" data-priority="hotels">
                                 🏨 Hotels & Lodging
                             </div>
-                            <div class="priority-btn" data-priority="all">
+                            <div class="priority-btn active" data-priority="all">
                                 🎯 All Categories
                             </div>
                         </div>
@@ -1210,121 +1208,119 @@
 
         // Initialize autocomplete and location button
         document.addEventListener('DOMContentLoaded', function() {
-            initializeAutocomplete();
-            initializeLocationButton();
+            setupAutocomplete();
+            setupLocationButton();
         });
 
-        function initializeAutocomplete() {
+        function setupAutocomplete() {
             const locationInput = document.getElementById('location');
-            const dropdown = document.getElementById('autocomplete-dropdown');
+            const autocompleteResults = document.getElementById('autocompleteResults');
 
             locationInput.addEventListener('input', function() {
                 const query = this.value.trim();
                 
                 if (query.length < 2) {
-                    hideAutocomplete();
+                    autocompleteResults.style.display = 'none';
                     return;
                 }
 
                 clearTimeout(autocompleteTimeout);
                 autocompleteTimeout = setTimeout(() => {
-                    fetchAutocomplete(query);
+                    searchAutocomplete(query);
                 }, 300);
             });
 
             locationInput.addEventListener('keydown', function(e) {
-                const items = dropdown.querySelectorAll('.autocomplete-item');
+                const items = autocompleteResults.querySelectorAll('.autocomplete-item');
                 
                 if (e.key === 'ArrowDown') {
                     e.preventDefault();
                     selectedIndex = Math.min(selectedIndex + 1, items.length - 1);
-                    updateSelection(items);
+                    updateAutocompleteSelection(items);
                 } else if (e.key === 'ArrowUp') {
                     e.preventDefault();
                     selectedIndex = Math.max(selectedIndex - 1, -1);
-                    updateSelection(items);
+                    updateAutocompleteSelection(items);
                 } else if (e.key === 'Enter' && selectedIndex >= 0) {
                     e.preventDefault();
-                    items[selectedIndex].click();
+                    selectAutocompleteItem(items[selectedIndex]);
                 } else if (e.key === 'Escape') {
-                    hideAutocomplete();
+                    autocompleteResults.style.display = 'none';
                 }
             });
 
             // Hide autocomplete when clicking outside
             document.addEventListener('click', function(e) {
-                if (!locationInput.contains(e.target) && !dropdown.contains(e.target)) {
-                    hideAutocomplete();
+                if (!locationInput.contains(e.target) && !autocompleteResults.contains(e.target)) {
+                    autocompleteResults.style.display = 'none';
                 }
             });
         }
 
-        async function fetchAutocomplete(query) {
+        async function searchAutocomplete(query) {
             try {
-                const url = `https://api.geoapify.com/v1/geocode/autocomplete?text=${encodeURIComponent(query)}&filter=countrycode:us&bias=countrycode:us&limit=8&format=json&apiKey=${GEOAPIFY_API_KEY}`;
+                const url = `https://api.geoapify.com/v1/geocode/autocomplete?text=${encodeURIComponent(query)}&apiKey=${GEOAPIFY_API_KEY}&limit=8&filter=countrycode:us&bias=countrycode:us&format=json`;
                 const response = await fetch(url);
                 
                 if (!response.ok) {
-                    throw new Error('Autocomplete request failed');
+                    console.warn('Autocomplete request failed:', response.status);
+                    return;
                 }
                 
                 const data = await response.json();
-                showAutocomplete(data.results || []);
+                displayAutocompleteResults(data.results || []);
             } catch (error) {
                 console.error('Autocomplete error:', error);
-                hideAutocomplete();
             }
         }
 
-        function showAutocomplete(results) {
-            const dropdown = document.getElementById('autocomplete-dropdown');
+        function displayAutocompleteResults(results) {
+            const autocompleteResults = document.getElementById('autocompleteResults');
+            autocompleteResults.innerHTML = '';
+            selectedIndex = -1;
             
             if (results.length === 0) {
-                hideAutocomplete();
+                autocompleteResults.style.display = 'none';
                 return;
             }
-
-            dropdown.innerHTML = '';
-            selectedIndex = -1;
 
             results.forEach((result, index) => {
                 const item = document.createElement('div');
                 item.className = 'autocomplete-item';
                 item.textContent = result.formatted;
+                item.dataset.formatted = result.formatted;
                 
-                item.addEventListener('click', function() {
-                    document.getElementById('location').value = result.formatted;
-                    hideAutocomplete();
-                });
+                item.addEventListener('click', () => selectAutocompleteItem(item));
                 
-                dropdown.appendChild(item);
+                autocompleteResults.appendChild(item);
             });
 
-            dropdown.style.display = 'block';
+            autocompleteResults.style.display = 'block';
         }
 
-        function hideAutocomplete() {
-            document.getElementById('autocomplete-dropdown').style.display = 'none';
+        function selectAutocompleteItem(item) {
+            document.getElementById('location').value = item.dataset.formatted;
+            document.getElementById('autocompleteResults').style.display = 'none';
             selectedIndex = -1;
         }
 
-        function updateSelection(items) {
+        function updateAutocompleteSelection(items) {
             items.forEach((item, index) => {
                 item.classList.toggle('selected', index === selectedIndex);
             });
         }
 
-        function initializeLocationButton() {
-            const useLocationBtn = document.getElementById('useLocationBtn');
+        function setupLocationButton() {
+            const locationBtn = document.getElementById('locationBtn');
             
-            useLocationBtn.addEventListener('click', function() {
+            locationBtn.addEventListener('click', function() {
                 if (!navigator.geolocation) {
                     alert('Geolocation is not supported by this browser.');
                     return;
                 }
 
-                useLocationBtn.disabled = true;
-                useLocationBtn.textContent = '📍 Getting Location...';
+                locationBtn.disabled = true;
+                locationBtn.textContent = '📍 Getting Location...';
 
                 navigator.geolocation.getCurrentPosition(
                     async function(position) {
@@ -1333,22 +1329,33 @@
                             const lng = position.coords.longitude;
                             
                             // Reverse geocode to get address
-                            const url = `https://api.geoapify.com/v1/geocode/reverse?lat=${lat}&lon=${lng}&format=json&apiKey=${GEOAPIFY_API_KEY}`;
+                            const url = `https://api.geoapify.com/v1/geocode/reverse?lat=${lat}&lon=${lng}&apiKey=${GEOAPIFY_API_KEY}&format=json`;
                             const response = await fetch(url);
+                            
+                            if (!response.ok) {
+                                throw new Error('Reverse geocoding failed');
+                            }
+                            
                             const data = await response.json();
                             
                             if (data.results && data.results.length > 0) {
                                 document.getElementById('location').value = data.results[0].formatted;
                                 showSuccess('✅ Location found successfully!');
                             } else {
-                                throw new Error('Could not determine address');
+                                // Fallback to coordinates
+                                document.getElementById('location').value = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+                                showSuccess('✅ Location coordinates found!');
                             }
                         } catch (error) {
                             console.error('Reverse geocoding error:', error);
-                            showError('Could not determine your address. Please enter manually.');
+                            // Use coordinates as fallback
+                            const lat = position.coords.latitude;
+                            const lng = position.coords.longitude;
+                            document.getElementById('location').value = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+                            showSuccess('✅ Location coordinates found!');
                         } finally {
-                            useLocationBtn.disabled = false;
-                            useLocationBtn.textContent = '📍 Use My Location';
+                            locationBtn.disabled = false;
+                            locationBtn.textContent = '📍 Use My Location';
                         }
                     },
                     function(error) {
@@ -1365,8 +1372,8 @@
                                 break;
                         }
                         showError(message);
-                        useLocationBtn.disabled = false;
-                        useLocationBtn.textContent = '📍 Use My Location';
+                        locationBtn.disabled = false;
+                        locationBtn.textContent = '📍 Use My Location';
                     },
                     {
                         enableHighAccuracy: true,
@@ -1377,108 +1384,6 @@
             });
         }
         // Autocomplete functionality
-        const autocompleteResults = document.getElementById('autocompleteResults');
-        const locationInput = document.getElementById('location');
-
-        locationInput.addEventListener('input', (e) => {
-            const query = e.target.value.trim();
-            
-            if (query.length < 2) {
-                hideAutocomplete();
-                return;
-            }
-
-            // Debounce the API calls
-            clearTimeout(autocompleteTimeout);
-            autocompleteTimeout = setTimeout(() => {
-                searchAutocomplete(query);
-            }, 300);
-        });
-
-        locationInput.addEventListener('keydown', (e) => {
-            const items = autocompleteResults.querySelectorAll('.autocomplete-item');
-            
-            if (e.key === 'ArrowDown') {
-                e.preventDefault();
-                selectedAutocompleteIndex = Math.min(selectedAutocompleteIndex + 1, items.length - 1);
-                updateAutocompleteSelection(items);
-            } else if (e.key === 'ArrowUp') {
-                e.preventDefault();
-                selectedAutocompleteIndex = Math.max(selectedAutocompleteIndex - 1, -1);
-                updateAutocompleteSelection(items);
-            } else if (e.key === 'Enter') {
-                if (selectedAutocompleteIndex >= 0 && items[selectedAutocompleteIndex]) {
-                    e.preventDefault();
-                    selectAutocompleteItem(items[selectedAutocompleteIndex]);
-                }
-            } else if (e.key === 'Escape') {
-                hideAutocomplete();
-            }
-        });
-
-        // Hide autocomplete when clicking outside
-        document.addEventListener('click', (e) => {
-            if (!locationInput.contains(e.target) && !autocompleteResults.contains(e.target)) {
-                hideAutocomplete();
-            }
-        });
-
-        async function searchAutocomplete(query) {
-            try {
-                // USA-only autocomplete with bias towards US locations
-                const autocompleteUrl = `https://api.geoapify.com/v1/geocode/autocomplete?text=${encodeURIComponent(query)}&apiKey=${GEOAPIFY_API_KEY}&limit=5&filter=countrycode:us&bias=countrycode:us&format=json`;
-                
-                const response = await fetch(autocompleteUrl);
-                if (!response.ok) return;
-                
-                const data = await response.json();
-                displayAutocompleteResults(data.results || []);
-            } catch (error) {
-                console.error('Autocomplete error:', error);
-            }
-        }
-
-        function displayAutocompleteResults(results) {
-            autocompleteResults.innerHTML = '';
-            selectedAutocompleteIndex = -1;
-            
-            if (results.length === 0) {
-                hideAutocomplete();
-                return;
-            }
-
-            results.forEach((result, index) => {
-                const item = document.createElement('div');
-                item.className = 'autocomplete-item';
-                item.textContent = result.formatted;
-                item.dataset.lat = result.lat;
-                item.dataset.lon = result.lon;
-                item.dataset.formatted = result.formatted;
-                
-                item.addEventListener('click', () => selectAutocompleteItem(item));
-                autocompleteResults.appendChild(item);
-            });
-            
-            autocompleteResults.style.display = 'block';
-        }
-
-        function updateAutocompleteSelection(items) {
-            items.forEach((item, index) => {
-                item.classList.toggle('selected', index === selectedAutocompleteIndex);
-            });
-        }
-
-        function selectAutocompleteItem(item) {
-            locationInput.value = item.dataset.formatted;
-            hideAutocomplete();
-            locationInput.focus();
-        }
-
-        function hideAutocomplete() {
-            autocompleteResults.style.display = 'none';
-            autocompleteResults.innerHTML = '';
-            selectedAutocompleteIndex = -1;
-        }
         // Star rating system
         function initStarRatings() {
             document.querySelectorAll('.star-rating').forEach(ratingContainer => {
@@ -1830,6 +1735,7 @@
                 const categories = restroomCategories[priority].join(',');
 
                 const placesUrl = `https://api.geoapify.com/v2/places?categories=${categories}&filter=circle:${longitude},${latitude},${radius}&limit=${locationLimit}&apiKey=${GEOAPIFY_API_KEY}`;
+                const locationLimit = document.getElementById('locationLimit').value;
                 const placesResponse = await fetch(placesUrl);
 
                 if (!placesResponse.ok) {
