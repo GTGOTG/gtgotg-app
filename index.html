@@ -732,7 +732,10 @@
                 <form class="search-form" id="searchForm">
                     <div class="form-group">
                         <label for="location">Location (City, State or Address)</label>
-                        <input type="text" id="location" placeholder="e.g., Denver, CO or I-70 Exit 123" required autocomplete="off">
+                        <div class="location-input-container">
+                            <input type="text" id="location" placeholder="e.g., Denver, CO or I-70 Exit 123" required>
+                            <button type="button" class="location-btn" onclick="getCurrentLocation()">📍 Use My Location</button>
+                        </div>
                         <div id="autocompleteResults" class="autocomplete-results"></div>
                     </div>
                     
