@@ -97,6 +97,11 @@
             position: absolute;
             top: 20px;
             right: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .header-btn {
             background: rgba(255,255,255,0.2);
             color: white;
             padding: 8px 16px;
@@ -105,9 +110,11 @@
             font-size: 0.9rem;
             backdrop-filter: blur(10px);
             transition: background 0.3s;
+            border: none;
+            cursor: pointer;
         }
 
-        .admin-link:hover {
+        .header-btn:hover {
             background: rgba(255,255,255,0.3);
         }
 
@@ -573,7 +580,13 @@
 </head>
 <body>
     <div class="container">
-        <a href="#" class="admin-link" onclick="showAdminLogin()">🔐 Admin</a>
+        <div class="admin-link">
+            <button class="header-btn" onclick="showLogin()" id="loginBtn">👤 Login</button>
+            <button class="header-btn" onclick="showRegister()" id="registerBtn">📝 Register</button>
+            <button class="header-btn" onclick="showAdminLogin()">🔐 Admin</button>
+            <button class="header-btn" onclick="showClaimBusiness()" style="display: none;" id="claimBtn">🏢 Claim Business</button>
+            <button class="header-btn" onclick="logout()" style="display: none;" id="logoutBtn">🚪 Logout</button>
+        </div>
         
         <div class="header">
             <div class="header-content">
@@ -741,7 +754,163 @@
                 <div id="recentActivity">
                     <p>Loading activity...</p>
                 </div>
+                <h3>Manage Reviews</h3>
+                <div id="reviewManagement">
+                    <button onclick="loadAllReviews()" class="search-btn" style="margin: 10px 0;">Load All Reviews</button>
+                    <div id="allReviews"></div>
+                </div>
+                <h3>User Management</h3>
+                <div id="userManagement">
+                    <button onclick="loadAllUsers()" class="search-btn" style="margin: 10px 0;">Load All Users</button>
+                    <div id="allUsers"></div>
+                </div>
             </div>
+        </div>
+    </div>
+
+    <!-- User Login Modal -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeLoginModal()">&times;</span>
+            <h2>👤 User Login</h2>
+            <form id="userLoginForm">
+                <div class="form-group">
+                    <label for="loginEmail">Email</label>
+                    <input type="email" id="loginEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Password</label>
+                    <input type="password" id="loginPassword" required>
+                </div>
+                <button type="submit" class="search-btn">Login</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- User Registration Modal -->
+    <div id="registerModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeRegisterModal()">&times;</span>
+            <h2>📝 Create Account</h2>
+            <form id="userRegisterForm">
+                <div class="form-group">
+                    <label for="registerName">Full Name</label>
+                    <input type="text" id="registerName" required>
+                </div>
+                <div class="form-group">
+                    <label for="registerEmail">Email</label>
+                    <input type="email" id="registerEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="registerPassword">Password</label>
+                    <input type="password" id="registerPassword" required minlength="6">
+                </div>
+                <div class="form-group">
+                    <label for="registerConfirmPassword">Confirm Password</label>
+                    <input type="password" id="registerConfirmPassword" required minlength="6">
+                </div>
+                <button type="submit" class="search-btn">Create Account</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Review Modal -->
+    <div id="reviewModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeReviewModal()">&times;</span>
+            <h2>⭐ Rate This Restroom</h2>
+            <div id="reviewBusinessInfo"></div>
+            <form id="reviewForm">
+                <div class="form-group">
+                    <label>Overall Rating</label>
+                    <div class="star-rating" id="overallRating">
+                        <span class="star" data-rating="1">⭐</span>
+                        <span class="star" data-rating="2">⭐</span>
+                        <span class="star" data-rating="3">⭐</span>
+                        <span class="star" data-rating="4">⭐</span>
+                        <span class="star" data-rating="5">⭐</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Cleanliness</label>
+                    <div class="star-rating" id="cleanlinessRating">
+                        <span class="star" data-rating="1">🧽</span>
+                        <span class="star" data-rating="2">🧽</span>
+                        <span class="star" data-rating="3">🧽</span>
+                        <span class="star" data-rating="4">🧽</span>
+                        <span class="star" data-rating="5">🧽</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Safety</label>
+                    <div class="star-rating" id="safetyRating">
+                        <span class="star" data-rating="1">🔒</span>
+                        <span class="star" data-rating="2">🔒</span>
+                        <span class="star" data-rating="3">🔒</span>
+                        <span class="star" data-rating="4">🔒</span>
+                        <span class="star" data-rating="5">🔒</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="adaCompliant"> ADA Compliant/Accessible
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label for="bathroomType">Bathroom Type</label>
+                    <select id="bathroomType">
+                        <option value="separate">Separate Male/Female</option>
+                        <option value="unisex">Unisex/Family</option>
+                        <option value="single">Single Occupancy</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="reviewText">Your Review</label>
+                    <textarea id="reviewText" rows="4" placeholder="Share your experience..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="reviewPhotos">Upload Photos</label>
+                    <input type="file" id="reviewPhotos" multiple accept="image/*">
+                    <small>Upload photos of the restroom conditions (optional)</small>
+                </div>
+                <button type="submit" class="search-btn">Submit Review</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Claim Business Modal -->
+    <div id="claimBusinessModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeClaimBusinessModal()">&times;</span>
+            <h2>🏢 Claim Your Business</h2>
+            <form id="claimBusinessForm">
+                <div class="form-group">
+                    <label for="businessName">Business Name</label>
+                    <input type="text" id="businessName" required>
+                </div>
+                <div class="form-group">
+                    <label for="businessAddress">Business Address</label>
+                    <input type="text" id="businessAddress" required>
+                </div>
+                <div class="form-group">
+                    <label for="businessPhone">Phone Number</label>
+                    <input type="tel" id="businessPhone" required>
+                </div>
+                <div class="form-group">
+                    <label for="businessEmail">Business Email</label>
+                    <input type="email" id="businessEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="ownershipProof">Proof of Ownership</label>
+                    <input type="file" id="ownershipProof" accept=".pdf,.jpg,.png" required>
+                    <small>Upload business license, utility bill, or other proof of ownership</small>
+                </div>
+                <div class="form-group">
+                    <label for="claimReason">Why are you claiming this business?</label>
+                    <textarea id="claimReason" rows="3" required placeholder="Explain your relationship to this business..."></textarea>
+                </div>
+                <button type="submit" class="search-btn">Submit Claim Request</button>
+            </form>
         </div>
     </div>
 
@@ -1442,12 +1611,28 @@
         window.onclick = function(event) {
             const adminModal = document.getElementById('adminModal');
             const dashboardModal = document.getElementById('dashboardModal');
+            const loginModal = document.getElementById('loginModal');
+            const registerModal = document.getElementById('registerModal');
+            const reviewModal = document.getElementById('reviewModal');
+            const claimBusinessModal = document.getElementById('claimBusinessModal');
             
             if (event.target === adminModal) {
                 adminModal.style.display = 'none';
             }
             if (event.target === dashboardModal) {
                 dashboardModal.style.display = 'none';
+            }
+            if (event.target === loginModal) {
+                loginModal.style.display = 'none';
+            }
+            if (event.target === registerModal) {
+                registerModal.style.display = 'none';
+            }
+            if (event.target === reviewModal) {
+                reviewModal.style.display = 'none';
+            }
+            if (event.target === claimBusinessModal) {
+                claimBusinessModal.style.display = 'none';
             }
         }
     </script>
