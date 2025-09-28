@@ -531,6 +531,7 @@
                         <label for="location">Location (City, State or Address)</label>
                         <div style="position: relative;">
                             <input type="text" id="location" placeholder="e.g., Denver, CO or I-70 Exit 123" required autocomplete="off">
+                            <button type="button" id="currentLocationBtn" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: #667eea; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 0.8rem;">📍 Use Current Location</button>
                             <div id="autocomplete-dropdown" style="display: none; position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #ddd; border-top: none; border-radius: 0 0 8px 8px; max-height: 200px; overflow-y: auto; z-index: 1000; box-shadow: 0 4px 6px rgba(0,0,0,0.1);"></div>
                         </div>
                     </div>
@@ -1230,6 +1231,75 @@
             document.getElementById('resultsSection').style.display = 'none';
         }
 
+        // Current location functionality
+        function getCurrentLocation() {
+            if (!navigator.geolocation) {
+                showError('Geolocation is not supported by this browser');
+                return;
+            }
+
+            showLoading(true);
+            navigator.geolocation.getCurrentPosition(
+                async (position) => {
+                    try {
+                        const lat = position.coords.latitude;
+                        const lng = position.coords.longitude;
+                        
+                        // Reverse geocode to get address
+                        const reverseUrl = `https://api.geoapify.com/v1/geocode/reverse?lat=${lat}&lon=${lng}&apiKey=${GEOAPIFY_API_KEY}`;
+                        const response = await fetch(reverseUrl);
+                        
+                        if (response.ok) {
+                            const data = await response.json();
+                            if (data.features && data.features.length > 0) {
+                                const address = data.features[0].properties.formatted;
+                                document.getElementById('location').value = address;
+                                showSuccess('Current location detected successfully!');
+                            } else {
+                                document.getElementById('location').value = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+                                showSuccess('Current coordinates detected!');
+                            }
+                        } else {
+                            document.getElementById('location').value = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+                            showSuccess('Current coordinates detected!');
+                        }
+                    } catch (error) {
+                        console.error('Reverse geocoding error:', error);
+                        const lat = position.coords.latitude;
+                        const lng = position.coords.longitude;
+                        document.getElementById('location').value = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+                        showSuccess('Current coordinates detected!');
+                    } finally {
+                        showLoading(false);
+                    }
+                },
+                (error) => {
+                    showLoading(false);
+                    let errorMessage = 'Unable to get your location. ';
+                    switch(error.code) {
+                        case error.PERMISSION_DENIED:
+                            errorMessage += 'Location access denied by user.';
+                            break;
+                        case error.POSITION_UNAVAILABLE:
+                            errorMessage += 'Location information unavailable.';
+                            break;
+                        case error.TIMEOUT:
+                            errorMessage += 'Location request timed out.';
+                            break;
+                        default:
+                            errorMessage += 'An unknown error occurred.';
+                            break;
+                    }
+                    showError(errorMessage);
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 300000
+                }
+            );
+        }
+
         // Initialize app
         window.addEventListener('load', () => {
             // Wait a bit for all resources to load
@@ -1237,6 +1307,9 @@
                 initMap();
                 showSuccess('✅ Ready to find restrooms! Truck stops and rest areas prioritized for travelers.');
                 setupAutocomplete();
+                
+                // Add current location button event listener
+                document.getElementById('currentLocationBtn').addEventListener('click', getCurrentLocation);
             }, 500);
         });
 
@@ -1291,13 +1364,13 @@
         
         async function searchAddresses(query) {
             try {
-                const geocodeUrl = `https://api.geoapify.com/v1/geocode/autocomplete?text=${encodeURIComponent(query)}&apiKey=${GEOAPIFY_API_KEY}&limit=5&format=json`;
+                const geocodeUrl = `https://api.geoapify.com/v1/geocode/autocomplete?text=${encodeURIComponent(query)}&apiKey=${GEOAPIFY_API_KEY}&limit=5`;
                 const response = await fetch(geocodeUrl);
                 
                 if (!response.ok) return;
                 
                 const data = await response.json();
-                const results = data.results || [];
+                const results = data.features || [];
                 
                 showAutocompleteResults(results);
             } catch (error) {
@@ -1317,9 +1390,9 @@
                 <div style="padding: 12px; cursor: pointer; border-bottom: 1px solid #eee; transition: background 0.2s;" 
                      onmouseover="this.style.background='#f5f5f5'" 
                      onmouseout="this.style.background='white'"
-                     onclick="selectAddress('${result.formatted.replace(/'/g, "\\'")}')">
-                    <div style="font-weight: 600; color: #333;">${result.formatted}</div>
-                    ${result.country ? `<div style="font-size: 0.9rem; color: #666;">${result.country}</div>` : ''}
+                     onclick="selectAddress('${result.properties.formatted.replace(/'/g, "\\'")}')">
+                    <div style="font-weight: 600; color: #333;">${result.properties.formatted}</div>
+                    ${result.properties.country ? `<div style="font-size: 0.9rem; color: #666;">${result.properties.country}</div>` : ''}
                 </div>
             `).join('');
             
