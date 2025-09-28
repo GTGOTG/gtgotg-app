@@ -166,6 +166,38 @@
             flex: 1;
         }
 
+        .use-location-btn {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            white-space: nowrap;
+            transition: background 0.3s;
+        }
+
+        .use-location-btn:hover {
+            background: #45a049;
+        }
+
+        .use-location-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .location-input-container {
+            position: relative;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .location-input-container input {
+            flex: 1;
+        }
+
         #locationBtn {
             background: #4CAF50;
             color: white;
@@ -470,9 +502,9 @@
         .autocomplete-results {
             position: absolute;
             top: calc(100% + 5px);
-            left: 0;
+            top: calc(100% + 5px);
             right: 120px;
-            background: white;
+            right: 120px;
             border: 1px solid #e0e0e0;
             border-top: none;
             border-radius: 0 0 8px 8px;
@@ -527,6 +559,16 @@
             max-width: 600px;
             max-height: 80vh;
             overflow-y: auto;
+            text-align: center;
+        }
+
+        .modal-logo {
+            height: 40px;
+            width: auto;
+            margin-bottom: 20px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
         }
 
         .close {
@@ -767,7 +809,10 @@
                     <div class="form-group">
                         <label for="location">Location (City, State or Address)</label>
                         <div class="location-input-container">
-                            <input type="text" id="location" placeholder="e.g., Denver, CO or 90210 or Texas" required>
+                            <input type="text" id="location" placeholder="e.g., Denver, CO or I-70 Exit 123" required>
+                            <button type="button" id="useLocationBtn" class="use-location-btn">📍 Use My Location</button>
+                            <div id="autocomplete-dropdown" class="autocomplete-dropdown"></div>
+                        </div>
                             <div id="autocompleteResults" class="autocomplete-results"></div>
                         </div>
                     </div>
@@ -877,6 +922,7 @@
     <div id="adminModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeAdminModal()">&times;</span>
+            <img src="logo.png" alt="GTGOTG Logo" class="modal-logo" onerror="this.style.display='none'">
             <h2>🔐 Admin Login</h2>
             <form id="adminLoginForm">
                 <div class="form-group">
@@ -896,6 +942,7 @@
     <div id="dashboardModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeDashboardModal()">&times;</span>
+            <img src="logo.png" alt="GTGOTG Logo" class="modal-logo" onerror="this.style.display='none'">
             <h2>📊 Admin Dashboard</h2>
             <div id="dashboardContent">
                 <div class="stats">
@@ -1064,6 +1111,8 @@
         let markers = [];
         let currentBusinesses = [];
         let autocompleteTimeout;
+        let selectedIndex = -1;
+        let autocompleteTimeout;
         let selectedAutocompleteIndex = -1;
         let currentUser = null;
         let currentReviewBusiness = null;
@@ -1160,6 +1209,174 @@
             await searchBusinesses();
         });
 
+        // Initialize autocomplete and location button
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeAutocomplete();
+            initializeLocationButton();
+        });
+
+        function initializeAutocomplete() {
+            const locationInput = document.getElementById('location');
+            const dropdown = document.getElementById('autocomplete-dropdown');
+
+            locationInput.addEventListener('input', function() {
+                const query = this.value.trim();
+                
+                if (query.length < 2) {
+                    hideAutocomplete();
+                    return;
+                }
+
+                clearTimeout(autocompleteTimeout);
+                autocompleteTimeout = setTimeout(() => {
+                    fetchAutocomplete(query);
+                }, 300);
+            });
+
+            locationInput.addEventListener('keydown', function(e) {
+                const items = dropdown.querySelectorAll('.autocomplete-item');
+                
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    selectedIndex = Math.min(selectedIndex + 1, items.length - 1);
+                    updateSelection(items);
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    selectedIndex = Math.max(selectedIndex - 1, -1);
+                    updateSelection(items);
+                } else if (e.key === 'Enter' && selectedIndex >= 0) {
+                    e.preventDefault();
+                    items[selectedIndex].click();
+                } else if (e.key === 'Escape') {
+                    hideAutocomplete();
+                }
+            });
+
+            // Hide autocomplete when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!locationInput.contains(e.target) && !dropdown.contains(e.target)) {
+                    hideAutocomplete();
+                }
+            });
+        }
+
+        async function fetchAutocomplete(query) {
+            try {
+                const url = `https://api.geoapify.com/v1/geocode/autocomplete?text=${encodeURIComponent(query)}&filter=countrycode:us&bias=countrycode:us&limit=8&format=json&apiKey=${GEOAPIFY_API_KEY}`;
+                const response = await fetch(url);
+                
+                if (!response.ok) {
+                    throw new Error('Autocomplete request failed');
+                }
+                
+                const data = await response.json();
+                showAutocomplete(data.results || []);
+            } catch (error) {
+                console.error('Autocomplete error:', error);
+                hideAutocomplete();
+            }
+        }
+
+        function showAutocomplete(results) {
+            const dropdown = document.getElementById('autocomplete-dropdown');
+            
+            if (results.length === 0) {
+                hideAutocomplete();
+                return;
+            }
+
+            dropdown.innerHTML = '';
+            selectedIndex = -1;
+
+            results.forEach((result, index) => {
+                const item = document.createElement('div');
+                item.className = 'autocomplete-item';
+                item.textContent = result.formatted;
+                
+                item.addEventListener('click', function() {
+                    document.getElementById('location').value = result.formatted;
+                    hideAutocomplete();
+                });
+                
+                dropdown.appendChild(item);
+            });
+
+            dropdown.style.display = 'block';
+        }
+
+        function hideAutocomplete() {
+            document.getElementById('autocomplete-dropdown').style.display = 'none';
+            selectedIndex = -1;
+        }
+
+        function updateSelection(items) {
+            items.forEach((item, index) => {
+                item.classList.toggle('selected', index === selectedIndex);
+            });
+        }
+
+        function initializeLocationButton() {
+            const useLocationBtn = document.getElementById('useLocationBtn');
+            
+            useLocationBtn.addEventListener('click', function() {
+                if (!navigator.geolocation) {
+                    alert('Geolocation is not supported by this browser.');
+                    return;
+                }
+
+                useLocationBtn.disabled = true;
+                useLocationBtn.textContent = '📍 Getting Location...';
+
+                navigator.geolocation.getCurrentPosition(
+                    async function(position) {
+                        try {
+                            const lat = position.coords.latitude;
+                            const lng = position.coords.longitude;
+                            
+                            // Reverse geocode to get address
+                            const url = `https://api.geoapify.com/v1/geocode/reverse?lat=${lat}&lon=${lng}&format=json&apiKey=${GEOAPIFY_API_KEY}`;
+                            const response = await fetch(url);
+                            const data = await response.json();
+                            
+                            if (data.results && data.results.length > 0) {
+                                document.getElementById('location').value = data.results[0].formatted;
+                                showSuccess('✅ Location found successfully!');
+                            } else {
+                                throw new Error('Could not determine address');
+                            }
+                        } catch (error) {
+                            console.error('Reverse geocoding error:', error);
+                            showError('Could not determine your address. Please enter manually.');
+                        } finally {
+                            useLocationBtn.disabled = false;
+                            useLocationBtn.textContent = '📍 Use My Location';
+                        }
+                    },
+                    function(error) {
+                        let message = 'Location access denied. ';
+                        switch(error.code) {
+                            case error.PERMISSION_DENIED:
+                                message += 'Please allow location access and try again.';
+                                break;
+                            case error.POSITION_UNAVAILABLE:
+                                message += 'Location information unavailable.';
+                                break;
+                            case error.TIMEOUT:
+                                message += 'Location request timed out.';
+                                break;
+                        }
+                        showError(message);
+                        useLocationBtn.disabled = false;
+                        useLocationBtn.textContent = '📍 Use My Location';
+                    },
+                    {
+                        enableHighAccuracy: true,
+                        timeout: 10000,
+                        maximumAge: 300000
+                    }
+                );
+            });
+        }
         // Autocomplete functionality
         const locationInput = document.getElementById('location');
         const autocompleteResults = document.getElementById('autocompleteResults');
@@ -1592,7 +1809,7 @@
 
             try {
                 // Geocode the location
-                const geocodeUrl = `https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(location)}&filter=countrycode:us&bias=countrycode:us&format=json&limit=1&apiKey=${GEOAPIFY_API_KEY}`;
+                const geocodeUrl = `https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(location)}&filter=countrycode:us&bias=countrycode:us&limit=1&format=json&apiKey=${GEOAPIFY_API_KEY}`;
                 const geocodeResponse = await fetch(geocodeUrl);
 
                 if (!geocodeResponse.ok) {
