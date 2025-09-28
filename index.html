@@ -1063,7 +1063,7 @@
 
         function calculateRestroomProbability(business, priority) {
             const props = business.properties;
-            const name = props.name.toLowerCase();
+            const name = (props.name || '').toLowerCase();
             const categories = props.categories || [];
             
             let score = 50; // Base score
@@ -1096,7 +1096,7 @@
         }
 
         function isTruckStopLocation(business) {
-            const name = business.properties.name.toLowerCase();
+            const name = (business.properties.name || '').toLowerCase();
             const categories = business.properties.categories || [];
             
             return truckStopChains.some(chain => name.includes(chain)) ||
@@ -1105,7 +1105,7 @@
         }
 
         function isChainStore(name) {
-            const nameLower = name.toLowerCase();
+            const nameLower = (name || '').toLowerCase();
             return truckStopChains.some(chain => nameLower.includes(chain));
         }
 
