@@ -1770,6 +1770,11 @@
             }
 
             const locationInput = document.getElementById('location');
+            const btn = document.querySelector('.current-location-btn');
+            const originalText = btn.textContent;
+            
+            btn.textContent = '📍 Getting...';
+            btn.disabled = true;
             locationInput.value = 'Getting your location...';
             locationInput.disabled = true;
 
@@ -1792,17 +1797,23 @@
                         }
                         
                         locationInput.disabled = false;
+                        btn.textContent = originalText;
+                        btn.disabled = false;
                         showSuccess('✅ Current location detected!');
                     } catch (error) {
                         console.error('Reverse geocoding error:', error);
                         locationInput.value = `${position.coords.latitude.toFixed(4)}, ${position.coords.longitude.toFixed(4)}`;
                         locationInput.disabled = false;
+                        btn.textContent = originalText;
+                        btn.disabled = false;
                         showSuccess('✅ Current location coordinates detected!');
                     }
                 },
                 (error) => {
                     locationInput.value = '';
                     locationInput.disabled = false;
+                    btn.textContent = originalText;
+                    btn.disabled = false;
                     
                     let errorMessage = 'Unable to get your location. ';
                     switch(error.code) {
