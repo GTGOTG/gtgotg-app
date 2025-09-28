@@ -1800,6 +1800,21 @@
             return R * c;
         }
 
+        function resetStarRatings() {
+            // Reset all star ratings to 0
+            ['overall', 'cleanliness', 'safety'].forEach(type => {
+                const stars = document.querySelectorAll(`#${type}Rating .star`);
+                stars.forEach(star => {
+                    star.classList.remove('active');
+                });
+                // Reset the hidden input value
+                const input = document.querySelector(`input[name="${type}Rating"]`);
+                if (input) {
+                    input.value = '0';
+                }
+            });
+        }
+
         function reviewBusiness(businessName, businessAddress) {
             // Check if user is logged in
             const currentUser = JSON.parse(localStorage.getItem('gtgotg_currentUser') || 'null');
