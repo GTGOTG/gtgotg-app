@@ -1,6 +1,6 @@
-import { eq } from "drizzle-orm";
+import { and, eq, inArray, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users } from "../drizzle/schema";
+import { InsertUser, locations, reviews, userBadges, users } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -89,4 +89,135 @@ export async function getUserByOpenId(openId: string) {
   return result.length > 0 ? result[0] : undefined;
 }
 
-// TODO: add feature queries here as your schema grows.
+// Location queries
+
+/**
+ * Get locations within a bounding box (viewport)
+ * Optimized for map viewport queries
+ */
+export async function getLocationsInBounds(params: {
+  minLat: number;
+  maxLat: number;
+  minLng: number;
+  maxLng: number;
+  categories?: string[];
+  limit?: number;
+}) {
+  const db = await getDb();
+  if (!db) return [];
+
+  const { minLat, maxLat, minLng, maxLng, categories, limit = 1000 } = params;
+
+  let query = db
+    .select()
+    .from(locations)
+    .where(
+      and(
+        sql`CAST(${locations.latitude} AS DECIMAL(10,7)) BETWEEN ${minLat} AND ${maxLat}`,
+        sql`CAST(${locations.longitude} AS DECIMAL(10,7)) BETWEEN ${minLng} AND ${maxLng}`
+      )
+    )
+    .limit(limit);
+
+  if (categories && categories.length > 0) {
+    return await db
+      .select()
+      .from(locations)
+      .where(
+        and(
+          sql`CAST(${locations.latitude} AS DECIMAL(10,7)) BETWEEN ${minLat} AND ${maxLat}`,
+          sql`CAST(${locations.longitude} AS DECIMAL(10,7)) BETWEEN ${minLng} AND ${maxLng}`,
+          inArray(locations.category, categories)
+        )
+      )
+      .limit(limit);
+  }
+
+  return await query;
+}
+
+/**
+ * Get locations by state
+ */
+export async function getLocationsByState(state: string, limit = 10000) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return await db
+    .select()
+    .from(locations)
+    .where(eq(locations.state, state.toUpperCase()))
+    .limit(limit);
+}
+
+/**
+ * Get a single location by ID
+ */
+export async function getLocationById(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  const result = await db
+    .select()
+    .from(locations)
+    .where(eq(locations.id, id))
+    .limit(1);
+
+  return result[0];
+}
+
+/**
+ * Get reviews for a location
+ */
+export async function getLocationReviews(locationId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return await db
+    .select()
+    .from(reviews)
+    .where(eq(reviews.locationId, locationId));
+}
+
+/**
+ * Create a review
+ */
+export async function createReview(review: typeof reviews.$inferInsert) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.insert(reviews).values(review);
+  
+  // Check if user earned a badge
+  const userReviewCount = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(reviews)
+    .where(eq(reviews.userId, review.userId));
+
+  const count = Number(userReviewCount[0]?.count || 0);
+  
+  // Award badge every 5 reviews
+  if (count % 5 === 0 && count > 0) {
+    const badgeTypes = ["reviewer", "bronze", "silver", "gold", "platinum", "expert"] as const;
+    const badgeIndex = Math.min(Math.floor(count / 5) - 1, badgeTypes.length - 1);
+    
+    await db.insert(userBadges).values({
+      userId: review.userId,
+      badgeType: badgeTypes[badgeIndex],
+      reviewCount: count,
+    });
+  }
+}
+
+/**
+ * Get user's badges
+ */
+export async function getUserBadges(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return await db
+    .select()
+    .from(userBadges)
+    .where(eq(userBadges.userId, userId));
+}
