@@ -15,6 +15,13 @@
       "when": 1763979249856,
       "tag": "0001_flippant_ultimates",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1765158198706,
+      "tag": "0002_left_goliath",
+      "breakpoints": true
     }
   ]
 }

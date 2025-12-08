@@ -221,3 +221,109 @@ export async function getUserBadges(userId: number) {
     .from(userBadges)
     .where(eq(userBadges.userId, userId));
 }
+
+/**
+ * Get pending business claims for admin review
+ */
+export async function getPendingBusinessClaims() {
+  const db = await getDb();
+  if (!db) return [];
+
+  const { businessClaims } = await import('../drizzle/schema');
+  const { users } = await import('../drizzle/schema');
+  
+  const claims = await db
+    .select({
+      id: businessClaims.id,
+      userId: businessClaims.userId,
+      locationId: businessClaims.locationId,
+      status: businessClaims.status,
+      verificationDocumentUrl: businessClaims.verificationDocumentUrl,
+      notes: businessClaims.notes,
+      createdAt: businessClaims.createdAt,
+      userName: users.name,
+      userEmail: users.email,
+    })
+    .from(businessClaims)
+    .leftJoin(users, eq(businessClaims.userId, users.id))
+    .where(eq(businessClaims.status, "pending"));
+
+  return claims;
+}
+
+/**
+ * Approve a business claim
+ */
+export async function approveBusinessClaim(claimId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const { businessClaims } = await import('../drizzle/schema');
+  
+  await db
+    .update(businessClaims)
+    .set({ status: "approved" })
+    .where(eq(businessClaims.id, claimId));
+}
+
+/**
+ * Reject a business claim
+ */
+export async function rejectBusinessClaim(claimId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const { businessClaims } = await import('../drizzle/schema');
+  
+  await db
+    .update(businessClaims)
+    .set({ status: "rejected" })
+    .where(eq(businessClaims.id, claimId));
+}
+
+/**
+ * Submit a business claim for verification
+ */
+export async function submitBusinessClaim(data: {
+  userId: number;
+  locationId: number;
+  verificationDocumentUrl?: string;
+  notes?: string;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const { businessClaims } = await import('../drizzle/schema');
+  
+  await db.insert(businessClaims).values({
+    userId: data.userId,
+    locationId: data.locationId,
+    verificationDocumentUrl: data.verificationDocumentUrl || null,
+    notes: data.notes || null,
+    status: "pending",
+  });
+}
+
+/**
+ * Check if user owns a location (approved claim)
+ */
+export async function userOwnsLocation(userId: number, locationId: number): Promise<boolean> {
+  const db = await getDb();
+  if (!db) return false;
+
+  const { businessClaims } = await import('../drizzle/schema');
+  
+  const claim = await db
+    .select()
+    .from(businessClaims)
+    .where(
+      and(
+        eq(businessClaims.userId, userId),
+        eq(businessClaims.locationId, locationId),
+        eq(businessClaims.status, "approved")
+      )
+    )
+    .limit(1);
+
+  return claim.length > 0;
+}

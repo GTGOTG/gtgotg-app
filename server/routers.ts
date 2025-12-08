@@ -2,6 +2,7 @@ import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
+import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
 export const appRouter = router({
@@ -68,12 +69,14 @@ export const appRouter = router({
     create: protectedProcedure
       .input(z.object({
         locationId: z.number(),
-        cleanlinessRating: z.number().min(1).max(5),
-        adaComplianceRating: z.number().min(1).max(5).optional(),
-        safetyRating: z.number().min(1).max(5),
+        overallRating: z.number().min(1).max(10),
+        cleanlinessRating: z.number().min(1).max(10),
+        adaComplianceRating: z.number().min(1).max(10).optional(),
+        safetyRating: z.number().min(1).max(10),
         restroomTypeUsed: z.enum(["male", "female", "unisex_family"]),
         usedAdaStall: z.boolean(),
         comment: z.string().optional(),
+        photoUrls: z.array(z.string()).optional(),
       }))
       .mutation(async ({ input, ctx }) => {
         const { createReview } = await import('./db');
@@ -91,12 +94,14 @@ export const appRouter = router({
         await createReview({
           locationId: input.locationId,
           userId: ctx.user.id,
+          overallRating: input.overallRating,
           cleanlinessRating: input.cleanlinessRating,
           adaComplianceRating: input.adaComplianceRating || null,
           safetyRating: input.safetyRating,
           restroomTypeUsed: input.restroomTypeUsed,
           usedAdaStall: input.usedAdaStall ? 1 : 0,
           comment: filteredComment || null,
+          photoUrls: input.photoUrls ? JSON.stringify(input.photoUrls) : null,
         });
         
         return { success: true };
@@ -109,6 +114,54 @@ export const appRouter = router({
       .query(async ({ ctx }) => {
         const { getUserBadges } = await import('./db');
         return await getUserBadges(ctx.user.id);
+      }),
+  }),
+
+  // Admin procedures
+  admin: router({
+    getPendingClaims: protectedProcedure.query(async ({ ctx }) => {
+      if (ctx.user.role !== "admin") {
+        throw new TRPCError({ code: "FORBIDDEN", message: "Admin access required" });
+      }
+      const { getPendingBusinessClaims } = await import('./db');
+      return await getPendingBusinessClaims();
+    }),
+
+    approveClaim: protectedProcedure
+      .input(z.object({ claimId: z.number() }))
+      .mutation(async ({ input, ctx }) => {
+        if (ctx.user.role !== "admin") {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Admin access required" });
+        }
+        const { approveBusinessClaim } = await import('./db');
+        await approveBusinessClaim(input.claimId);
+        return { success: true };
+      }),
+
+    rejectClaim: protectedProcedure
+      .input(z.object({ claimId: z.number() }))
+      .mutation(async ({ input, ctx }) => {
+        if (ctx.user.role !== "admin") {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Admin access required" });
+        }
+        const { rejectBusinessClaim } = await import('./db');
+        await rejectBusinessClaim(input.claimId);
+        return { success: true };
+      }),
+
+    sendEmail: protectedProcedure
+      .input(z.object({
+        to: z.string().email(),
+        subject: z.string(),
+        body: z.string(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        if (ctx.user.role !== "admin") {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Admin access required" });
+        }
+        // TODO: Implement email sending via Manus notification API
+        console.log("Sending email:", input);
+        return { success: true };
       }),
   }),
 });

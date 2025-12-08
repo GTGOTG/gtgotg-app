@@ -63,3 +63,26 @@
 - [ ] Configure production environment
 - [ ] Set up analytics
 - [ ] Create deployment documentation
+
+## New Feature Requests (User Priority)
+- [x] Change theme to purple color scheme (matching logo gradient)
+- [x] Add GTGOTG logo to the app
+- [x] Implement customer login system
+- [x] Implement business owner registration system (separate from customer)
+- [ ] Add business ownership verification before allowing review replies
+- [x] Add "Near Me" button for geolocation-based search (5-mile radius)
+- [x] Add comprehensive search bar supporting:
+  - [x] Streets
+  - [x] ZIP codes
+  - [x] Counties
+  - [x] States
+  - [x] Addresses
+  - [x] Highways
+  - [x] Rest stops
+  - [x] Business names
+- [ ] Allow verified businesses to respond to customer reviews (backend ready, UI pending)
+- [x] Add photo upload functionality to reviews
+- [x] Implement 1-10 star rating system with yellow stars
+- [x] Create admin area
+- [x] Add free email functionality for admin
+- [x] Make UI more user-friendly

@@ -16,7 +16,7 @@ export const users = mysqlTable("users", {
   name: text("name"),
   email: varchar("email", { length: 320 }),
   loginMethod: varchar("loginMethod", { length: 64 }),
-  role: mysqlEnum("role", ["user", "admin"]).default("user").notNull(),
+  role: mysqlEnum("role", ["user", "business", "admin"]).default("user").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
   lastSignedIn: timestamp("lastSignedIn").defaultNow().notNull(),
@@ -65,10 +65,12 @@ export const reviews = mysqlTable("reviews", {
   id: int("id").autoincrement().primaryKey(),
   locationId: int("locationId").notNull(),
   userId: int("userId").notNull(),
-  // Rating criteria (1-5 scale)
-  cleanlinessRating: int("cleanlinessRating").notNull(), // 1-5
-  adaComplianceRating: int("adaComplianceRating"), // 1-5, nullable if not applicable
-  safetyRating: int("safetyRating").notNull(), // 1-5
+  // Rating criteria (1-10 scale)
+  overallRating: int("overallRating").notNull(), // 1-10 stars
+  cleanlinessRating: int("cleanlinessRating").notNull(), // 1-10
+  adaComplianceRating: int("adaComplianceRating"), // 1-10
+  safetyRating: int("safetyRating").notNull(), // 1-10
+  photoUrls: text("photoUrls"), // JSON array of photo URLs
   // Restroom type used
   restroomTypeUsed: mysqlEnum("restroomTypeUsed", ["male", "female", "unisex_family"]).notNull(),
   usedAdaStall: int("usedAdaStall").notNull().default(0), // 1 = true, 0 = false
@@ -126,3 +128,35 @@ export const userBadges = mysqlTable("userBadges", {
 
 export type UserBadge = typeof userBadges.$inferSelect;
 export type InsertUserBadge = typeof userBadges.$inferInsert;
+
+/**
+ * Business ownership claims and verification
+ */
+export const businessClaims = mysqlTable("business_claims", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  locationId: int("locationId").notNull(),
+  status: mysqlEnum("status", ["pending", "approved", "rejected"]).default("pending").notNull(),
+  verificationDocumentUrl: text("verificationDocumentUrl"),
+  notes: text("notes"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type BusinessClaim = typeof businessClaims.$inferSelect;
+export type InsertBusinessClaim = typeof businessClaims.$inferInsert;
+
+/**
+ * Business replies to reviews
+ */
+export const reviewReplies = mysqlTable("review_replies", {
+  id: int("id").autoincrement().primaryKey(),
+  reviewId: int("reviewId").notNull(),
+  businessUserId: int("businessUserId").notNull(),
+  reply: text("reply").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type ReviewReply = typeof reviewReplies.$inferSelect;
+export type InsertReviewReply = typeof reviewReplies.$inferInsert;
