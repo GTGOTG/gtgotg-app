@@ -27,6 +27,7 @@ interface BathroomMapProps {
   locations: Location[];
   onLocationClick?: (location: Location) => void;
   selectedCategories?: string[];
+  onBoundsChange?: (bounds: {minLat: number; maxLat: number; minLng: number; maxLng: number}) => void;
 }
 
 // Category colors
@@ -39,7 +40,7 @@ const CATEGORY_COLORS: Record<string, string> = {
   "Park/Recreation": "#059669", // Dark Green
 };
 
-export default function BathroomMap({ locations, onLocationClick, selectedCategories }: BathroomMapProps) {
+export default function BathroomMap({ locations, onLocationClick, selectedCategories, onBoundsChange }: BathroomMapProps) {
   const mapRef = useRef<L.Map | null>(null);
   const markersRef = useRef<L.MarkerClusterGroup | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -60,6 +61,25 @@ export default function BathroomMap({ locations, onLocationClick, selectedCatego
 
     mapRef.current = map;
     setIsLoading(false);
+
+    // Track map bounds changes
+    if (onBoundsChange) {
+      const updateBounds = () => {
+        const bounds = map.getBounds();
+        onBoundsChange({
+          minLat: bounds.getSouth(),
+          maxLat: bounds.getNorth(),
+          minLng: bounds.getWest(),
+          maxLng: bounds.getEast(),
+        });
+      };
+      
+      // Initial bounds
+      updateBounds();
+      
+      // Update on map move
+      map.on('moveend', updateBounds);
+    }
 
     return () => {
       map.remove();

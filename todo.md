@@ -86,3 +86,14 @@
 - [x] Create admin area
 - [x] Add free email functionality for admin
 - [x] Make UI more user-friendly
+
+## Bug Fixes Needed
+- [ ] Fix search functionality - not working on deployed app
+- [ ] Configure custom domains (gottogoonthego.com, gtgotg.app, gtgotg.com) for deployment
+
+## Critical Fixes Needed (User Priority)
+- [x] Load all 313,590 locations dynamically (not just California)
+- [x] Fix search to work across all US states
+- [x] Make map smaller and more compact
+- [x] Make page layout more user-friendly
+- [x] Remove "Bathroom Finder" subtitle text

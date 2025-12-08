@@ -106,7 +106,7 @@ export async function getLocationsInBounds(params: {
   const db = await getDb();
   if (!db) return [];
 
-  const { minLat, maxLat, minLng, maxLng, categories, limit = 1000 } = params;
+  const { minLat, maxLat, minLng, maxLng, categories, limit = 10000 } = params;
 
   let query = db
     .select()
